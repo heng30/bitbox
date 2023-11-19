@@ -14,7 +14,7 @@ It is a easily used bitcoin wallet that based on `Slint-UI`.
 
 #### How to build?
 - Install `Rust` and `Cargo`
-- Run `make build`
+- Run `make`
 - Refer to [Makefile](./Makefile) for more information
 
 #### Reference
