@@ -1,4 +1,4 @@
-mod address;
+mod wallet;
 
 use chrono::Local;
 use env_logger::fmt::Color as LColor;
