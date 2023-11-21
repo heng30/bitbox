@@ -1,15 +1,22 @@
+extern crate serde_derive;
+extern crate lazy_static;
+
+mod util;
 mod wallet;
 
 use chrono::Local;
 use env_logger::fmt::Color as LColor;
 use log::debug;
 use std::io::Write;
+use anyhow::Result;
 
-fn main() {
+#[tokio::main]
+async fn main() -> Result<()> {
     init_logger();
     debug!("start...");
 
     debug!("exit...");
+    Ok(())
 }
 
 fn init_logger() {
