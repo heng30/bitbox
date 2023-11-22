@@ -4,9 +4,11 @@ use anyhow::{anyhow, Result};
 use bitcoin::amount::Amount;
 use bitcoin::blockdata::locktime::absolute::LockTime;
 use bitcoin::blockdata::transaction::Version;
-use bitcoin::secp256k1::{Message, Secp256k1};
+use bitcoin::psbt::{Psbt, PsbtSighashType};
+use bitcoin::secp256k1::Secp256k1;
 use bitcoin::{Address, Network, OutPoint, PrivateKey, ScriptBuf, Transaction, TxIn, TxOut, Txid};
 use serde::{Deserialize, Serialize};
+use std::collections::BTreeMap;
 use std::str::FromStr;
 use std::time::Duration;
 
@@ -61,52 +63,28 @@ pub async fn fetch_utxos(network: &str, address: &str) -> Result<Vec<Utxo>> {
     Ok(response)
 }
 
-#[derive(Debug, Serialize)]
-struct BroadcastRequest {
-    tx: String,
-}
-
-#[derive(Debug, Deserialize)]
-struct BroadcastResponse {
-    success: bool,
-    error: Option<String>,
-}
-
-// TODO: test
-pub async fn broadcast_transaction(network: &str, transaction: &Transaction) -> Result<()> {
+// TODO: need test
+pub async fn broadcast_transaction(network: &str, psbt: &Psbt) -> Result<String> {
     let url = broadcast_url(network);
-    let hex_tx = hex::encode(serde_json::to_string(transaction)?);
-    // let request_body = BroadcastRequest { tx: hex_tx };
+    let hex_tx = psbt.serialize_hex();
 
     let proxy_info = None; // TODO
     let client = util::http::client(proxy_info)?;
-    let response = client
-        .post(url)
-        .body(hex_tx)
-        // .json(&request_body)
-        .send()
-        .await?
-        .text()
-        // .json::<BroadcastResponse>()
-        .await?;
+    let response = client.post(url).body(hex_tx).send().await?;
 
-    println!("{:?}", response);
-    Ok(())
-    // if response.success {
-    //     Ok(())
-    // } else if let Some(error) = response.error {
-    //     Err(anyhow!("Failed to broadcast transaction: {}", error))
-    // } else {
-    //     Err(anyhow!("Failed to broadcast transaction. Unknown error"))
-    // }
+    if response.status().is_success() {
+        Ok(response.text().await?)
+    } else {
+        Err(anyhow!(response.text().await?))
+    }
 }
 
-// TODO: construct a transaction
-async fn build_transaction(
+// TODO: need test
+pub async fn build_transaction(
     password: &str,
     acnt: &wallet::account::Info,
     tx_info: super::data::TxInfo,
-) -> Result<Transaction> {
+) -> Result<Psbt> {
     let network = Network::from_core_arg(&acnt.address_info.network)?;
 
     let private_key = util::crypto::decrypt(password, &acnt.address_info.private_key);
@@ -143,40 +121,25 @@ async fn build_transaction(
         &output,
     )?;
 
-    // Create a transaction with the inputs and outputs
-    let mut transaction = Transaction {
+    let transaction = Transaction {
         version: Version::TWO,
         lock_time: LockTime::ZERO,
         input: inputs,
         output: vec![output, change_output],
     };
 
-    // TODO
-    // Sign the transaction inputs with the private key
-    // let secp = Secp256k1::new();
-    // for i in 0..transaction.input.len() {
-    //     let sighash = transaction.signature_hash(
-    //         i,
-    //         &transaction.input[i].script_sig,
-    //         bitcoin::SigHashType::All,
-    //     );
-    //     let message = Message::from_slice(&sighash.into_inner()).unwrap();
-    //     let signature = secp.sign(&message, &private_key.key);
-    //     transaction.input[i]
-    //         .witness
-    //         .push(signature.serialize_der().to_vec());
-    //     transaction.input[i]
-    //         .witness
-    //         .push(vec![bitcoin::SigHashType::All as u8]);
-    // }
+    let psbt = Psbt::from_unsigned_tx(transaction)?;
+    let mut keys = BTreeMap::new();
+    keys.insert(public_key, private_key);
+    sign(psbt, keys)
+}
 
-    // Sign the transaction inputs with the private key
-    // for i in 0..transaction.input.len() {
-    //     transaction.input[i].script_sig =
-    //         private_key.sign(&transaction.input[i], &transaction.output, &network);
-    // }
-
-    Ok(transaction)
+fn sign(mut psbt: Psbt, keys: BTreeMap<bitcoin::PublicKey, PrivateKey>) -> Result<Psbt> {
+    let secp = Secp256k1::new();
+    if let Err((_, e)) = psbt.sign(&keys, &secp) {
+        return Err(anyhow!("{:?}", e));
+    }
+    Ok(psbt)
 }
 
 fn build_recipient_txout(
@@ -228,9 +191,6 @@ fn build_change_txout(
         script_pubkey: change_script_pubkey,
     })
 }
-
-// Broadcast the transaction to the Bitcoin network
-// broadcast_transaction(&transaction);
 
 #[cfg(test)]
 mod tests {
