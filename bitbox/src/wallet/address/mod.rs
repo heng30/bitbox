@@ -10,7 +10,7 @@ use std::str::FromStr;
 // "main" => Bitcoin, "test" => Testnet,
 // "signet" => Signet, "regtest" => Regtest,
 pub fn info(network_core_arg: &str) -> Result<Info> {
-    let network = Network::from_core_arg(network_core_arg.to_lowercase().as_str())?;
+    let network = Network::from_core_arg(network_core_arg)?;
 
     let keypair = Secp256k1::new().generate_keypair(&mut rand::thread_rng());
     let private_key = PrivateKey::new(keypair.0, network);
@@ -27,7 +27,7 @@ pub fn info(network_core_arg: &str) -> Result<Info> {
 
 pub fn recover(network_core_arg: &str, private_key: &str) -> Result<Info> {
     let s = Secp256k1::new();
-    let network = Network::from_core_arg(network_core_arg.to_lowercase().as_str())?;
+    let network = Network::from_core_arg(network_core_arg)?;
 
     let private_key = PrivateKey::from_str(private_key)?;
     let public_key = private_key.public_key(&s);
@@ -42,7 +42,7 @@ pub fn recover(network_core_arg: &str, private_key: &str) -> Result<Info> {
 }
 
 pub fn is_valid_wallet_address(network_core_arg: &str, wallet_address: &str) -> Result<bool> {
-    let network = Network::from_core_arg(network_core_arg.to_lowercase().as_str())?;
+    let network = Network::from_core_arg(network_core_arg)?;
     let address: Address<NetworkUnchecked> = wallet_address.parse()?;
     Ok(address.is_valid_for_network(network))
 }

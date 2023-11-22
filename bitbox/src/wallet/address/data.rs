@@ -1,4 +1,6 @@
-#[derive(Clone, Debug, Default, PartialEq)]
+use serde::{Deserialize, Serialize};
+
+#[derive(Deserialize, Serialize, Clone, Debug, Default, PartialEq)]
 pub struct Info {
     pub network: String,
     pub private_key: String,
