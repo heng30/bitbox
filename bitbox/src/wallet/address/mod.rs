@@ -49,6 +49,13 @@ pub fn is_valid_wallet_address(network_core_arg: &str, wallet_address: &str) -> 
 
 #[cfg(test)]
 mod tests {
+    use bitcoin::secp256k1::Secp256k1;
+    use bitcoin::{Address, Network, PrivateKey};
+    use std::env;
+    use std::path::Path;
+    use tokio::fs::File;
+    use tokio::io::{self, AsyncBufReadExt};
+
     #[test]
     fn test_info_and_recover() {
         for _ in 0..100 {
@@ -59,6 +66,32 @@ mod tests {
 
             assert_eq!(addr_info, recover_addr_info);
         }
+    }
+
+    #[tokio::test]
+    async fn test_recover() -> anyhow::Result<()> {
+        let mut dir = env::current_exe()?;
+        dir.pop();
+        let working_dir =
+            Path::new(dir.to_str().unwrap()).join("../../../testdata/wallet-addr.csv");
+
+        let network = Network::from_core_arg("main")?;
+        let file = File::open(working_dir).await?;
+        let reader = io::BufReader::new(file);
+
+        let mut lines = reader.lines();
+        while let Some(line) = lines.next_line().await? {
+            let fields: Vec<&str> = line.split(',').collect();
+            // println!("{:?}", fields);
+
+            let private_key = PrivateKey::from_wif(fields[2].trim_matches('"'))?;
+            let public_key = private_key.public_key(&Secp256k1::new());
+            let wallet_address = Address::p2pkh(&public_key, network);
+
+            assert_eq!(fields[1].trim_matches('"'), wallet_address.to_string());
+        }
+
+        Ok(())
     }
 
     #[test]

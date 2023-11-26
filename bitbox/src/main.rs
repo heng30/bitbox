@@ -4,6 +4,7 @@ extern crate lazy_static;
 mod util;
 mod wallet;
 mod db;
+mod btc;
 
 use chrono::Local;
 use env_logger::fmt::Color as LColor;
