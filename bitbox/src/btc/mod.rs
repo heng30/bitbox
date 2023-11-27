@@ -18,9 +18,20 @@ pub async fn price() -> Result<u64> {
         .json::<Value>()
         .await?;
 
-    let price = response["data"]["1"]["quotes"]["USD"]["price"]
+    // let price = response["data"]["1"]["quotes"]["USD"]["price"]
+    let price = response
+        .get("data")
+        .ok_or(anyhow!("no data"))?
+        .get("1")
+        .ok_or(anyhow!("no index"))?
+        .get("quotes")
+        .ok_or(anyhow!("no quotes"))?
+        .get("USD")
+        .ok_or(anyhow!("no USD"))?
+        .get("price")
+        .ok_or(anyhow!("no price"))?
         .as_f64()
-        .unwrap_or(0.0_f64);
+        .ok_or(anyhow!("invalid price format"))?;
 
     Ok(Amount::from_btc(price)?.to_sat())
 }
