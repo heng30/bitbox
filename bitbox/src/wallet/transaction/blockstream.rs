@@ -49,9 +49,8 @@ fn broadcast_url(network: &str) -> &str {
 
 pub async fn fetch_utxos(network: &str, address: &str) -> Result<Vec<Utxo>> {
     let url = utxo_url(network, address);
-    let proxy_info = None; // TODO
 
-    let client = util::http::client(proxy_info)?;
+    let client = util::http::client()?;
     let response = client
         .get(&url)
         .timeout(Duration::from_secs(15))
@@ -68,8 +67,7 @@ pub async fn broadcast_transaction(network: &str, psbt: &Psbt) -> Result<String>
     let url = broadcast_url(network);
     let hex_tx = psbt.serialize_hex();
 
-    let proxy_info = None; // TODO
-    let client = util::http::client(proxy_info)?;
+    let client = util::http::client()?;
     let response = client.post(url).body(hex_tx).send().await?;
 
     if response.status().is_success() {
@@ -200,6 +198,6 @@ mod tests {
     async fn test_fetch_utxos() {
         let utxos = super::fetch_utxos("main", ADDRESS).await.unwrap();
         assert!(!utxos.is_empty());
-        println!("{:?}", utxos[0]);
+        // println!("{:?}", utxos[0]);
     }
 }
