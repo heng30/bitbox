@@ -11,3 +11,17 @@ pub fn working_dir() -> Result<PathBuf> {
         _ => Err(anyhow::anyhow!("convert {:?} failed", dir)),
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_working_dir() -> Result<()>{
+        let wd = working_dir()?;
+        // println!("{:?}", wd);
+        assert!(wd.is_dir());
+
+        Ok(())
+    }
+}

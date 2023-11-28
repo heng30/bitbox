@@ -68,7 +68,7 @@ pub async fn feerate() -> Result<(u64, u64, u64)> {
 
 #[cfg(test)]
 mod tests {
-    use anyhow::Result;
+    use super::*;
 
     #[tokio::test]
     async fn test_price() -> Result<()> {

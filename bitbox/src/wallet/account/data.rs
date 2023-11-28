@@ -15,7 +15,7 @@ pub struct Info {
 impl Info {
     pub fn new(network: String, name: String, password: String) -> Result<Info> {
         let mut address_info = address::info(&network)?;
-        let encrypt_password = util::crypto::encrypt(&password, &address_info.private_key);
+        let encrypt_password = util::crypto::encrypt(&password, &address_info.private_key)?;
         address_info.private_key = encrypt_password;
 
         Ok(Info {

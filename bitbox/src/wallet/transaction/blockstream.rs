@@ -85,7 +85,7 @@ pub async fn build_transaction(
     tx_info: super::data::TxInfo,
 ) -> Result<(Psbt, u64)> {
     let network = Network::from_core_arg(&acnt.address_info.network)?;
-    let private_key = util::crypto::decrypt(password, &acnt.address_info.private_key);
+    let private_key = util::crypto::decrypt(password, &acnt.address_info.private_key)?;
     let private_key = PrivateKey::from_str(&private_key)?;
     let public_key = private_key.public_key(&Secp256k1::new());
     let sender_address = Address::p2pkh(&public_key, network);
@@ -144,6 +144,11 @@ async fn build_txins(
         input.previous_output = OutPoint::new(Txid::from_str(&utxo.txid)?, utxo.vout);
         inputs.push(input);
 
+        total_input_sat += utxo.value;
+        if tx_info.send_amount >= total_input_sat {
+            continue;
+        }
+
         let fee_amount = Transaction {
             version: Version::TWO,
             lock_time: LockTime::ZERO,
@@ -152,7 +157,6 @@ async fn build_txins(
         }
         .total_size() as u64 * tx_info.fee_rate;
 
-        total_input_sat += utxo.value;
         if total_input_sat > tx_info.send_amount + fee_amount {
             change_amount = total_input_sat - tx_info.send_amount - fee_amount;
             break;
@@ -199,12 +203,19 @@ pub fn verify_tx_info(
 
 #[cfg(test)]
 mod tests {
-    const ADDRESS: &'static str = "36LjFk7tAn6j93nKBHcvtXd88wFGSPDtZG";
+    use super::*;
+
+    const MAIN_ADDRESS: &str = "36LjFk7tAn6j93nKBHcvtXd88wFGSPDtZG";
+    const TEST_ADDRESS: &str = "tb1q5sulqc5lq048s25jtcdv34fhxq7s68uk6m2nl0";
 
     #[tokio::test]
-    async fn test_fetch_utxos() {
-        let utxos = super::fetch_utxos("main", ADDRESS).await.unwrap();
+    async fn test_fetch_utxos() ->  Result<()>{
+        let utxos = super::fetch_utxos("main", MAIN_ADDRESS).await?;
         assert!(!utxos.is_empty());
-        // println!("{:?}", utxos[0]);
+
+        let utxos = super::fetch_utxos("test", TEST_ADDRESS).await?;
+        assert!(!utxos.is_empty());
+
+        Ok(())
     }
 }
