@@ -7,6 +7,7 @@ use bitcoin::blockdata::transaction::Version;
 use bitcoin::psbt::{Psbt, PsbtSighashType};
 use bitcoin::secp256k1::Secp256k1;
 use bitcoin::{Address, Network, OutPoint, PrivateKey, ScriptBuf, Transaction, TxIn, TxOut, Txid};
+use rand::seq::SliceRandom;
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
 use std::str::FromStr;
@@ -82,42 +83,32 @@ pub async fn build_transaction(
     password: &str,
     acnt: &wallet::account::Info,
     tx_info: super::data::TxInfo,
-) -> Result<Psbt> {
+) -> Result<(Psbt, u64)> {
     let network = Network::from_core_arg(&acnt.address_info.network)?;
-
     let private_key = util::crypto::decrypt(password, &acnt.address_info.private_key);
     let private_key = PrivateKey::from_str(&private_key)?;
-
     let public_key = private_key.public_key(&Secp256k1::new());
     let sender_address = Address::p2pkh(&public_key, network);
 
     assert_eq!(public_key.to_string(), acnt.address_info.public_key);
     assert_eq!(sender_address.to_string(), acnt.address_info.wallet_address);
 
+    let change_script_pubkey = sender_address.script_pubkey();
     let recipient_script_pubkey = Address::from_str(&tx_info.recipient_address)?
         .require_network(network)?
         .script_pubkey();
 
-    let mut inputs: Vec<TxIn> = Vec::new();
-    let utxos = fetch_utxos(&acnt.address_info.network, &sender_address.to_string()).await?;
-    for utxo in utxos.iter() {
-        let mut input = TxIn::default();
-        input.previous_output = OutPoint::new(Txid::from_str(&utxo.txid)?, utxo.vout);
-        inputs.push(input);
-    }
+    let output = TxOut {
+        value: Amount::from_sat(tx_info.send_amount),
+        script_pubkey: recipient_script_pubkey,
+    };
 
-    let output = build_recipient_txout(&tx_info, recipient_script_pubkey)?;
+    let (inputs, change_amount) = build_txins(&acnt, &tx_info, &output).await?;
 
-    let change_script_pubkey = sender_address.script_pubkey();
-    let total_input_sat: u64 = utxos.iter().map(|utxo| utxo.value).sum();
-
-    let change_output = build_change_txout(
-        &tx_info,
-        change_script_pubkey,
-        total_input_sat,
-        &inputs,
-        &output,
-    )?;
+    let change_output = TxOut {
+        value: Amount::from_sat(change_amount),
+        script_pubkey: change_script_pubkey,
+    };
 
     let transaction = Transaction {
         version: Version::TWO,
@@ -126,10 +117,54 @@ pub async fn build_transaction(
         output: vec![output, change_output],
     };
 
+    let fee = transaction.total_size() as u64 * tx_info.fee_rate;
+
     let psbt = Psbt::from_unsigned_tx(transaction)?;
     let mut keys = BTreeMap::new();
     keys.insert(public_key, private_key);
-    sign(psbt, keys)
+    Ok((sign(psbt, keys)?, fee))
+}
+
+async fn build_txins(
+    acnt: &wallet::account::Info,
+    tx_info: &super::data::TxInfo,
+    output: &TxOut,
+) -> Result<(Vec<TxIn>, u64)> {
+    let mut utxos = fetch_utxos(
+        &acnt.address_info.network,
+        &acnt.address_info.wallet_address,
+    )
+    .await?;
+    utxos.shuffle(&mut rand::thread_rng());
+
+    let mut inputs: Vec<TxIn> = Vec::new();
+    let (mut total_input_sat, mut change_amount) = (0, 0);
+    for utxo in utxos.iter() {
+        let mut input = TxIn::default();
+        input.previous_output = OutPoint::new(Txid::from_str(&utxo.txid)?, utxo.vout);
+        inputs.push(input);
+
+        let fee_amount = Transaction {
+            version: Version::TWO,
+            lock_time: LockTime::ZERO,
+            input: inputs.clone(),
+            output: vec![output.clone(), output.clone()], // one for recipient, another for change
+        }
+        .total_size() as u64 * tx_info.fee_rate;
+
+        total_input_sat += utxo.value;
+        if total_input_sat > tx_info.send_amount + fee_amount {
+            change_amount = total_input_sat - tx_info.send_amount - fee_amount;
+            break;
+        }
+    }
+
+    if change_amount == 0 {
+        Err(anyhow!("insufficient balance"))
+    } else {
+        Ok((inputs, change_amount))
+    }
+
 }
 
 fn sign(mut psbt: Psbt, keys: BTreeMap<bitcoin::PublicKey, PrivateKey>) -> Result<Psbt> {
@@ -140,10 +175,9 @@ fn sign(mut psbt: Psbt, keys: BTreeMap<bitcoin::PublicKey, PrivateKey>) -> Resul
     Ok(psbt)
 }
 
-fn build_recipient_txout(
+pub fn verify_tx_info(
     tx_info: &super::data::TxInfo,
-    recipient_script_pubkey: ScriptBuf,
-) -> Result<TxOut> {
+) -> Result<()> {
     if tx_info.send_amount > tx_info.max_send_amount {
         return Err(anyhow!(
             "send amount: {} is bigger than max send amount: {}",
@@ -152,19 +186,6 @@ fn build_recipient_txout(
         ));
     }
 
-    Ok(TxOut {
-        value: Amount::from_sat(tx_info.send_amount),
-        script_pubkey: recipient_script_pubkey,
-    })
-}
-
-fn build_change_txout(
-    tx_info: &super::data::TxInfo,
-    change_script_pubkey: ScriptBuf,
-    total_input_sat: u64,
-    inputs: &Vec<TxIn>,
-    output: &TxOut,
-) -> Result<TxOut> {
     if tx_info.fee_rate > tx_info.max_fee_rate {
         return Err(anyhow!(
             "fee rate: {} is bigger than max fee rate: {}",
@@ -173,21 +194,7 @@ fn build_change_txout(
         ));
     }
 
-    let estimated_size: usize = Transaction {
-        version: Version::TWO,
-        lock_time: LockTime::ZERO,
-        input: inputs.clone(),
-        output: vec![output.clone()],
-    }
-    .total_size();
-    let fee_amount = estimated_size as u64 * tx_info.fee_rate;
-
-    let change_amount = total_input_sat - tx_info.send_amount - fee_amount;
-
-    Ok(TxOut {
-        value: Amount::from_sat(change_amount),
-        script_pubkey: change_script_pubkey,
-    })
+    Ok(())
 }
 
 #[cfg(test)]

@@ -49,8 +49,7 @@ pub fn is_valid_wallet_address(network_core_arg: &str, wallet_address: &str) -> 
 
 #[cfg(test)]
 mod tests {
-    use bitcoin::secp256k1::Secp256k1;
-    use bitcoin::{Address, Network, PrivateKey};
+    use bitcoin::PrivateKey;
     use std::env;
     use std::path::Path;
     use tokio::fs::File;
@@ -75,7 +74,6 @@ mod tests {
         let working_dir =
             Path::new(dir.to_str().unwrap()).join("../../../testdata/wallet-addr.csv");
 
-        let network = Network::from_core_arg("main")?;
         let file = File::open(working_dir).await?;
         let reader = io::BufReader::new(file);
 
@@ -85,10 +83,10 @@ mod tests {
             // println!("{:?}", fields);
 
             let private_key = PrivateKey::from_wif(fields[2].trim_matches('"'))?;
-            let public_key = private_key.public_key(&Secp256k1::new());
-            let wallet_address = Address::p2pkh(&public_key, network);
 
-            assert_eq!(fields[1].trim_matches('"'), wallet_address.to_string());
+            let info = super::recover("main", &private_key.to_string())?;
+
+            assert_eq!(fields[1].trim_matches('"'), info.wallet_address);
         }
 
         Ok(())

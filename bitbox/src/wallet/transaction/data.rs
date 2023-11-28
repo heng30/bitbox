@@ -1,20 +1,35 @@
 use anyhow::Result;
 use bitcoin::amount::Amount;
+use bitcoin::Denomination;
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Debug, Default, PartialEq)]
 pub struct TxInfo {
     pub recipient_address: String,
     pub send_amount: u64,     // satoshi
     pub max_send_amount: u64, // satoshi
-    pub fee_rate: u64,        //Set your desired fee rate here (in satoshis per byte)
+    pub fee_rate: u64,        // Set your desired fee rate here (in satoshis per byte)
     pub max_fee_rate: u64,    // satoshi
     pub max_fee_amount: u64,  // satoshi
 }
 
 impl TxInfo {
-    pub fn from_btc(mut self, send_amount: f64, max_send_amount: f64) -> Result<Self> {
-        self.send_amount = Amount::from_btc(send_amount)?.to_sat();
-        self.max_send_amount = Amount::from_btc(max_send_amount)?.to_sat();
+    pub fn amount_from_btc(mut self, send_amount: &str, max_send_amount: &str) -> Result<Self> {
+        self.send_amount = Amount::from_str_in(send_amount, Denomination::Bitcoin)?.to_sat();
+        self.max_send_amount =
+            Amount::from_str_in(max_send_amount, Denomination::Bitcoin)?.to_sat();
         Ok(self)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_amount_from_btc() -> Result<()> {
+        let txinfo = TxInfo::default().amount_from_btc("0.12345678", "1.2345678")?;
+        assert_eq!(txinfo.send_amount, 12345678);
+        assert_eq!(txinfo.max_send_amount, 123456780);
+        Ok(())
     }
 }

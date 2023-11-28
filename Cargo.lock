@@ -93,6 +93,7 @@ dependencies = [
  "lazy_static",
  "log",
  "platform-dirs",
+ "rand",
  "reqwest",
  "serde",
  "serde_derive",
