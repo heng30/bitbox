@@ -7,6 +7,7 @@ use bitcoin::bip32::{
 };
 use bitcoin::blockdata::locktime::absolute::LockTime;
 use bitcoin::blockdata::transaction::Version;
+use bitcoin::consensus::encode;
 use bitcoin::psbt::{self, Input, Psbt, PsbtSighashType};
 use bitcoin::secp256k1::{Secp256k1, Signing, Verification};
 use bitcoin::{
@@ -76,14 +77,10 @@ pub async fn fetch_balance(network: &str, address: &str) -> Result<u64> {
     Ok(utxos.iter().map(|item| item.value).sum())
 }
 
-pub async fn broadcast_transaction(network: &str, psbt: &Psbt) -> Result<String> {
+pub async fn broadcast_transaction(network: &str, tx: String) -> Result<String> {
     let url = broadcast_url(network);
-    let hex_tx = psbt.serialize_hex();
-
-    println!("{hex_tx}");
-
     let client = util::http::client()?;
-    let response = client.post(url).body(hex_tx).send().await?;
+    let response = client.post(url).body(tx).send().await?;
 
     if response.status().is_success() {
         Ok(response.text().await?)
@@ -92,209 +89,219 @@ pub async fn broadcast_transaction(network: &str, psbt: &Psbt) -> Result<String>
     }
 }
 
-pub async fn build_transaction(
-    password: &str,
-    acnt: &wallet::account::Info,
-    tx_info: super::data::TxInfo,
-) -> Result<(Psbt, u64)> {
-    let secp = Secp256k1::new();
+// pub async fn build_transaction(
+//     password: &str,
+//     acnt: &wallet::account::Info,
+//     tx_info: super::data::TxInfo,
+// ) -> Result<(String, u64)> {
+//     let secp = Secp256k1::new();
 
-    let (psbt, public_key, private_key, previous_output, fee) =
-        create_transaction(password, acnt, tx_info, &secp).await?;
+//     let (psbt, public_key, private_key, previous_output, fee) =
+//         create_transaction(password, acnt, tx_info, &secp).await?;
 
-    println!("1");
+//     let psbt = update_psbt(
+//         psbt,
+//         &secp,
+//         &public_key,
+//         &private_key,
+//         previous_output.clone(),
+//     )?;
 
-    let psbt = update_psbt(psbt, &secp, &public_key, &private_key, previous_output)?;
+//     let mut keys = BTreeMap::new();
+//     keys.insert(public_key, private_key);
+//     let psbt = sign(psbt, &secp, keys)?;
 
-    // println!("2");
+//     let psbt = finalize_psbt(psbt, &public_key)?;
 
-    let mut keys = BTreeMap::new();
-    keys.insert(public_key, private_key);
-    let psbt = sign(psbt, &secp, keys)?;
+//     let tx = psbt.extract_tx_unchecked_fee_rate();
+//     tx.verify(|_| Some(previous_output.clone()))
+//         .context("failed to verify transaction")?;
 
-    println!("3");
+//     let hex = encode::serialize_hex(&tx);
 
-    let psbt = finalize_psbt(psbt, &public_key)?;
+//     Ok((hex, fee))
+// }
 
-    println!("4");
+// async fn create_transaction<C: Verification + Signing>(
+//     password: &str,
+//     acnt: &wallet::account::Info,
+//     tx_info: super::data::TxInfo,
+//     secp: &Secp256k1<C>,
+// ) -> Result<(Psbt, PublicKey, PrivateKey, TxOut, u64)> {
+//     let network = Network::from_core_arg(&acnt.address_info.network)?;
+//     let private_key = PrivateKey::from_str(&acnt.decrypt_private_key(password)?)?;
+//     let public_key = private_key.public_key(&secp);
+//     let sender_address = Address::p2pkh(&public_key, network);
 
-    Ok((psbt, fee))
-}
+//     assert_eq!(public_key.to_string(), acnt.address_info.public_key);
+//     assert_eq!(sender_address.to_string(), acnt.address_info.wallet_address);
 
-async fn create_transaction<C: Verification + Signing>(
-    password: &str,
-    acnt: &wallet::account::Info,
-    tx_info: super::data::TxInfo,
-    secp: &Secp256k1<C>,
-) -> Result<(Psbt, PublicKey, PrivateKey, TxOut, u64)> {
-    let network = Network::from_core_arg(&acnt.address_info.network)?;
-    let private_key = PrivateKey::from_str(&acnt.decrypt_private_key(password)?)?;
-    let public_key = private_key.public_key(&secp);
-    let sender_address = Address::p2pkh(&public_key, network);
+//     let change_script_pubkey = sender_address.script_pubkey();
+//     let recipient_script_pubkey = Address::from_str(&tx_info.recipient_address)?
+//         .require_network(network)?
+//         .script_pubkey();
 
-    assert_eq!(public_key.to_string(), acnt.address_info.public_key);
-    assert_eq!(sender_address.to_string(), acnt.address_info.wallet_address);
+//     let output = TxOut {
+//         value: Amount::from_sat(tx_info.send_amount),
+//         script_pubkey: recipient_script_pubkey,
+//     };
 
-    let change_script_pubkey = sender_address.script_pubkey();
-    let recipient_script_pubkey = Address::from_str(&tx_info.recipient_address)?
-        .require_network(network)?
-        .script_pubkey();
+//     let (inputs, total_input_amount, change_amount) = build_txins(&acnt, &tx_info, &output).await?;
 
-    let output = TxOut {
-        value: Amount::from_sat(tx_info.send_amount),
-        script_pubkey: recipient_script_pubkey,
-    };
+//     // println!("{inputs:?}");
 
-    let (inputs, change_amount) = build_txins(&acnt, &tx_info, &output).await?;
+//     let change_output = TxOut {
+//         value: Amount::from_sat(change_amount),
+//         script_pubkey: change_script_pubkey.clone(),
+//     };
 
-    // println!("{inputs:?}");
+//     let transaction = Transaction {
+//         version: Version::TWO,
+//         lock_time: LockTime::ZERO,
+//         input: inputs,
+//         output: vec![output, change_output],
+//     };
 
-    let change_output = TxOut {
-        value: Amount::from_sat(change_amount),
-        script_pubkey: change_script_pubkey.clone(),
-    };
+//     let fee = transaction.total_size() as u64 * tx_info.fee_rate;
 
-    let transaction = Transaction {
-        version: Version::TWO,
-        lock_time: LockTime::ZERO,
-        input: inputs,
-        output: vec![output, change_output],
-    };
+//     let wpkh = public_key.wpubkey_hash().context("a compressed pubkey")?;
+//     let previous_output = TxOut {
+//         value: Amount::from_sat(total_input_amount),
+//         script_pubkey: ScriptBuf::new_p2wpkh(&wpkh),
+//     };
 
-    let fee = transaction.total_size() as u64 * tx_info.fee_rate;
-    let previous_output = TxOut {
-        value: Amount::from_sat(tx_info.send_amount),
-        script_pubkey: change_script_pubkey,
-    };
+//     let psbt = Psbt::from_unsigned_tx(transaction)?;
+//     Ok((psbt, public_key, private_key, previous_output, fee))
+// }
 
-    let psbt = Psbt::from_unsigned_tx(transaction)?;
-    Ok((psbt, public_key, private_key, previous_output, fee))
-}
+// async fn build_txins(
+//     acnt: &wallet::account::Info,
+//     tx_info: &super::data::TxInfo,
+//     output: &TxOut,
+// ) -> Result<(Vec<TxIn>, u64, u64)> {
+//     let mut utxos = fetch_utxos(
+//         &acnt.address_info.network,
+//         &acnt.address_info.wallet_address,
+//     )
+//     .await?;
+//     utxos.shuffle(&mut rand::thread_rng());
 
-async fn build_txins(
-    acnt: &wallet::account::Info,
-    tx_info: &super::data::TxInfo,
-    output: &TxOut,
-) -> Result<(Vec<TxIn>, u64)> {
-    let mut utxos = fetch_utxos(
-        &acnt.address_info.network,
-        &acnt.address_info.wallet_address,
-    )
-    .await?;
-    utxos.shuffle(&mut rand::thread_rng());
+//     let mut inputs: Vec<TxIn> = Vec::new();
+//     let (mut total_input_sat, mut change_amount) = (0, 0);
+//     for utxo in utxos.iter() {
+//         let mut input = TxIn::default();
+//         input.previous_output = OutPoint::new(Txid::from_str(&utxo.txid)?, utxo.vout);
+//         inputs.push(input);
 
-    let mut inputs: Vec<TxIn> = Vec::new();
-    let (mut total_input_sat, mut change_amount) = (0, 0);
-    for utxo in utxos.iter() {
-        let mut input = TxIn::default();
-        input.previous_output = OutPoint::new(Txid::from_str(&utxo.txid)?, utxo.vout);
-        inputs.push(input);
+//         total_input_sat += utxo.value;
+//         if tx_info.send_amount >= total_input_sat {
+//             continue;
+//         }
 
-        total_input_sat += utxo.value;
-        if tx_info.send_amount >= total_input_sat {
-            continue;
-        }
+//         let fee_amount = Transaction {
+//             version: Version::TWO,
+//             lock_time: LockTime::ZERO,
+//             input: inputs.clone(),
+//             output: vec![output.clone(), output.clone()], // one for recipient, another for change
+//         }
+//         .total_size() as u64
+//             * tx_info.fee_rate;
 
-        let fee_amount = Transaction {
-            version: Version::TWO,
-            lock_time: LockTime::ZERO,
-            input: inputs.clone(),
-            output: vec![output.clone(), output.clone()], // one for recipient, another for change
-        }
-        .total_size() as u64
-            * tx_info.fee_rate;
+//         if total_input_sat > tx_info.send_amount + fee_amount {
+//             change_amount = total_input_sat - tx_info.send_amount - fee_amount;
+//             break;
+//         }
+//     }
 
-        if total_input_sat > tx_info.send_amount + fee_amount {
-            change_amount = total_input_sat - tx_info.send_amount - fee_amount;
-            break;
-        }
-    }
+//     if change_amount == 0 {
+//         Err(anyhow!("insufficient balance"))
+//     } else {
+//         Ok((inputs, total_input_sat, change_amount))
+//     }
+// }
 
-    if change_amount == 0 {
-        Err(anyhow!("insufficient balance"))
-    } else {
-        Ok((inputs, change_amount))
-    }
-}
+// // Updates the PSBT, in BIP174 parlance this is the 'Updater'.
+// fn update_psbt<C: Verification + Signing>(
+//     mut psbt: Psbt,
+//     secp: &Secp256k1<C>,
+//     public_key: &PublicKey,
+//     private_key: &PrivateKey,
+//     previous_output: TxOut,
+// ) -> Result<Psbt> {
+//     let mut input = Input {
+//         witness_utxo: Some(previous_output),
+//         ..Default::default()
+//     };
 
-// Updates the PSBT, in BIP174 parlance this is the 'Updater'.
-fn update_psbt<C: Verification + Signing>(
-    mut psbt: Psbt,
-    secp: &Secp256k1<C>,
-    public_key: &PublicKey,
-    private_key: &PrivateKey,
-    previous_output: TxOut,
-) -> Result<Psbt> {
-    let mut input = Input {
-        witness_utxo: Some(previous_output),
-        ..Default::default()
-    };
+//     let wpkh = public_key
+//         .wpubkey_hash()
+//         .ok_or(anyhow!("a compressed pubkey"))?;
+//     let redeem_script = ScriptBuf::new_p2wpkh(&wpkh);
+//     input.redeem_script = Some(redeem_script);
 
-    let wpkh = public_key
-        .wpubkey_hash()
-        .ok_or(anyhow!("a compressed pubkey"))?;
-    let redeem_script = ScriptBuf::new_p2wpkh(&wpkh);
-    input.redeem_script = Some(redeem_script);
+//     let master_xpriv = Xpriv {
+//         network: private_key.network,
+//         depth: 0,
+//         parent_fingerprint: Default::default(),
+//         child_number: ChildNumber::from_normal_idx(0)?,
+//         private_key: private_key.inner,
+//         chain_code: ChainCode::from([0; 32]),
+//     };
+//     let master_xpub = Xpub::from_priv(secp, &master_xpriv);
 
-    let master_xpriv =
-        Xpriv::new_master(private_key.network, &[0, 0, 0, 0]).context("generate xpriv error")?;
+//     let fingerprint = master_xpub.fingerprint();
+//     let path = input_derivation_path()?;
+//     let mut map = BTreeMap::new();
+//     map.insert(public_key.inner, (fingerprint, path));
+//     input.bip32_derivation = map;
 
-    let master_xpub = Xpub::from_priv(secp, &master_xpriv);
+//     let ty = PsbtSighashType::from_str("SIGHASH_ALL")?;
+//     input.sighash_type = Some(ty);
 
-    let fingerprint = master_xpub.fingerprint();
-    let path = input_derivation_path()?;
-    let mut map = BTreeMap::new();
-    map.insert(public_key.inner, (fingerprint, path));
-    input.bip32_derivation = map;
+//     psbt.inputs = vec![input];
 
-    let ty = PsbtSighashType::from_str("SIGHASH_ALL")?;
-    input.sighash_type = Some(ty);
+//     Ok(psbt)
+// }
 
-    println!("{input:?}");
+// fn input_derivation_path() -> Result<DerivationPath> {
+//     let path = INPUT_UTXO_DERIVATION_PATH.into_derivation_path()?;
+//     Ok(path)
+// }
 
-    psbt.inputs = vec![input];
+// // Finalizes the PSBT, in BIP174 parlance this is the 'Finalizer'.
+// fn finalize_psbt(mut psbt: Psbt, pk: &PublicKey) -> Result<Psbt> {
+//     if psbt.inputs.is_empty() {
+//         return Err(psbt::SignError::MissingInputUtxo.into());
+//     }
 
-    Ok(psbt)
-}
+//     let input_len = psbt.inputs.len();
+//     for i in 0..input_len {
+//         let sigs: Vec<_> = psbt.inputs[i].partial_sigs.values().collect();
+//         let mut script_witness: Witness = Witness::new();
+//         script_witness.push(&sigs[i].to_vec());
+//         script_witness.push(pk.to_bytes());
 
-fn input_derivation_path() -> Result<DerivationPath> {
-    let path = INPUT_UTXO_DERIVATION_PATH.into_derivation_path()?;
-    Ok(path)
-}
+//         psbt.inputs[i].final_script_witness = Some(script_witness);
+//         psbt.inputs[i].partial_sigs = BTreeMap::new();
+//         psbt.inputs[i].sighash_type = None;
+//         psbt.inputs[i].redeem_script = None;
+//         psbt.inputs[i].witness_script = None;
+//         psbt.inputs[i].bip32_derivation = BTreeMap::new();
+//     }
 
-// Finalizes the PSBT, in BIP174 parlance this is the 'Finalizer'.
-fn finalize_psbt(mut psbt: Psbt, pk: &PublicKey) -> Result<Psbt> {
-    if psbt.inputs.is_empty() {
-        return Err(psbt::SignError::MissingInputUtxo.into());
-    }
+//     Ok(psbt)
+// }
 
-    let sigs: Vec<_> = psbt.inputs[0].partial_sigs.values().collect();
-    let mut script_witness: Witness = Witness::new();
-    script_witness.push(&sigs[0].to_vec());
-    script_witness.push(pk.to_bytes());
-
-    psbt.inputs[0].final_script_witness = Some(script_witness);
-
-    // Clear all the data fields as per the spec.
-    psbt.inputs[0].partial_sigs = BTreeMap::new();
-    psbt.inputs[0].sighash_type = None;
-    psbt.inputs[0].redeem_script = None;
-    psbt.inputs[0].witness_script = None;
-    psbt.inputs[0].bip32_derivation = BTreeMap::new();
-
-    Ok(psbt)
-}
-
-fn sign<C: Verification + Signing>(
-    mut psbt: Psbt,
-    secp: &Secp256k1<C>,
-    keys: BTreeMap<bitcoin::PublicKey, PrivateKey>,
-) -> Result<Psbt> {
-    if let Err((_, e)) = psbt.sign(&keys, secp) {
-        return Err(anyhow!("{:?}", e));
-    }
-    Ok(psbt)
-}
+// fn sign<C: Verification + Signing>(
+//     mut psbt: Psbt,
+//     secp: &Secp256k1<C>,
+//     keys: BTreeMap<bitcoin::PublicKey, PrivateKey>,
+// ) -> Result<Psbt> {
+//     if let Err((_, e)) = psbt.sign(&keys, secp) {
+//         return Err(anyhow!("{:?}", e));
+//     }
+//     Ok(psbt)
+// }
 
 pub fn verify_tx_info(tx_info: &super::data::TxInfo) -> Result<()> {
     if tx_info.send_amount > tx_info.max_send_amount {
@@ -376,38 +383,39 @@ mod tests {
         Ok(())
     }
 
-    async fn _build_transaction() -> Result<(Psbt, u64)> {
-        let acnt_1 = serde_json::from_str(TEST_ACCOUNT_1)?;
-        let acnt_2: account::Info = serde_json::from_str(TEST_ACCOUNT_2)?;
+    // async fn _build_transaction() -> Result<(String, u64)> {
+    //     let acnt_1: account::Info = serde_json::from_str(TEST_ACCOUNT_1)?;
+    //     let acnt_2: account::Info = serde_json::from_str(TEST_ACCOUNT_2)?;
 
-        let tx_info = TxInfo {
-            recipient_address: acnt_2.address_info.wallet_address.clone(),
-            send_amount: 10,
-            max_send_amount: 1000,
-            fee_rate: 10,
-            max_fee_rate: 20,
-            max_fee_amount: 1_000_000,
-        };
+    //     let tx_info = TxInfo {
+    //         recipient_address: acnt_2.address_info.wallet_address.clone(),
+    //         send_amount: 10,
+    //         max_send_amount: 1000,
+    //         fee_rate: 10,
+    //         max_fee_rate: 20,
+    //         max_fee_amount: 1_000_000,
+    //     };
 
-        build_transaction(PASSWORD, &acnt_1, tx_info).await
-    }
+    //     build_transaction(PASSWORD, &acnt_1, tx_info).await
+    // }
 
-    #[tokio::test]
-    async fn test_build_transaction() -> Result<()> {
-        let (psbt, fee) = _build_transaction().await?;
-        println!("{psbt:?}");
-        println!("{fee}");
-        Ok(())
-    }
+    // #[tokio::test]
+    // async fn test_build_transaction() -> Result<()> {
+    //     let (tx, fee) = _build_transaction().await?;
 
-    #[tokio::test]
-    async fn test_broadcast_transaction() -> Result<()> {
-        let (psbt, fee) = _build_transaction().await?;
-        println!("{fee}");
+    //     println!("You should now be able to broadcast the following transaction: \n{tx}\n fee:{fee}");
 
-        let res = broadcast_transaction("test", &psbt).await?;
-        println!("{res}");
+    //     Ok(())
+    // }
 
-        Ok(())
-    }
+    // #[tokio::test]
+    // async fn test_broadcast_transaction() -> Result<()> {
+    //     let (tx, fee) = _build_transaction().await?;
+    //     println!("You should now be able to broadcast the following transaction: \n{tx}\n fee:{fee}");
+
+    //     let res = broadcast_transaction("test", tx).await?;
+    //     println!("{res}");
+
+    //     Ok(())
+    // }
 }

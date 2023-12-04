@@ -15,7 +15,7 @@ fn key_iv(password: &str) -> Result<(Vec<u8>, Vec<u8>)> {
     Ok((key, iv))
 }
 
-pub fn encrypt(password: &str, plain_text: &str) -> Result<String> {
+pub fn encrypt(password: &str, plain_text: &[u8]) -> Result<String> {
     let (key, iv) = key_iv(password)?;
     let cipher = Aes256Cbc::new_from_slices(&key, &iv)?;
 
@@ -27,20 +27,19 @@ pub fn encrypt(password: &str, plain_text: &str) -> Result<String> {
     }
 
     let mut buffer = [0u8; 4096];
-    buffer[..pos].copy_from_slice(plain_text.as_bytes());
+    buffer[..pos].copy_from_slice(plain_text);
     let text = cipher.encrypt(&mut buffer, pos)?;
 
     Ok(hex::encode(text))
 }
 
-pub fn decrypt(password: &str, encrypt_text: &str) -> Result<String> {
+pub fn decrypt(password: &str, encrypt_text: &str) -> Result<Vec<u8>> {
     let (key, iv) = key_iv(password)?;
 
     let cipher = Aes256Cbc::new_from_slices(&key, &iv)?;
     let mut buf = hex::decode(encrypt_text.as_bytes())?.to_vec();
     let text = cipher.decrypt(&mut buf)?;
-
-    Ok(String::from_utf8_lossy(text).to_string())
+    Ok(Vec::from(text))
 }
 
 pub fn hash(text: &str) -> String {
@@ -50,7 +49,7 @@ pub fn hash(text: &str) -> String {
     )
 }
 
-fn random_string(length: usize) -> String {
+pub fn random_string(length: usize) -> String {
     let mut rng = rand::thread_rng();
     let chars: Vec<char> = ('a'..'z').collect();
     (0..length)
@@ -83,9 +82,9 @@ mod tests {
     fn test_encrypt_decrypt() -> Result<()> {
         for i in 1..100 {
             let (text, password) = (random_string(i + 10), random_string(i));
-            let enc_text = encrypt(&password, &text)?;
+            let enc_text = encrypt(&password, &text.as_bytes())?;
             let dec_text = decrypt(&password, &enc_text)?;
-            assert_eq!(text, dec_text)
+            assert_eq!(text.as_bytes(), dec_text)
         }
 
         Ok(())
