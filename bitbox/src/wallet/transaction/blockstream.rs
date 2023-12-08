@@ -14,10 +14,7 @@ use bitcoin::{
     Address, Network, OutPoint, PrivateKey, PublicKey, ScriptBuf, Transaction, TxIn, TxOut, Txid,
     Witness,
 };
-use rand::seq::SliceRandom;
 use serde::Deserialize;
-use std::collections::BTreeMap;
-use std::str::FromStr;
 use std::time::Duration;
 
 #[derive(Debug, Deserialize)]
@@ -35,8 +32,6 @@ pub struct Utxo {
     pub value: u64,
     pub status: UtxoStatus,
 }
-
-const INPUT_UTXO_DERIVATION_PATH: &str = "m/0h/0h/0h";
 
 fn utxo_url(network: &str, address: &str) -> String {
     match network {
@@ -174,51 +169,6 @@ pub async fn broadcast_transaction(network: &str, tx: String) -> Result<String> 
 //     Ok((psbt, public_key, private_key, previous_output, fee))
 // }
 
-// async fn build_txins(
-//     acnt: &wallet::account::Info,
-//     tx_info: &super::data::TxInfo,
-//     output: &TxOut,
-// ) -> Result<(Vec<TxIn>, u64, u64)> {
-//     let mut utxos = fetch_utxos(
-//         &acnt.address_info.network,
-//         &acnt.address_info.wallet_address,
-//     )
-//     .await?;
-//     utxos.shuffle(&mut rand::thread_rng());
-
-//     let mut inputs: Vec<TxIn> = Vec::new();
-//     let (mut total_input_sat, mut change_amount) = (0, 0);
-//     for utxo in utxos.iter() {
-//         let mut input = TxIn::default();
-//         input.previous_output = OutPoint::new(Txid::from_str(&utxo.txid)?, utxo.vout);
-//         inputs.push(input);
-
-//         total_input_sat += utxo.value;
-//         if tx_info.send_amount >= total_input_sat {
-//             continue;
-//         }
-
-//         let fee_amount = Transaction {
-//             version: Version::TWO,
-//             lock_time: LockTime::ZERO,
-//             input: inputs.clone(),
-//             output: vec![output.clone(), output.clone()], // one for recipient, another for change
-//         }
-//         .total_size() as u64
-//             * tx_info.fee_rate;
-
-//         if total_input_sat > tx_info.send_amount + fee_amount {
-//             change_amount = total_input_sat - tx_info.send_amount - fee_amount;
-//             break;
-//         }
-//     }
-
-//     if change_amount == 0 {
-//         Err(anyhow!("insufficient balance"))
-//     } else {
-//         Ok((inputs, total_input_sat, change_amount))
-//     }
-// }
 
 // // Updates the PSBT, in BIP174 parlance this is the 'Updater'.
 // fn update_psbt<C: Verification + Signing>(
@@ -303,25 +253,25 @@ pub async fn broadcast_transaction(network: &str, tx: String) -> Result<String> 
 //     Ok(psbt)
 // }
 
-pub fn verify_tx_info(tx_info: &super::data::TxInfo) -> Result<()> {
-    if tx_info.send_amount > tx_info.max_send_amount {
-        return Err(anyhow!(
-            "send amount: {} is bigger than max send amount: {}",
-            tx_info.send_amount,
-            tx_info.max_send_amount
-        ));
-    }
+// pub fn verify_tx_info(tx_info: &super::data::TxInfo) -> Result<()> {
+//     if tx_info.send_amount > tx_info.max_send_amount {
+//         return Err(anyhow!(
+//             "send amount: {} is bigger than max send amount: {}",
+//             tx_info.send_amount,
+//             tx_info.max_send_amount
+//         ));
+//     }
 
-    if tx_info.fee_rate > tx_info.max_fee_rate {
-        return Err(anyhow!(
-            "fee rate: {} is bigger than max fee rate: {}",
-            tx_info.fee_rate,
-            tx_info.max_fee_rate
-        ));
-    }
+//     if tx_info.fee_rate > tx_info.max_fee_rate {
+//         return Err(anyhow!(
+//             "fee rate: {} is bigger than max fee rate: {}",
+//             tx_info.fee_rate,
+//             tx_info.max_fee_rate
+//         ));
+//     }
 
-    Ok(())
-}
+//     Ok(())
+// }
 
 #[cfg(test)]
 mod tests {
