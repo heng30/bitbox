@@ -1,5 +1,3 @@
-pub mod data;
+pub mod tx;
 pub mod transaction;
-
-pub use data::Info;
-pub use data::TxInfo;
+pub mod address;

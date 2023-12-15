@@ -1,9 +1,8 @@
 use super::super::transaction::blockstream::fetch_utxos;
-use super::data::TxInfo;
+use super::{address, tx};
 use anyhow::{anyhow, Context, Result};
-use bitcoin::bip32::{
-    ChainCode, ChildNumber, DerivationPath, Fingerprint, IntoDerivationPath, Xpriv, Xpub,
-};
+use bip32::Seed;
+use bitcoin::bip32::{Fingerprint, IntoDerivationPath, Xpriv, Xpub};
 use bitcoin::blockdata::locktime::absolute::LockTime;
 use bitcoin::blockdata::transaction::Version;
 use bitcoin::consensus::encode;
@@ -11,21 +10,28 @@ use bitcoin::locktime::absolute;
 use bitcoin::psbt::{self, Input, Psbt, PsbtSighashType};
 use bitcoin::secp256k1::{Secp256k1, Signing, Verification};
 use bitcoin::{
-    transaction, Address, Amount, Network, OutPoint, PrivateKey, ScriptBuf, Transaction, TxIn,
-    TxOut, Txid, Witness,
+    transaction, Address, Amount, Network, OutPoint, ScriptBuf, Transaction, TxIn, TxOut, Txid,
+    Witness,
 };
 use rand::seq::SliceRandom;
 use std::collections::BTreeMap;
 use std::str::FromStr;
 
-const INPUT_UTXO_DERIVATION_PATH: &str = "m/0h/0h/0h";
-
-pub async fn build(private_key: &str, tx_info: TxInfo) -> Result<String> {
+pub async fn build(
+    password: &str,
+    address_info: address::Info,
+    tx_info: tx::Info,
+) -> Result<String> {
     let secp = Secp256k1::new();
+    let network = Network::from_core_arg(&address_info.network)?;
+    let seed = address_info.seed(password)?;
 
-    let (offline, fingerprint, input_xpub) = ColdStorage::new(&secp, private_key)?;
+    let (offline, fingerprint, account_xpub) = ColdStorage::new(&secp, seed, network)?;
 
-    let mut online = WatchOnly::new(offline.master_xpub, input_xpub, fingerprint, tx_info);
+    tx_info.verify()?;
+    address_info.verify(&account_xpub)?;
+
+    let mut online = WatchOnly::new(account_xpub, fingerprint, address_info, tx_info);
 
     let created = online.create_psbt(&secp).await?;
 
@@ -39,10 +45,11 @@ pub async fn build(private_key: &str, tx_info: TxInfo) -> Result<String> {
 
     let previous_output = online.previous_output()?;
     let tx = finalized.extract_tx_unchecked_fee_rate();
-    tx.verify(|_| Some(previous_output.clone()))
-        .expect("failed to verify transaction");
-
     let hex = encode::serialize_hex(&tx);
+
+    tx.verify(|_| Some(previous_output.clone()))
+        .context(format!("failed to verify transaction. hex: {}", hex))?;
+
     println!(
         "You should now be able to broadcast the following transaction: \n\n{}",
         hex
@@ -59,23 +66,14 @@ struct ColdStorage {
 type ExportData = (ColdStorage, Fingerprint, Xpub);
 
 impl ColdStorage {
-    fn new<C: Signing>(secp: &Secp256k1<C>, private_key: &str) -> Result<ExportData> {
-        let private_key = PrivateKey::from_str(private_key)?;
-        let master_xpriv = Xpriv {
-            network: private_key.network,
-            depth: 0,
-            parent_fingerprint: Default::default(),
-            child_number: ChildNumber::from_normal_idx(0)?,
-            private_key: private_key.inner,
-            chain_code: ChainCode::from([0; 32]),
-        };
-
+    fn new<C: Signing>(secp: &Secp256k1<C>, seed: Seed, network: Network) -> Result<ExportData> {
+        let master_xpriv = Xpriv::new_master(network, seed.as_bytes())?;
         let master_xpub = Xpub::from_priv(secp, &master_xpriv);
 
         // Hardened children require secret data to derive.
-        let path = INPUT_UTXO_DERIVATION_PATH.into_derivation_path()?;
-        let input_xpriv = master_xpriv.derive_priv(secp, &path)?;
-        let input_xpub = Xpub::from_priv(secp, &input_xpriv);
+        let path = address::ACCOUNT_DERIVATION_PATH.into_derivation_path()?;
+        let account_xpriv = master_xpriv.derive_priv(secp, &path)?;
+        let account_xpub = Xpub::from_priv(secp, &account_xpriv);
 
         let wallet = ColdStorage {
             master_xpriv,
@@ -83,7 +81,7 @@ impl ColdStorage {
         };
         let fingerprint = wallet.master_fingerprint();
 
-        Ok((wallet, fingerprint, input_xpub))
+        Ok((wallet, fingerprint, account_xpub))
     }
 
     fn master_fingerprint(&self) -> Fingerprint {
@@ -104,46 +102,46 @@ impl ColdStorage {
 
 #[derive(Debug, Clone)]
 struct WatchOnly {
-    master_xpub: Xpub,
-    input_xpub: Xpub,
+    account_xpub: Xpub,
     master_fingerprint: Fingerprint,
 
-    network: String,
     input_utxos: Vec<TxIn>,
     output_utxos: Vec<TxOut>,
     input_amount: u64,
     change_amount: u64,
     fee_amount: u64,
 
-    tx_info: TxInfo,
+    address_info: address::Info,
+    tx_info: tx::Info,
 }
 
 impl WatchOnly {
     fn new(
-        master_xpub: Xpub,
-        input_xpub: Xpub,
+        account_xpub: Xpub,
         master_fingerprint: Fingerprint,
-        tx_info: TxInfo,
+        address_info: address::Info,
+        tx_info: tx::Info,
     ) -> Self {
         WatchOnly {
-            master_xpub,
-            input_xpub,
+            account_xpub,
             master_fingerprint,
 
-            network: "main".to_string(),
             input_utxos: vec![],
             output_utxos: vec![],
             input_amount: 0,
             change_amount: 0,
             fee_amount: 0,
 
+            address_info,
             tx_info,
         }
     }
 
     // Creates the PSBT, in BIP174 parlance this is the 'Creater'.
-    async fn create_psbt<C: Verification>(&mut self, secp: &Secp256k1<C>) -> Result<Psbt> {
+    async fn create_psbt<C: Verification>(&mut self, _secp: &Secp256k1<C>) -> Result<Psbt> {
         self.build_input_output_tx().await?;
+
+        self.tx_info.verify_max_fee_amount(self.fee_amount)?;
 
         let tx = Transaction {
             version: transaction::Version::TWO,
@@ -161,7 +159,7 @@ impl WatchOnly {
     fn update_psbt(&self, mut psbt: Psbt) -> Result<Psbt> {
         let mut inputs = vec![];
 
-        for i in 0..self.input_utxos.len() {
+        for _ in 0..self.input_utxos.len() {
             let mut input = Input {
                 witness_utxo: Some(self.previous_output()?),
                 ..Default::default()
@@ -170,9 +168,9 @@ impl WatchOnly {
             input.redeem_script = Some(self.input_utxo_script_pubkey()?);
 
             let fingerprint = self.master_fingerprint;
-            let path = INPUT_UTXO_DERIVATION_PATH.into_derivation_path()?;
+            let path = address::ACCOUNT_DERIVATION_PATH.into_derivation_path()?;
             let mut map = BTreeMap::new();
-            map.insert(self.input_xpub.to_pub().inner, (fingerprint, path));
+            map.insert(self.account_xpub.to_pub().inner, (fingerprint, path));
             input.bip32_derivation = map;
 
             let ty = PsbtSighashType::from_str("SIGHASH_ALL")?;
@@ -196,7 +194,7 @@ impl WatchOnly {
             let sigs: Vec<_> = psbt.inputs[i].partial_sigs.values().collect();
             let mut script_witness: Witness = Witness::new();
             script_witness.push(&sigs[0].to_vec());
-            script_witness.push(self.input_xpub.to_pub().to_bytes());
+            script_witness.push(self.account_xpub.to_pub().to_bytes());
 
             psbt.inputs[i].final_script_witness = Some(script_witness);
 
@@ -211,24 +209,24 @@ impl WatchOnly {
         Ok(psbt)
     }
 
-    fn change_address(&self) -> Result<Address> {
-        let network = Network::from_core_arg(&self.network)?;
-        let pk = self.master_xpub.to_pub();
+    fn wallet_address(&self) -> Result<Address> {
+        let network = Network::from_core_arg(&self.address_info.network)?;
+        let pk = self.account_xpub.to_pub();
         Ok(Address::p2wpkh(&pk, network)?)
     }
 
     fn recipient_address(&self) -> Result<Address> {
-        let network = Network::from_core_arg(&self.network)?;
+        let network = Network::from_core_arg(&self.address_info.network)?;
         let addr = Address::from_str(&self.tx_info.recipient_address)?.require_network(network)?;
         Ok(addr)
     }
 
     fn input_utxo_script_pubkey(&self) -> Result<ScriptBuf> {
         let wpkh = self
-            .input_xpub
+            .account_xpub
             .to_pub()
             .wpubkey_hash()
-            .context("a compressed pubkey")?;
+            .context("failed to get input utxo script pubkey")?;
 
         Ok(ScriptBuf::new_p2wpkh(&wpkh))
     }
@@ -242,12 +240,9 @@ impl WatchOnly {
         })
     }
 
-    fn wallet_address(&self) -> String {
-        self.master_xpub.to_pub().to_string()
-    }
-
     async fn build_input_output_tx(&mut self) -> Result<()> {
-        let mut utxos = fetch_utxos(&self.network, &self.wallet_address()).await?;
+        let wallet_address = self.wallet_address()?.to_string();
+        let mut utxos = fetch_utxos(&self.address_info.network, &wallet_address).await?;
         utxos.shuffle(&mut rand::thread_rng());
 
         let (mut inputs, mut outputs) = (vec![], vec![]);
@@ -288,7 +283,7 @@ impl WatchOnly {
 
         outputs.push(TxOut {
             value: Amount::from_sat(change_amount),
-            script_pubkey: self.change_address()?.script_pubkey(),
+            script_pubkey: self.wallet_address()?.script_pubkey(),
         });
 
         self.input_utxos = inputs;
@@ -298,4 +293,76 @@ impl WatchOnly {
         self.fee_amount = fee_amount;
         Ok(())
     }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    const PASSWORD: &str = "12345678";
+    const MAIN_ADDRESS: &str = "36LjFk7tAn6j93nKBHcvtXd88wFGSPDtZG";
+    const TEST_ADDRESS: &str = "tb1q5sulqc5lq048s25jtcdv34fhxq7s68uk6m2nl0";
+
+    const TEST_ACCOUNT_1: &str = r#"
+    {
+        "uuid":"2a42cc5b-1663-424d-a391-cd700b5c2f25",
+        "name":"account1",
+        "address_info":{
+            "network":"test",
+            "private_key":"eee3574e2f327fbf5489a9479aeae5473713ddf8aa2d259d3908173302fdbd7292d2cea8edc5db5bc60df9f5c12395f20306d5ab1f0dbf2d8d5f7a83f770cce4",
+            "public_key":"0312914cf39329afe5180bfa0f69d9d67da3685a5c8d28673199ae973f38ac4148",
+            "wallet_address":"msFbCzXbGxdeFRp6zm4WJZozm7akFSGRXg"
+            },
+        "balance":0
+    }"#;
+
+    const TEST_ACCOUNT_2: &str = r#"
+    {
+      "uuid": "0d2fe06d-570f-4eda-9746-1316685ba75b",
+      "name": "account2",
+      "address_info": {
+        "network": "test",
+        "private_key": "02036909611bcb3451dfecf968214ee20b004ed18819aac73a1f275ff580e1520429cacb578e50a0adf7084adb28e9b3b525f1186bac81badb4fd74a64045c6e",
+        "public_key": "03be87566556380896352da2d62b9699a37904312166108de7d6a3f890b103a7c5",
+        "wallet_address": "mv545czau2FymXWRv2EoypVJXuLfLMBR7Q"
+      },
+      "balance": 0
+    }
+    "#;
+
+    // async fn _build_transaction() -> Result<(String, u64)> {
+    //     let acnt_1: account::Info = serde_json::from_str(TEST_ACCOUNT_1)?;
+    //     let acnt_2: account::Info = serde_json::from_str(TEST_ACCOUNT_2)?;
+
+    //     let tx_info = TxInfo {
+    //         recipient_address: acnt_2.address_info.wallet_address.clone(),
+    //         send_amount: 10,
+    //         max_send_amount: 1000,
+    //         fee_rate: 10,
+    //         max_fee_rate: 20,
+    //         max_fee_amount: 1_000_000,
+    //     };
+
+    //     build_transaction(PASSWORD, &acnt_1, tx_info).await
+    // }
+
+    // #[tokio::test]
+    // async fn test_build_transaction() -> Result<()> {
+    //     let (tx, fee) = _build_transaction().await?;
+
+    //     println!("You should now be able to broadcast the following transaction: \n{tx}\n fee:{fee}");
+
+    //     Ok(())
+    // }
+
+    // #[tokio::test]
+    // async fn test_broadcast_transaction() -> Result<()> {
+    //     let (tx, fee) = _build_transaction().await?;
+    //     println!("You should now be able to broadcast the following transaction: \n{tx}\n fee:{fee}");
+
+    //     let res = broadcast_transaction("test", tx).await?;
+    //     println!("{res}");
+
+    //     Ok(())
+    // }
 }
