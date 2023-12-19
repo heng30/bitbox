@@ -121,4 +121,16 @@ mod tests {
         let mnemonic = Info::mnemonic();
         println!("{mnemonic}");
     }
+
+    #[test]
+    fn test_decrypt_mnemonic() -> Result<()> {
+        let mnemonic_1 = Info::mnemonic();
+        let info = Info::new("account1", PASSWORD, &mnemonic_1)?;
+        let mnemonic_2 = info.decrypt_mnemonic(PASSWORD)?;
+
+        println!("{mnemonic_2}");
+        assert_eq!(mnemonic_1, mnemonic_2);
+
+        Ok(())
+    }
 }

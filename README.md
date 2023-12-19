@@ -33,7 +33,7 @@ It is a easily used bitcoin wallet that based on `Slint-UI`.
 - [LSP (Language Server Protocol) Server for Slint](https://github.com/slint-ui/slint/tree/master/tools/lsp)
 - [rust-bitcoin](https://github.com/rust-bitcoin/rust-bitcoin/)
 - [decode-transaction](https://www.blockchain.com/explorer/assets/btc/decode-transaction)
-- [btc-testnet](https://coinfaucet.eu/en/btc-testnet/)
+- [btc testnet faucet](https://coinfaucet.eu/en/btc-testnet/)
 - [bip39](https://iancoleman.io/bip39/)
 - [walletsrecovery.org](https://walletsrecovery.org/)
 

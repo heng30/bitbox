@@ -48,7 +48,10 @@ pub async fn fetch_utxos(network: &str, address: &str) -> Result<Vec<Utxo>> {
         .send()
         .await?
         .json::<Vec<Utxo>>()
-        .await?;
+        .await?
+        .into_iter()
+        .filter(|item| item.status.confirmed)
+        .collect();
 
     Ok(response)
 }

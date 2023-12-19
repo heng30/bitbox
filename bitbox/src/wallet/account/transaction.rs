@@ -17,11 +17,17 @@ use rand::seq::SliceRandom;
 use std::collections::BTreeMap;
 use std::str::FromStr;
 
+#[derive(Debug, Clone)]
+struct TxDetail {
+    pub tx_hex: String,
+    pub fee_amount: u64,
+}
+
 pub async fn build(
     password: &str,
     address_info: address::Info,
     tx_info: tx::Info,
-) -> Result<String> {
+) -> Result<TxDetail> {
     let secp = Secp256k1::new();
     let network = Network::from_core_arg(&address_info.network)?;
     let seed = address_info.seed(password)?;
@@ -50,12 +56,10 @@ pub async fn build(
     tx.verify(|_| Some(previous_output.clone()))
         .context(format!("failed to verify transaction. hex: {}", hex))?;
 
-    println!(
-        "You should now be able to broadcast the following transaction: \n\n{}",
-        hex
-    );
-
-    Ok(hex)
+    Ok(TxDetail {
+        tx_hex: hex,
+        fee_amount: online.fee_amount,
+    })
 }
 
 struct ColdStorage {
@@ -109,7 +113,7 @@ struct WatchOnly {
     output_utxos: Vec<TxOut>,
     input_amount: u64,
     change_amount: u64,
-    fee_amount: u64,
+    pub fee_amount: u64,
 
     address_info: address::Info,
     tx_info: tx::Info,
@@ -297,72 +301,107 @@ impl WatchOnly {
 
 #[cfg(test)]
 mod tests {
+    use super::super::super::transaction::blockstream::broadcast_transaction;
     use super::*;
 
     const PASSWORD: &str = "12345678";
-    const MAIN_ADDRESS: &str = "36LjFk7tAn6j93nKBHcvtXd88wFGSPDtZG";
-    const TEST_ADDRESS: &str = "tb1q5sulqc5lq048s25jtcdv34fhxq7s68uk6m2nl0";
 
     const TEST_ACCOUNT_1: &str = r#"
     {
         "uuid":"2a42cc5b-1663-424d-a391-cd700b5c2f25",
         "name":"account1",
-        "address_info":{
-            "network":"test",
-            "private_key":"eee3574e2f327fbf5489a9479aeae5473713ddf8aa2d259d3908173302fdbd7292d2cea8edc5db5bc60df9f5c12395f20306d5ab1f0dbf2d8d5f7a83f770cce4",
-            "public_key":"0312914cf39329afe5180bfa0f69d9d67da3685a5c8d28673199ae973f38ac4148",
-            "wallet_address":"msFbCzXbGxdeFRp6zm4WJZozm7akFSGRXg"
-            },
-        "balance":0
+        "balance":0,
+        "mnemonic": "b9cd46a3394670456d56a9d47c38da1df0e0ea226c270b08770c20dd738ee69ee54ae400283d587973ffc653eb48b5e46d1bc4153d433ce6bc5db90dc5f02b01cdb47eb9cffad0043587d941469f20c272045151446e9ceb872495c99d7f4353f4b9b88ea02d92645eb6863c85ac6a73ced1d0224b8b2783c72bf3911e15971d5a152d56e383abbe48c6d87b1ed4d4953e40fd465ee125e48379abb039128f04",
+        "network": "test",
+        "address": [
+            "bc1qq8jfvz4fzc83jrysyrtj83sn4ps0zenwc7zccv",
+            "tb1qq8jfvz4fzc83jrysyrtj83sn4ps0zenwjcetrl"
+        ]
     }"#;
 
     const TEST_ACCOUNT_2: &str = r#"
     {
-      "uuid": "0d2fe06d-570f-4eda-9746-1316685ba75b",
-      "name": "account2",
-      "address_info": {
+        "uuid": "0d2fe06d-570f-4eda-9746-1316685ba75b",
+        "name": "account2",
+        "balance": 0,
+        "mnemonic": "9dfb1e817d1d0b261a62cba4681c92c5982ca59f7ad5be5087107ab26fedd2c996481a34f5968ebbdcf4f53f00a03ed3b1afdbcd2fd8c45559ccdc354f6c4ee02bf33ca1c4b3d9790b3b741771ed518d1b5ed6a2a9458c19f82a20fabaf8220d79083531cc3be119d30a575dc3b20c6e734238a25bf68051881480bfb5f86310c49b13e19d4b5ee7fedb23070ff1b89bf26c091e0f879052007141dd416a37ac",
         "network": "test",
-        "private_key": "02036909611bcb3451dfecf968214ee20b004ed18819aac73a1f275ff580e1520429cacb578e50a0adf7084adb28e9b3b525f1186bac81badb4fd74a64045c6e",
-        "public_key": "03be87566556380896352da2d62b9699a37904312166108de7d6a3f890b103a7c5",
-        "wallet_address": "mv545czau2FymXWRv2EoypVJXuLfLMBR7Q"
-      },
-      "balance": 0
+        "address": [
+            "bc1qll0600sj066n8lptxnshuu24vq3hgvs7vrs6f8",
+            "tb1qll0600sj066n8lptxnshuu24vq3hgvs7x9tfj5"
+        ]
     }
     "#;
 
-    // async fn _build_transaction() -> Result<(String, u64)> {
-    //     let acnt_1: account::Info = serde_json::from_str(TEST_ACCOUNT_1)?;
-    //     let acnt_2: account::Info = serde_json::from_str(TEST_ACCOUNT_2)?;
+    async fn build_transaction_1to2() -> Result<TxDetail> {
+        let acnt_1: address::Info = serde_json::from_str(TEST_ACCOUNT_1)?;
+        let acnt_2: address::Info = serde_json::from_str(TEST_ACCOUNT_2)?;
 
-    //     let tx_info = TxInfo {
-    //         recipient_address: acnt_2.address_info.wallet_address.clone(),
-    //         send_amount: 10,
-    //         max_send_amount: 1000,
-    //         fee_rate: 10,
-    //         max_fee_rate: 20,
-    //         max_fee_amount: 1_000_000,
-    //     };
+        let tx_info = tx::Info {
+            recipient_address: acnt_2.address.1.clone(),
+            send_amount: 10_000,
+            max_send_amount: 100_000,
+            fee_rate: 3,
+            max_fee_rate: 10,
+            max_fee_amount: 1_000_000,
+        };
 
-    //     build_transaction(PASSWORD, &acnt_1, tx_info).await
-    // }
+        build(PASSWORD, acnt_1, tx_info).await
+    }
 
-    // #[tokio::test]
-    // async fn test_build_transaction() -> Result<()> {
-    //     let (tx, fee) = _build_transaction().await?;
+    async fn build_transaction_2to1() -> Result<TxDetail> {
+        let acnt_1: address::Info = serde_json::from_str(TEST_ACCOUNT_1)?;
+        let acnt_2: address::Info = serde_json::from_str(TEST_ACCOUNT_2)?;
 
-    //     println!("You should now be able to broadcast the following transaction: \n{tx}\n fee:{fee}");
+        let tx_info = tx::Info {
+            recipient_address: acnt_1.address.1.clone(),
+            send_amount: 10_000,
+            max_send_amount: 100_000,
+            fee_rate: 3,
+            max_fee_rate: 10,
+            max_fee_amount: 1_000_000,
+        };
 
-    //     Ok(())
-    // }
+        build(PASSWORD, acnt_2, tx_info).await
+    }
 
-    // #[tokio::test]
-    // async fn test_broadcast_transaction() -> Result<()> {
-    //     let (tx, fee) = _build_transaction().await?;
-    //     println!("You should now be able to broadcast the following transaction: \n{tx}\n fee:{fee}");
+    #[tokio::test]
+    async fn test_build_transaction() -> Result<()> {
+        let tx_detail = build_transaction_1to2().await?;
 
-    //     let res = broadcast_transaction("test", tx).await?;
-    //     println!("{res}");
+        println!(
+            "You should now be able to broadcast the following transaction: \n{}\nfee:{}",
+            tx_detail.tx_hex, tx_detail.fee_amount
+        );
 
-    //     Ok(())
-    // }
+        Ok(())
+    }
+
+    #[tokio::test]
+    async fn test_broadcast_transaction_1to2() -> Result<()> {
+        let tx_detail = build_transaction_1to2().await?;
+        println!(
+            "tx hex: \n{}\nfee:{}",
+            tx_detail.tx_hex, tx_detail.fee_amount
+        );
+
+        let res = broadcast_transaction("test", tx_detail.tx_hex).await?;
+        println!("txid: {res}");
+
+        Ok(())
+    }
+
+    #[tokio::test]
+    async fn test_broadcast_transaction_2to1() -> Result<()> {
+        let tx_detail = build_transaction_2to1().await?;
+        println!(
+            "tx hex: \n{}\nfee:{}",
+            tx_detail.tx_hex, tx_detail.fee_amount
+        );
+
+        let res = broadcast_transaction("test", tx_detail.tx_hex).await?;
+        println!("txid: {res}");
+
+        Ok(())
+    }
 }
