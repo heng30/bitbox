@@ -1,4 +1,4 @@
-use super::super::transaction::blockstream::fetch_utxos;
+use super::super::transaction::blockstream::{fetch_confirmed_utxos, Utxo};
 use super::{address, tx};
 use anyhow::{anyhow, Context, Result};
 use bip32::Seed;
@@ -47,17 +47,12 @@ pub async fn build(
 
     let finalized = online.finalize_psbt(signed)?;
 
-    // println!("{finalized:?}");
-
-    let previous_output = online.previous_output()?;
     let tx = finalized.extract_tx_unchecked_fee_rate();
-    let hex = encode::serialize_hex(&tx);
 
-    tx.verify(|_| Some(previous_output.clone()))
-        .context(format!("failed to verify transaction. hex: {}", hex))?;
+    online.verify_transaction(&tx)?;
 
     Ok(TxDetail {
-        tx_hex: hex,
+        tx_hex: encode::serialize_hex(&tx),
         fee_amount: online.fee_amount,
     })
 }
@@ -109,11 +104,12 @@ struct WatchOnly {
     account_xpub: Xpub,
     master_fingerprint: Fingerprint,
 
+    raw_input_utxos: Vec<Utxo>,
     input_utxos: Vec<TxIn>,
     output_utxos: Vec<TxOut>,
     input_amount: u64,
     change_amount: u64,
-    pub fee_amount: u64,
+    fee_amount: u64,
 
     address_info: address::Info,
     tx_info: tx::Info,
@@ -130,6 +126,7 @@ impl WatchOnly {
             account_xpub,
             master_fingerprint,
 
+            raw_input_utxos: vec![],
             input_utxos: vec![],
             output_utxos: vec![],
             input_amount: 0,
@@ -163,9 +160,9 @@ impl WatchOnly {
     fn update_psbt(&self, mut psbt: Psbt) -> Result<Psbt> {
         let mut inputs = vec![];
 
-        for _ in 0..self.input_utxos.len() {
+        for index in 0..self.input_utxos.len() {
             let mut input = Input {
-                witness_utxo: Some(self.previous_output()?),
+                witness_utxo: Some(self.previous_output(index)?),
                 ..Default::default()
             };
 
@@ -235,21 +232,20 @@ impl WatchOnly {
         Ok(ScriptBuf::new_p2wpkh(&wpkh))
     }
 
-    fn previous_output(&self) -> Result<TxOut> {
+    fn previous_output(&self, index: usize) -> Result<TxOut> {
         Ok(TxOut {
-            value: Amount::from_sat(self.input_amount),
+            value: Amount::from_sat(self.raw_input_utxos[index].value),
             script_pubkey: self
-                .input_utxo_script_pubkey()
-                .context("failed to parse input utxo scriptPubkey")?,
+                .input_utxo_script_pubkey()?,
         })
     }
 
     async fn build_input_output_tx(&mut self) -> Result<()> {
         let wallet_address = self.wallet_address()?.to_string();
-        let mut utxos = fetch_utxos(&self.address_info.network, &wallet_address).await?;
+        let mut utxos = fetch_confirmed_utxos(&self.address_info.network, &wallet_address).await?;
         utxos.shuffle(&mut rand::thread_rng());
 
-        let (mut inputs, mut outputs) = (vec![], vec![]);
+        let (mut raw_inputs, mut inputs, mut outputs) = (vec![], vec![], vec![]);
         outputs.push(TxOut {
             value: Amount::from_sat(self.tx_info.send_amount),
             script_pubkey: self.recipient_address()?.script_pubkey(),
@@ -260,6 +256,7 @@ impl WatchOnly {
             let mut input = TxIn::default();
             input.previous_output = OutPoint::new(Txid::from_str(&utxo.txid)?, utxo.vout);
             inputs.push(input);
+            raw_inputs.push(utxo.clone());
 
             total_input_amount += utxo.value;
             if self.tx_info.send_amount >= total_input_amount {
@@ -290,12 +287,38 @@ impl WatchOnly {
             script_pubkey: self.wallet_address()?.script_pubkey(),
         });
 
+        self.raw_input_utxos = raw_inputs;
         self.input_utxos = inputs;
         self.output_utxos = outputs;
         self.input_amount = total_input_amount;
         self.change_amount = change_amount;
         self.fee_amount = fee_amount;
         Ok(())
+    }
+
+    fn verify_transaction(&self, tx: &Transaction) -> Result<()> {
+        let raw_input_utxos = self.raw_input_utxos.clone();
+        let input_utxo_script_pubkey = self
+            .input_utxo_script_pubkey()?;
+
+        match tx.verify(|outpoint| {
+            for utxo in raw_input_utxos.iter() {
+                if utxo.txid == outpoint.txid.to_string() && utxo.vout == outpoint.vout {
+                    return Some(TxOut {
+                        value: Amount::from_sat(utxo.value),
+                        script_pubkey: input_utxo_script_pubkey.clone(),
+                    });
+                }
+            }
+
+            None
+        }) {
+            Err(e) => Err(anyhow!(format!(
+                "failed to verify transaction. Reason: {:?}",
+                e
+            ))),
+            _ => Ok(()),
+        }
     }
 }
 
@@ -355,7 +378,7 @@ mod tests {
 
         let tx_info = tx::Info {
             recipient_address: acnt_1.address.1.clone(),
-            send_amount: 10_000,
+            send_amount: 1_0000,
             max_send_amount: 100_000,
             fee_rate: 3,
             max_fee_rate: 10,

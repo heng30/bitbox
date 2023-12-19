@@ -3,7 +3,7 @@ use anyhow::{anyhow, Result};
 use serde::Deserialize;
 use std::time::Duration;
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Clone, Deserialize)]
 pub struct UtxoStatus {
     pub confirmed: bool,
     pub block_height: Option<u64>,
@@ -11,7 +11,7 @@ pub struct UtxoStatus {
     pub block_time: Option<u64>,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Clone, Deserialize)]
 pub struct Utxo {
     pub txid: String,
     pub vout: u32,
@@ -48,17 +48,25 @@ pub async fn fetch_utxos(network: &str, address: &str) -> Result<Vec<Utxo>> {
         .send()
         .await?
         .json::<Vec<Utxo>>()
-        .await?
-        .into_iter()
-        .filter(|item| item.status.confirmed)
-        .collect();
+        .await?;
 
     Ok(response)
 }
 
+pub async fn fetch_confirmed_utxos(network: &str, address: &str) -> Result<Vec<Utxo>> {
+    Ok(fetch_utxos(network, address)
+        .await?
+        .into_iter()
+        .filter(|item| item.status.confirmed)
+        .collect())
+}
+
 pub async fn fetch_balance(network: &str, address: &str) -> Result<u64> {
-    let utxos = fetch_utxos(network, address).await?;
-    Ok(utxos.iter().map(|item| item.value).sum())
+    Ok(fetch_utxos(network, address)
+        .await?
+        .into_iter()
+        .map(|item| item.value)
+        .sum())
 }
 
 pub async fn broadcast_transaction(network: &str, tx: String) -> Result<String> {
