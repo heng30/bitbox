@@ -1,3 +1,3 @@
 pub mod tx;
-pub mod transaction;
+pub mod sendinfo;
 pub mod address;

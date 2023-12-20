@@ -3,6 +3,8 @@ use anyhow::{anyhow, Result};
 use serde::Deserialize;
 use std::time::Duration;
 
+const TIMEOUT_SECS: u64 = 15;
+
 #[derive(Debug, Clone, Deserialize)]
 pub struct UtxoStatus {
     pub confirmed: bool,
@@ -38,13 +40,21 @@ fn broadcast_url(network: &str) -> &str {
     }
 }
 
+fn tx_status_url(network: &str, txid: &str) -> String {
+    match network {
+        "main" => format!("https://blockstream.info/api/tx/{}/status", txid),
+        "test" => format!("https://blockstream.info/testnet/api/tx/{}/status", txid),
+        _ => unimplemented!(),
+    }
+}
+
 pub async fn fetch_utxos(network: &str, address: &str) -> Result<Vec<Utxo>> {
     let url = utxo_url(network, address);
 
     let client = util::http::client()?;
     let response = client
         .get(&url)
-        .timeout(Duration::from_secs(15))
+        .timeout(Duration::from_secs(TIMEOUT_SECS))
         .send()
         .await?
         .json::<Vec<Utxo>>()
@@ -69,6 +79,7 @@ pub async fn fetch_balance(network: &str, address: &str) -> Result<u64> {
         .sum())
 }
 
+// return txid
 pub async fn broadcast_transaction(network: &str, tx: String) -> Result<String> {
     let url = broadcast_url(network);
     let client = util::http::client()?;
@@ -79,6 +90,21 @@ pub async fn broadcast_transaction(network: &str, tx: String) -> Result<String> 
     } else {
         Err(anyhow!(response.text().await?))
     }
+}
+
+pub async fn is_tx_confirmed(network: &str, txid: &str) -> Result<bool> {
+    let url = tx_status_url(network, txid);
+
+    let client = util::http::client()?;
+    let response = client
+        .get(&url)
+        .timeout(Duration::from_secs(TIMEOUT_SECS))
+        .send()
+        .await?
+        .json::<UtxoStatus>()
+        .await?;
+
+    Ok(response.confirmed)
 }
 
 #[cfg(test)]
@@ -109,6 +135,15 @@ mod tests {
         assert!(tb > 0);
 
         // println!("{mb}, {tb}");
+        Ok(())
+    }
+
+    #[tokio::test]
+    async fn test_is_tx_confirmed() -> Result<()> {
+        let txid = "32f1ae8a69040b3f56b29e4e44e288e3712be0887d05e812155bb7984a71d49e";
+        let ret = is_tx_confirmed("test", txid).await?;
+        assert!(ret);
+
         Ok(())
     }
 }
