@@ -459,9 +459,17 @@ mod tests {
 
     #[test]
     fn test_is_valid_txid() {
-        assert!(is_valid_txid("8a3c64494a2a9815e5116de1007a95dcb637e86ec4b6654356e5b485c7bbaa14"));
-        assert!(!is_valid_txid("8a3c64494a2a9815e5116de1007a95dcb637e86ec4b6654356e5b4=5c7bbaa14"));
-        assert!(!is_valid_txid("8a3c64494a2a9815e5116de1007a95dcb637e86ec4b6654356e5b485 7bbaa14"));
-        assert!(!is_valid_txid("8a3c64494a2a9815e5116de1007a95dcb637e86ec4b6654356e5b4857bbaa1"));
+        assert!(is_valid_txid(
+            "8a3c64494a2a9815e5116de1007a95dcb637e86ec4b6654356e5b485c7bbaa14"
+        ));
+        assert!(!is_valid_txid(
+            "8a3c64494a2a9815e5116de1007a95dcb637e86ec4b6654356e5b4=5c7bbaa14"
+        ));
+        assert!(!is_valid_txid(
+            "8a3c64494a2a9815e5116de1007a95dcb637e86ec4b6654356e5b485 7bbaa14"
+        ));
+        assert!(!is_valid_txid(
+            "8a3c64494a2a9815e5116de1007a95dcb637e86ec4b6654356e5b4857bbaa1"
+        ));
     }
 }

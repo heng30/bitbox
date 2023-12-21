@@ -1,6 +1,6 @@
 use anyhow::Result;
-use std::path::PathBuf;
 use std::env;
+use std::path::PathBuf;
 
 pub fn working_dir() -> Result<PathBuf> {
     let mut dir = env::current_exe()?;
@@ -17,7 +17,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_working_dir() -> Result<()>{
+    fn test_working_dir() -> Result<()> {
         let wd = working_dir()?;
         // println!("{:?}", wd);
         assert!(wd.is_dir());

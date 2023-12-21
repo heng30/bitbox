@@ -1,21 +1,28 @@
+#[macro_use]
 extern crate serde_derive;
+
+#[macro_use]
 extern crate lazy_static;
 
+mod btc;
+mod config;
+mod db;
 mod util;
 mod wallet;
-mod db;
-mod btc;
 
+use anyhow::Result;
 use chrono::Local;
 use env_logger::fmt::Color as LColor;
 use log::debug;
 use std::io::Write;
-use anyhow::Result;
 
 #[tokio::main]
 async fn main() -> Result<()> {
     init_logger();
     debug!("start...");
+
+    config::init();
+    db::init();
 
     debug!("exit...");
     Ok(())
