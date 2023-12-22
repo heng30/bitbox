@@ -18,7 +18,7 @@ use std::collections::BTreeMap;
 use std::str::FromStr;
 
 #[derive(Debug, Clone)]
-struct TxDetail {
+pub struct TxDetail {
     pub tx_hex: String,
     pub fee_amount: u64,
 }
@@ -407,6 +407,21 @@ mod tests {
         build(PASSWORD, acnt_2, tx_info).await
     }
 
+    async fn build_transaction_to_pkh() -> Result<TxDetail> {
+        let acnt_1: address::Info = serde_json::from_str(TEST_ACCOUNT_1)?;
+
+        let tx_info = sendinfo::Info {
+            recipient_address: "msFbCzXbGxdeFRp6zm4WJZozm7akFSGRXg".to_string(),
+            send_amount: 1,
+            max_send_amount: 100_000,
+            fee_rate: 3,
+            max_fee_rate: 10,
+            max_fee_amount: 1_000_000,
+        };
+
+        build(PASSWORD, acnt_1, tx_info).await
+    }
+
     #[tokio::test]
     async fn test_build_transaction() -> Result<()> {
         let tx_detail = build_transaction_1to2().await?;
@@ -436,6 +451,20 @@ mod tests {
     #[tokio::test]
     async fn test_broadcast_transaction_2to1() -> Result<()> {
         let tx_detail = build_transaction_2to1().await?;
+        println!(
+            "tx hex: \n{}\nfee:{}",
+            tx_detail.tx_hex, tx_detail.fee_amount
+        );
+
+        let res = broadcast_transaction("test", tx_detail.tx_hex).await?;
+        println!("txid: {res}");
+
+        Ok(())
+    }
+
+    #[tokio::test]
+    async fn test_broadcast_transaction_to_pkh() -> Result<()> {
+        let tx_detail = build_transaction_to_pkh().await?;
         println!(
             "tx hex: \n{}\nfee:{}",
             tx_detail.tx_hex, tx_detail.fee_amount

@@ -111,7 +111,6 @@ pub async fn is_tx_confirmed(network: &str, txid: &str) -> Result<bool> {
 mod tests {
     use super::*;
 
-    const PASSWORD: &str = "12345678";
     const MAIN_ADDRESS: &str = "36LjFk7tAn6j93nKBHcvtXd88wFGSPDtZG";
     const TEST_ADDRESS: &str = "tb1q5sulqc5lq048s25jtcdv34fhxq7s68uk6m2nl0";
 

@@ -95,9 +95,9 @@ impl Info {
         Ok(())
     }
 
-    pub fn save(&self) -> Result<()> {
+    pub async fn save(&self) -> Result<()> {
         let text = serde_json::to_string(self)?;
-        db::account::save(&self.uuid, text)
+        db::account::insert(&self.uuid, &text).await
     }
 }
 

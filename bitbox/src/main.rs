@@ -22,7 +22,7 @@ async fn main() -> Result<()> {
     debug!("start...");
 
     config::init();
-    db::init();
+    db::init(&config::db_path()).await;
 
     debug!("exit...");
     Ok(())
