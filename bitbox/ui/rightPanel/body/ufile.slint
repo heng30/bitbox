@@ -1,0 +1,70 @@
+import { Theme } from "../../theme.slint";
+import { Avatar } from "../../base/avatar.slint";
+import { Store } from "../../store.slint";
+import { Logic } from "../../logic.slint";
+import { Btn } from "../../base/btn.slint";
+
+export component UFile inherits HorizontalLayout {
+    in-out property<string> name;
+    in-out property<string> size;
+    in-out property<string> uuid;
+
+    alignment: end;
+    spacing: Theme.padding * 2;
+
+    Rectangle {
+        width: 450px;
+        background: #B3D4FFFF;
+        border-color: Theme.darker-border-color;
+        border-radius: Theme.border-radius;
+        border-width: 1px;
+
+        HorizontalLayout {
+            padding: Theme.padding * 2;
+            spacing: Theme.spacing * 2;
+
+            img := Image {
+                width: 80px;
+                source: @image-url("../../images/file.svg");
+            }
+
+            VerticalLayout {
+                padding: Theme.padding;
+                name-txt := Text {
+                    text: Store.translator.file-name + "  " + root.name;
+                    overflow: elide;
+                }
+
+                size-txt := Text {
+                    text: Store.translator.file-size + "  " + root.size;
+                }
+
+                HorizontalLayout {
+                    alignment: center;
+                    padding-top: Theme.padding * 4;
+
+                    Btn {
+                        width: 100%;
+                        bg-color: Theme.warning-color;
+                        border-radius: Theme.border-radius;
+                        text: Store.translator.cancel;
+                        icon: @image-url("../../images/cancel.svg");
+
+                        clicked => {
+                            Store.ok-cancel-dialog-setting.title-type = "warning";
+                            Store.ok-cancel-dialog-setting.title-text = Store.translator.warning;
+                            Store.ok-cancel-dialog-setting.body-text = Store.translator.reset-or-not;
+                            Store.ok-cancel-dialog-setting.handle-type = "chat-file-remove";
+                            Store.ok-cancel-dialog-setting.handle-uuid = root.uuid;
+                        }
+                    }
+
+                }
+            }
+        }
+    }
+
+    av := Avatar {
+        icon-source: Store.setting-dialog-config.chat.user-avatar;
+    }
+}

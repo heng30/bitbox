@@ -1,0 +1,41 @@
+import { Theme } from "../../theme.slint";
+import { Store } from "../../store.slint";
+import { IconBtn } from "../../base/icon-btn.slint";
+import { Avatar } from "../../base/avatar.slint";
+import { Logic } from "../../logic.slint";
+
+export component BItem inherits VerticalLayout{
+    in-out property text <=> txt.text;
+
+    padding-left: Theme.scroll-width;
+    spacing: Theme.spacing;
+
+    HorizontalLayout {
+        alignment: start;
+        spacing: Theme.spacing * 2;
+
+        Avatar {
+            icon-source: @image-url("../../images/bot.svg");
+        }
+
+        Rectangle {
+            width: Math.min(root.width * 0.8, txt.preferred-width + txt-vbox.padding * 3);
+            background: Theme.dark-fill-color;
+            border-radius: Theme.border-radius;
+
+            txt-vbox := VerticalLayout{
+                padding: Theme.padding * 2;
+
+                txt := TextInput {
+                    wrap: word-wrap;
+                    color: Theme.regular-text-color;
+                    font-size: Theme.body-font-size;
+                    single-line: false;
+                    read-only: true;
+                }
+            }
+        }
+
+    }
+}
+

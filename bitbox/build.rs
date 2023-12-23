@@ -17,10 +17,13 @@ fn write_app_version() -> Result<(), Box<dyn std::error::Error>> {
         .map(|s| s.to_owned())
         .collect::<Vec<String>>();
 
-    if let Some(version) = tags.last() {
-        let output = format!(r#"pub static VERSION: &str = "{}";"#, version);
-        let _ = std::fs::write("src/version.rs", output);
-    }
+    let output = if let Some(version) = tags.last() {
+        format!(r#"pub static VERSION: &str = "{}";"#, version)
+    } else {
+        format!(r#"pub static VERSION: &str = "{}";"#, "0.0.1")
+    };
+
+    let _ = std::fs::write("src/version.rs", output);
 
     Ok(())
 }

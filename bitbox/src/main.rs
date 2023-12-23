@@ -1,3 +1,7 @@
+#![windows_subsystem = "windows"]
+
+slint::include_modules!();
+
 #[macro_use]
 extern crate serde_derive;
 
@@ -7,8 +11,12 @@ extern crate lazy_static;
 mod btc;
 mod config;
 mod db;
+mod logic;
 mod util;
+mod version;
 mod wallet;
+
+use logic::{about, clipboard, message, ok_cancel_dialog, setting, window};
 
 use anyhow::Result;
 use chrono::Local;
@@ -23,6 +31,19 @@ async fn main() -> Result<()> {
 
     config::init();
     db::init(&config::db_path()).await;
+
+    let ui = AppWindow::new()?;
+
+    logic::util::init(&ui);
+    logic::base::init(&ui);
+
+    clipboard::init(&ui);
+    message::init(&ui);
+    window::init(&ui);
+    about::init(&ui);
+    setting::init(&ui);
+    ok_cancel_dialog::init(&ui);
+    ui.run().unwrap();
 
     debug!("exit...");
     Ok(())

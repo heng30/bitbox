@@ -1,0 +1,28 @@
+import { SettingDialogConfig } from "./store.slint";
+
+export global Logic {
+    callback hide-window();
+
+    callback flush-sessions();
+    callback switch-session(string, string);
+    callback reset-current-session-chats();
+
+    callback send-text(string);
+    callback retry-send-text();
+    callback save-image(string);
+    callback send-image();
+
+    callback send-file();
+    callback download-file(string, string, string);
+    callback remove-chat-file-item(string);
+
+    callback show-message(string, string);
+    callback copy-to-clipboard(string);
+    callback handle-ok-cancel-dialog(string, string);
+
+    callback clean-cache();
+
+    callback setting-cancel();
+    callback setting-ok(SettingDialogConfig);
+}
+

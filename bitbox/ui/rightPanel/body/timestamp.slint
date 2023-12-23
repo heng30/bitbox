@@ -1,0 +1,17 @@
+import { Theme } from "../../theme.slint";
+
+export component Timestamp inherits HorizontalLayout {
+    in-out property text <=> timestamp-txt.text;
+
+    alignment: center;
+
+    Rectangle {
+        height: timestamp-txt.preferred-height + Theme.padding * 2;
+        width: timestamp-txt.preferred-width +  Theme.padding * 4;
+        border-radius: Theme.border-radius;
+        background: Theme.light-fill-color.darker(5%);
+        timestamp-txt := Text {
+            font-size: Theme.default-font-size - 4px;
+        }
+    }
+}

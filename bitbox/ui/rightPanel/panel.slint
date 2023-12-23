@@ -1,0 +1,41 @@
+import { Theme } from "../theme.slint";
+import { Logic } from "../logic.slint";
+import { Store } from "../store.slint";
+import { Body } from "./body/panel.slint";
+import { Footer } from "./footer.slint";
+import { Divider } from "../base/divider.slint";
+
+export component RPanel inherits VerticalLayout {
+    in-out property question <=> footer.question;
+    in-out property chats-viewport-y <=> body.viewport-y;
+    forward-focus: footer;
+
+    public function is-chats-on-bottom() -> bool {
+        return body.is-chats-on-bottom();
+    }
+
+    public function scroll-to-bottom() {
+        return body.scroll-to-bottom();
+    }
+
+
+    body := Body { }
+    footer := Footer {
+        scroll-to-top => {
+            body.scroll-to-top()
+        }
+
+        scroll-to-bottom => {
+            body.scroll-to-bottom()
+        }
+
+        scroll-up => {
+            body.scroll-up();
+        }
+
+        scroll-down => {
+            body.scroll-down();
+        }
+    }
+}
+

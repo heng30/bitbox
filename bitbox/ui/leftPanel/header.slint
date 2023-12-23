@@ -1,0 +1,119 @@
+import { LineEdit, ComboBox } from "std-widgets.slint";
+import { Theme } from "../theme.slint";
+import { Store } from "../store.slint";
+import { Logic } from "../logic.slint";
+import { IconBtn } from "../base/icon-btn.slint";
+import { Divider } from "../base/divider.slint";
+import { Avatar } from "../base/avatar.slint";
+import { CenterLayout } from "../base/center-layout.slint";
+import { PFunc } from "./func.slint";
+
+export component Header inherits Rectangle {
+    height: Theme.header-height;
+    background: Theme.lighter-border-color;
+
+    callback avatar-clicked <=> avatar.clicked;
+
+    HorizontalLayout {
+        alignment: space-between;
+
+        HorizontalLayout {
+            alignment: start;
+            padding-left: Theme.padding;
+            spacing: Theme.spacing * 2;
+
+            CenterLayout {
+                avatar := Avatar {
+                    width: root.height * 0.8;
+                    icon-size-rate: 1;
+                    icon-source: Store.setting-dialog-config.chat.user-avatar;
+                }
+            }
+
+            VerticalLayout {
+                Text {
+                    vertical-alignment: center;
+                    color: Theme.brand-color.darker(100%);
+                    text: Store.translator.name-label + "  " + Store.setting-dialog-config.chat.user-name;
+                    font-size: Theme.default-font-size - 2px;
+                }
+
+
+                Text {
+                    vertical-alignment: center;
+                    font-size: Theme.default-font-size - 2px;
+                    color: PFunc.get-status-color(Store.setting-dialog-config.chat.user-status).darker(50%);
+                    text: Store.translator.status-label + "  " + PFunc.get-status(Store.setting-dialog-config.chat.user-status);
+                }
+
+            }
+        }
+
+        HorizontalLayout {
+            padding-right: Theme.padding;
+            VerticalLayout {
+                alignment: center;
+                HorizontalLayout {
+                    IconBtn {
+                        width: Theme.icon-size * 1.33;
+                        icon-width: Theme.icon-size * 0.8;
+                        icon: @image-url("../images/reset.svg");
+                        tip-pos: "left";
+                        tip-text: Store.translator.tip-flush-session;
+                        clicked => {
+                            Logic.flush-sessions();
+                        }
+                    }
+                }
+            }
+
+            VerticalLayout {
+                alignment: center;
+                padding-left: Theme.padding * 2;
+                padding-right: Theme.padding * 2;
+
+                Divider {
+                    width: 2px;
+                    height: root.height * 0.5;
+                    background: Theme.base-border-color;
+                }
+            }
+
+            VerticalLayout {
+                alignment: center;
+                HorizontalLayout {
+                    spacing: Theme.spacing * 2;
+                    IconBtn {
+                        width: Theme.icon-size * 1.33;
+                        icon: @image-url("../images/setting-fill.svg");
+                        tip-pos: "left";
+                        tip-text: Store.translator.tip-setting;
+                        clicked => {
+                            Store.setting-dialog-config.show = true;
+                        }
+                    }
+
+                    IconBtn {
+                        width: Theme.icon-size * 1.33;
+                        icon: @image-url("../images/help.svg");
+                        tip-pos: "left";
+                        tip-text: Store.translator.tip-help;
+                        clicked => {
+                            Store.help-dialog.show = true;
+                        }
+                    }
+
+                    IconBtn {
+                        width: Theme.icon-size * 1.33;
+                        icon: @image-url("../images/info-dark.svg");
+                        tip-pos: "left";
+                        tip-text: Store.translator.tip-about;
+                        clicked => {
+                            Store.about-dialog.show = true;
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
