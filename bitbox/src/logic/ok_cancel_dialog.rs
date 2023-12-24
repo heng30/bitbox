@@ -9,11 +9,11 @@ pub fn init(ui: &AppWindow) {
 
             match handle_type.as_str() {
                 "session-reset" => {
-                    ui.global::<Logic>().invoke_reset_current_session_chats();
+                    // ui.global::<Logic>().invoke_reset_current_session_chats();
                 }
                 "chat-file-remove" => {
-                    ui.global::<Logic>()
-                        .invoke_remove_chat_file_item(handle_uuid);
+                    // ui.global::<Logic>()
+                    //     .invoke_remove_chat_file_item(handle_uuid);
                 }
                 _ => (),
             }

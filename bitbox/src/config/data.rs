@@ -11,7 +11,7 @@ pub struct Config {
 
     pub ui: UI,
 
-    pub sock5: Socks5,
+    pub socks5: Socks5,
 }
 
 impl Default for Config {
@@ -21,7 +21,7 @@ impl Default for Config {
             db_path: "".to_string(),
             cache_dir: "".to_string(),
             ui: UI::default(),
-            sock5: Socks5::default(),
+            socks5: Socks5::default(),
         }
     }
 }
@@ -40,7 +40,7 @@ impl Default for UI {
         Self {
             font_size: 18,
             font_family: "SourceHanSerifCN".to_string(),
-            win_width: 1200,
+            win_width: 600,
             win_height: 800,
             language: "cn".to_string(),
         }
@@ -49,7 +49,7 @@ impl Default for UI {
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Socks5 {
-    pub enable: bool,
+    pub enabled: bool,
     pub url: String,
     pub port: u16,
 }
@@ -57,7 +57,7 @@ pub struct Socks5 {
 impl Default for Socks5 {
     fn default() -> Self {
         Self {
-            enable: false,
+            enabled: false,
             url: "127.0.0.1".to_string(),
             port: 1080,
         }

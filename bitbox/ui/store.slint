@@ -1,29 +1,11 @@
 import { Translator, Translation} from "./translator.slint";
 import { MDItem } from "./base/data.slint";
 
-export struct ChatItem {
-    uuid: string,
-    type: string,
-
-    text: string,
-
-    img: image,
-    img-path: string,
-
-    file-id: string,
-    file-name: string,
-    file-size: string,
-    file-status: string,
-}
-
-export struct ChatSession {
+export struct Account {
     uuid: string,
     name: string,
-    avatar: image,
-    status: string,
-    unread-count: int,
-    timestamp: string,
-    chat-items: [ChatItem]
+    address: string,
+    network: string,
 }
 
 export struct MessageItem {
@@ -47,18 +29,16 @@ export struct SettingUI {
     language: string,
 }
 
-export struct SettingChat {
-    user-name: string,
-    user-status: string,
-    user-avatar: image,
-
-    cache-size: string,
+export struct SettingProxy {
+    enabled: bool,
+    url: string,
+    port: string,
 }
 
 export struct SettingDialogConfig {
     show: bool,
     ui: SettingUI,
-    chat: SettingChat,
+    proxy: SettingProxy,
 }
 
 export struct AboutDialog {
@@ -69,84 +49,14 @@ export struct AboutDialog {
 }
 
 export global Store  {
-    in-out property<[ChatItem]> session-datas: [
-        // {
-        //     type: "timestamp",
-        //     text: "2023-12-03 12:03:45",
-        // },
-        // {
-        //     type: "uimage",
-        //     img: @image-url("/tmp/1.png"),
-        // },
-        // {
-        //     type: "bimage",
-        //     img: @image-url("/tmp/1.png"),
-        // },
-        // {
-        //     type: "uimage",
-        //     img: @image-url("./images/icon.png"),
-        // },
-        // {
-        //     type: "ufile",
-        //     file-name: "fwjif jw wjfiw wjif jwif jwifj wijj wif",
-        //     file-size: "1G",
-        // },
-        // {
-        //     type: "bfile",
-        //     file-name: "fwjif jw wjfiw wjif jwif jwifj wijj wif",
-        //     file-size: "1G",
-        //     file-status: "undownload",
-        // },
-        // {
-        //     type: "bimage",
-        //     img: @image-url("./images/icon.png"),
-        // },
-        // {
-        //     type: "uitem",
-        //     text: "hello world ejfiwejfwij fwij wijfweifj wiofjw iofjwiofjwe iojfwioj fwjeifjwei ffwiofj wiejf wiofjw ijfwie wejfiwej fiwfjweif jwiefjwif jweif\n wjfiwej iwjwfie ",
-        // },
-        // {
-        //     type: "bitem",
-        //     text: "int main()\n{\n    printf('hello world');\n}",
-        // },
-        // {
-        //     type: "timestamp",
-        //     text: "2023-12-03 12:03:45",
-        // },
-        // {
-        //     type: "uitem",
-        //     text: "基金法飞机无法及附加",
-        // }
-    ];
+    in-out property<Account> account: {
+        uuid: "default-uuid",
+        name: "account-1",
+        address: "tb1qq8jfvz4fzc83jrysyrtj83sn4ps0zenwjcetrl",
+        network: "main",
 
-    in-out property<[ChatSession]> chat-sessions: [
-        // {
-        //     name: "会话1",
-        //     uuid: "session-uuid-1",
-        //     status: "Online",
-        //     unread-count: 10,
-        // },
-        // {
-        //     name: "会话2",
-        //     uuid: "session-uuid-2",
-        //     status: "Offline",
-        //     unread-count: 2,
-        // },
-        // {
-        //     name: "会话3",
-        //     uuid: "session-uuid-3",
-        //     status: "Busy",
-        //     unread-count: 2,
-        // },
-        // {
-        //     name: "会话4",
-        //     uuid: "session-uuid-4",
-        //     status: "Idle",
-        //     unread-count: 2,
-        // },
-    ];
+    };
 
-    in-out property<string> current-session-uuid: "session-uuid-1";
     in-out property<MessageItem> message;
     in-out property<OkCancelDialogSetting> ok-cancel-dialog-setting;
 
@@ -155,20 +65,20 @@ export global Store  {
         ui: {
             font-size: "18",
             font-family: "SourceHanSerifCN",
-            win-width: "1200",
-            win-height: "600",
+            win-width: "600",
+            win-height: "1000",
             language: "cn",
         },
-        chat: {
-            user-name: "gossip-user",
-            user-status: "Online",
-            user-avatar: @image-url("./images/skull.svg"),
+        proxy: {
+            enabled: false,
+            url: "127.0.0.1",
+            port: "1080",
         }
     };
 
     in-out property<AboutDialog> about-dialog: {
         show: false,
-        title: "gossipbox v1.0.0",
+        title: "bitbox v0.0.1",
         text: "Based on Slint-UI. Copyright 2022-2030 The Heng30 Company Ltd. All rights reserved. The program is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.",
         sponsor: "0xf1199999751b1a3A74590adBf95401D19AB30014",
     };
@@ -179,26 +89,12 @@ export global Store  {
         show: false,
         text-cn:
               "配置和数据:\n"
-            + "  1. 配置保存在~/.config/gossipbox目录下。\n"
-            + "  2. 数据保存在~/.local/share/gossipbox目录下。\n"
-            + "\n快捷键:\n"
-            + "  1. Ctrl+T: 当前会话滚动到顶部。\n"
-            + "  2. Ctrl+B: 当前会话滚动到底部。\n"
-            + "  3. Ctrl+J: 会话向下滚动25%。\n"
-            + "  4. Ctrl+K: 会话向上滚动25%。\n"
-            + "  5. Ctrl+M: 重新提问最后一个问题。\n"
-            + "  6. Ctrl+I: 定位到提问框。\n",
+            + "  1. 配置保存在~/.config/bitbox目录下。\n"
+            + "  2. 数据保存在~/.local/share/bitbox目录下。\n",
 
         text-en:
               "Configuration And Data:\n"
-            + "  1. Configuration is stored in the ~/.config/gossipbox directory.\n"
-            + "  2. Data is stored in the ~/.local/share/gossipbox directory.\n"
-            + "\nKeyboard Shortcuts:\n"
-            + "  1. Ctrl+T: Scroll to the top of the current session.\n"
-            + "  2. Ctrl+B: Scroll to the bottom of the current session.\n"
-            + "  3. Ctrl+J: Scroll down the conversation by 25%.\n"
-            + "  4. Ctrl+K: Scroll up the conversation by 25%.\n"
-            + "  5. Ctrl+M: Retry the last question.\n"
-            + "  6. Ctrl+I: Focus on question input box.\n",
+            + "  1. Configuration is stored in the ~/.config/bitbox directory.\n"
+            + "  2. Data is stored in the ~/.local/share/bitbox directory.\n",
     };
 }

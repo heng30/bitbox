@@ -20,8 +20,8 @@ pub fn ui() -> data::UI {
     CONFIG.lock().unwrap().borrow().ui.clone()
 }
 
-pub fn sock5() -> data::Socks5 {
-    CONFIG.lock().unwrap().borrow().sock5.clone()
+pub fn socks5() -> data::Socks5 {
+    CONFIG.lock().unwrap().borrow().socks5.clone()
 }
 
 #[allow(dead_code)]
@@ -110,7 +110,7 @@ impl Config {
             Ok(text) => match serde_json::from_str::<Config>(&text) {
                 Ok(c) => {
                     self.ui = c.ui;
-                    self.sock5 = c.sock5;
+                    self.socks5 = c.socks5;
                     Ok(())
                 }
                 Err(e) => Err(anyhow!("{}", e.to_string()).into()),

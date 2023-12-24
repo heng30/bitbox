@@ -15,10 +15,6 @@ pub fn init(ui: &AppWindow) {
                 message_warn!(ui, format!("{}. {}: {}", tr("清空失败"), tr("原因"), e));
             }
             _ => {
-                // let mut setting_dialog = ui.global::<Store>().get_setting_dialog_config();
-                // ui.global::<Store>()
-                //     .set_setting_dialog_config(setting_dialog);
-
                 message_success!(ui, tr("清空成功"));
             }
         }
@@ -46,7 +42,7 @@ pub fn init(ui: &AppWindow) {
             .win_width
             .to_string()
             .parse()
-            .unwrap_or(1200);
+            .unwrap_or(600);
         config.ui.win_height = setting_config
             .ui
             .win_height
@@ -55,6 +51,15 @@ pub fn init(ui: &AppWindow) {
             .unwrap_or(800);
 
         config.ui.language = setting_config.ui.language.to_string();
+
+        config.socks5.enabled = setting_config.proxy.enabled;
+        config.socks5.url = setting_config.proxy.url.to_string();
+        config.socks5.port = setting_config
+            .proxy
+            .port
+            .to_string()
+            .parse()
+            .unwrap_or(1080);
 
         match config::save(config) {
             Err(e) => {
@@ -71,6 +76,7 @@ pub fn init(ui: &AppWindow) {
 fn init_setting_dialog(ui: Weak<AppWindow>) {
     let ui = ui.unwrap();
     let ui_config = config::ui();
+    let socks5_config = config::socks5();
 
     let mut setting_dialog = ui.global::<Store>().get_setting_dialog_config();
     setting_dialog.ui.font_size = slint::format!("{}", ui_config.font_size);
@@ -78,6 +84,10 @@ fn init_setting_dialog(ui: Weak<AppWindow>) {
     setting_dialog.ui.win_width = slint::format!("{}", ui_config.win_width);
     setting_dialog.ui.win_height = slint::format!("{}", ui_config.win_height);
     setting_dialog.ui.language = ui_config.language.into();
+
+    setting_dialog.proxy.enabled = socks5_config.enabled;
+    setting_dialog.proxy.url = socks5_config.url.into();
+    setting_dialog.proxy.port = slint::format!("{}", socks5_config.port);
 
     ui.global::<Store>()
         .set_setting_dialog_config(setting_dialog);

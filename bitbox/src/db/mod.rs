@@ -1,4 +1,3 @@
-use crate::config;
 use anyhow::Result;
 use sqlx::migrate::MigrateDatabase;
 use sqlx::{
@@ -33,9 +32,8 @@ async fn create_db(db_path: &str) -> Result<(), sqlx::Error> {
 }
 
 pub async fn init(db_path: &str) {
-    if let Err(e) = create_db(db_path).await {
-        panic!("create db: {}, Error: {e:?}", config::db_path());
-    }
+    create_db(db_path).await.expect("create db");
+    account::new().await.expect("account new");
 }
 
 #[allow(dead_code)]

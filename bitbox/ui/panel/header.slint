@@ -1,67 +1,73 @@
-import { LineEdit, ComboBox } from "std-widgets.slint";
 import { Theme } from "../theme.slint";
 import { Store } from "../store.slint";
 import { Logic } from "../logic.slint";
+import { Label } from "../base/label.slint";
 import { IconBtn } from "../base/icon-btn.slint";
 import { Divider } from "../base/divider.slint";
-import { Avatar } from "../base/avatar.slint";
-import { CenterLayout } from "../base/center-layout.slint";
-import { PFunc } from "./func.slint";
 
 export component Header inherits Rectangle {
     height: Theme.header-height;
     background: Theme.lighter-border-color;
 
-    callback avatar-clicked <=> avatar.clicked;
+    callback show-network-setting;
+    callback flush-account;
 
     HorizontalLayout {
-        alignment: space-between;
-
         HorizontalLayout {
-            alignment: start;
             padding-left: Theme.padding;
-            spacing: Theme.spacing * 2;
 
-            CenterLayout {
-                avatar := Avatar {
-                    width: root.height * 0.8;
-                    icon-size-rate: 1;
-                    icon-source: Store.setting-dialog-config.chat.user-avatar;
+            Rectangle {
+                address-label := Label {
+                    width: parent.width;
+                    text: Store.account.address;
+                    overflow: elide;
                 }
             }
 
-            VerticalLayout {
-                Text {
-                    vertical-alignment: center;
-                    color: Theme.brand-color.darker(100%);
-                    text: Store.translator.name-label + "  " + Store.setting-dialog-config.chat.user-name;
-                    font-size: Theme.default-font-size - 2px;
-                }
-
-
-                Text {
-                    vertical-alignment: center;
-                    font-size: Theme.default-font-size - 2px;
-                    color: PFunc.get-status-color(Store.setting-dialog-config.chat.user-status).darker(50%);
-                    text: Store.translator.status-label + "  " + PFunc.get-status(Store.setting-dialog-config.chat.user-status);
-                }
-
-            }
         }
 
-        HorizontalLayout {
-            padding-right: Theme.padding;
-            VerticalLayout {
+        right-hlayout := HorizontalLayout {
+             VerticalLayout {
                 alignment: center;
                 HorizontalLayout {
+                    spacing: Theme.spacing * 2;
+                    IconBtn {
+                        width: Theme.icon-size * 1.33;
+                        icon-width: Theme.icon-size;
+                        icon: @image-url("../images/copy.svg");
+                        tip-pos: "left";
+                        tip-text: Store.translator.tip-copy;
+                        clicked => {
+                            Logic.copy-to-clipboard(Store.account.address);
+                        }
+                    }
+
                     IconBtn {
                         width: Theme.icon-size * 1.33;
                         icon-width: Theme.icon-size * 0.8;
                         icon: @image-url("../images/reset.svg");
                         tip-pos: "left";
-                        tip-text: Store.translator.tip-flush-session;
+                        tip-text: Store.translator.tip-flush;
                         clicked => {
-                            Logic.flush-sessions();
+                            root.flush-account();
+                        }
+                    }
+
+                    IconBtn {
+                        width: Theme.icon-size * 1.33;
+                        icon-width: Theme.icon-size;
+                        icon: @image-url("../images/network.svg");
+                        tip-pos: "left";
+                        tip-text:  {
+                            if (Store.account.network == "main") {
+                                Store.translator.tip-main-network;
+                            } else {
+                                Store.translator.tip-test-network;
+                            }
+
+                        }
+                        clicked => {
+                            root.show-network-setting();
                         }
                     }
                 }

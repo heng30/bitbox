@@ -6,7 +6,7 @@ import { Divider } from "../../base/divider.slint";
 import { TabBtn } from "../../base/tab-btn.slint";
 import { CDialog } from "../../base/cdialog.slint";
 import { UI } from "./ui.slint";
-import { Chat } from "./chat.slint";
+import { Proxy } from "./proxy.slint";
 
 export component SettingDialog inherits CDialog {
     property<string> current-checked-item: "ui";
@@ -43,11 +43,11 @@ export component SettingDialog inherits CDialog {
                 }
 
                 TabBtn {
-                    text: Store.translator.setting-dialog-chat;
-                    icon: @image-url("../../images/chat.svg");
-                    checked: current-checked-item == "chat";
+                    text: Store.translator.setting-dialog-proxy;
+                    icon: @image-url("../../images/proxy.svg");
+                    checked: current-checked-item == "proxy";
                     clicked => {
-                        current-checked-item = "chat";
+                        current-checked-item = "proxy";
                     }
                 }
             }
@@ -68,10 +68,11 @@ export component SettingDialog inherits CDialog {
                     win-height: Theme.default-height / 1px;
                 }
 
-                chat-tab := Chat {
-                    visible: current-checked-item == "chat";
-                    user-name: Store.setting-dialog-config.chat.user-name;
-                    user-status: Store.setting-dialog-config.chat.user-status;
+                proxy-tab := Proxy {
+                    visible: current-checked-item == "proxy";
+                    proxy-enabled: Store.setting-dialog-config.proxy.enabled;
+                    proxy-url: Store.setting-dialog-config.proxy.url;
+                    proxy-port: Store.setting-dialog-config.proxy.port;
                 }
             }
         }
@@ -86,8 +87,9 @@ export component SettingDialog inherits CDialog {
         ui-tab.win-height = Theme.default-height / 1px;
         ui-tab.set-language(Store.setting-dialog-config.ui.language);
 
-        chat-tab.user-name = Store.setting-dialog-config.chat.user-name;
-        chat-tab.user-status = Store.setting-dialog-config.chat.user-status;
+        proxy-tab.proxy-enabled = Store.setting-dialog-config.proxy.enabled;
+        proxy-tab.proxy-url = Store.setting-dialog-config.proxy.url;
+        proxy-tab.proxy-port = Store.setting-dialog-config.proxy.port;
 
         Store.setting-dialog-config.show = false;
         root.close();
@@ -102,9 +104,10 @@ export component SettingDialog inherits CDialog {
                 win-height: ui-tab.win-height,
                 language: ui-tab.language
             },
-            chat: {
-                user-name: chat-tab.user-name,
-                user-status: chat-tab.user-status,
+            proxy: {
+                enabled: proxy-tab.proxy-enabled,
+                url: proxy-tab.proxy-url,
+                port: proxy-tab.proxy-port,
             }
         });
 
