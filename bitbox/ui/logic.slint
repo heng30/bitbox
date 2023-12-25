@@ -2,7 +2,6 @@ import { SettingDialogConfig } from "./store.slint";
 
 export global Logic {
     callback hide-window();
-
     callback show-message(string, string);
     callback copy-to-clipboard(string);
     callback handle-ok-cancel-dialog(string, string);
@@ -11,5 +10,8 @@ export global Logic {
 
     callback setting-cancel();
     callback setting-ok(SettingDialogConfig);
+
+    callback flush-account();
+    callback switch-network();
 }
 

@@ -9,9 +9,6 @@ export component Header inherits Rectangle {
     height: Theme.header-height;
     background: Theme.lighter-border-color;
 
-    callback show-network-setting;
-    callback flush-account;
-
     HorizontalLayout {
         HorizontalLayout {
             padding-left: Theme.padding;
@@ -49,7 +46,7 @@ export component Header inherits Rectangle {
                         tip-pos: "left";
                         tip-text: Store.translator.tip-flush;
                         clicked => {
-                            root.flush-account();
+                            Logic.flush-account();
                         }
                     }
 
@@ -67,7 +64,7 @@ export component Header inherits Rectangle {
 
                         }
                         clicked => {
-                            root.show-network-setting();
+                            Logic.switch-network();
                         }
                     }
                 }

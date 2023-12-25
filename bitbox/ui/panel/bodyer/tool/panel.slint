@@ -1,0 +1,86 @@
+import { Theme } from "../../../theme.slint";
+import { Store } from "../../../store.slint";
+import { Logic } from "../../../logic.slint";
+import { TabBtn } from "../../../base/tab-btn.slint";
+import { Divider } from "../../../base/divider.slint";
+import { Send } from "./send.slint";
+import { Receive } from "./receive.slint";
+import { Activity } from "./activity.slint";
+import { AddressBook } from "./address-book.slint";
+
+export component Tool inherits Rectangle {
+    property<string> current-checked-item: "send";
+
+    VerticalLayout {
+        VerticalLayout {
+            spacing: Theme.spacing;
+
+            HorizontalLayout {
+                alignment: space-around;
+                height: Theme.default-font-size + Theme.padding * 2;
+
+                TabBtn {
+                    text: Store.translator.tool-send;
+                    icon: @image-url("../../../images/send.svg");
+                    checked: current-checked-item == "send";
+                    clicked => {
+                        current-checked-item = "send";
+                    }
+                }
+
+                TabBtn {
+                    text: Store.translator.tool-receive;
+                    icon: @image-url("../../../images/receive.svg");
+                    checked: current-checked-item == "receive";
+                    clicked => {
+                        current-checked-item = "receive";
+                    }
+                }
+
+                TabBtn {
+                    text: Store.translator.tool-activity;
+                    icon: @image-url("../../../images/network-activity.svg");
+                    checked: current-checked-item == "activity";
+                    clicked => {
+                        current-checked-item = "activity";
+                    }
+                }
+
+                TabBtn {
+                    text: Store.translator.tool-address-book;
+                    icon: @image-url("../../../images/address-book.svg");
+                    checked: current-checked-item == "address-book";
+                    clicked => {
+                        current-checked-item = "address-book";
+                    }
+                }
+            }
+
+            HorizontalLayout {
+                alignment: center;
+                Divider {
+                    width: 100%;
+                }
+            }
+
+            Rectangle {
+                send-tab := Send {
+                    visible: current-checked-item == "send";
+                }
+
+                receive-tab := Receive {
+                    visible: current-checked-item == "receive";
+                }
+
+                activity-tab := Activity {
+                    visible: current-checked-item == "activity";
+                }
+
+                address-book-tab := AddressBook {
+                    visible: current-checked-item == "address-book";
+                }
+            }
+        }
+    }
+}
+

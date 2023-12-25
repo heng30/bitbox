@@ -6,6 +6,8 @@ export struct Account {
     name: string,
     address: string,
     network: string,
+    balance-btc: string,
+    balance-usd: string,
 }
 
 export struct MessageItem {
@@ -54,7 +56,8 @@ export global Store  {
         name: "account-1",
         address: "tb1qq8jfvz4fzc83jrysyrtj83sn4ps0zenwjcetrl",
         network: "main",
-
+        balance-btc: "100.11",
+        balance-usd: "1000000",
     };
 
     in-out property<MessageItem> message;
@@ -65,8 +68,8 @@ export global Store  {
         ui: {
             font-size: "18",
             font-family: "SourceHanSerifCN",
-            win-width: "600",
-            win-height: "1000",
+            win-width: "500",
+            win-height: "500",
             language: "cn",
         },
         proxy: {

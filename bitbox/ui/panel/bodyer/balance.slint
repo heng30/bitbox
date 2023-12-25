@@ -1,0 +1,25 @@
+import { Theme } from "../../theme.slint";
+import { Store } from "../../store.slint";
+import { CenterLayout } from "../../base/center-layout.slint";
+import { Label } from "../../base/label.slint";
+
+export component Balance inherits Rectangle {
+    height: Theme.balance-height;
+
+    VerticalLayout {
+        alignment: center;
+        CenterLayout {
+            Label {
+                text: Store.account.balance-btc + " BTC";
+                font-size: Theme.default-font-size * 2;
+                font-weight: 900;
+            }
+        }
+
+        CenterLayout {
+            Label {
+                text: Store.account.balance-usd + " USD";
+            }
+        }
+    }
+}
