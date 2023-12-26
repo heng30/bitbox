@@ -1,7 +1,7 @@
 import { Theme } from "../theme.slint";
 import { Store } from "../store.slint";
 import { Logic } from "../logic.slint";
-import { IconBtn } from "../base/icon-btn.slint";
+import { Label } from "../base/label.slint";
 import { Divider } from "../base/divider.slint";
 
 export component Footer inherits Rectangle {
@@ -9,11 +9,22 @@ export component Footer inherits Rectangle {
     height: 30px;
 
     VerticalLayout {
-        Divider {
-            background: red;
-        }
+        Divider {}
+
         Rectangle {
-            background: green;
+            background: Theme.lighter-border-color;
+            HorizontalLayout {
+                alignment: start;
+                spacing: Theme.spacing * 4;
+
+                Label {
+                    text: Store.translator.btc-price + ": $" + Store.btc-info.price;
+                }
+
+                Label {
+                    text: Store.translator.btc-per-byte-fee + ": " + Store.btc-info.byte-fee-slow + "/" + Store.btc-info.byte-fee-normal + "/" + Store.btc-info.byte-fee-fast;
+                }
+            }
         }
     }
 }

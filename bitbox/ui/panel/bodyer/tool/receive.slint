@@ -1,8 +1,45 @@
 import { Theme } from "../../../theme.slint";
 import { Store } from "../../../store.slint";
 import { Logic } from "../../../logic.slint";
+import { Util } from "../../../util.slint";
 import { IconBtn } from "../../../base/icon-btn.slint";
+import { CenterLayout } from "../../../base/center-layout.slint";
+import { Label } from "../../../base/label.slint";
 
 export component Receive inherits Rectangle {
-    background: red;
+    VerticalLayout {
+        alignment: center;
+        spacing: Theme.spacing * 2;
+
+        CenterLayout {
+            Image {
+                width: 250px;
+                height: self.width;
+                source: Util.generate-qrcode(Store.account.address);
+            }
+        }
+
+        CenterLayout {
+            HorizontalLayout {
+                spacing: Theme.spacing * 2;
+
+                Label {
+                    text: Store.account.address;
+                    overflow: elide;
+                }
+
+                IconBtn {
+                    width: Theme.icon-size * 1.33;
+                    icon-width: Theme.icon-size;
+                    icon: @image-url("../../../images/copy.svg");
+                    tip-pos: "top";
+                    tip-text: Store.translator.tip-copy;
+                    clicked => {
+                        Logic.copy-to-clipboard(Store.account.address);
+                    }
+                }
+
+            }
+        }
+    }
 }

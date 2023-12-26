@@ -3,6 +3,14 @@ import { Theme } from "./theme.slint";
 export global Util {
     callback string-fixed2(string) -> string;
     callback float-fixed2(float) -> string;
+    callback open-url(string);
+
+    out property<image> no-image: @image-url("./images/no-image.svg");
+
+    pure callback generate-qrcode(string) -> image;
+    generate-qrcode(msg) => {
+        return no-image;
+    }
 
     public pure function text-color(type: string) -> color {
        if (type == "success") {
@@ -24,5 +32,14 @@ export global Util {
            return @image-url("./images/danger.svg");
        }
        return @image-url("./images/info.svg");
+    }
+
+    public pure function blockstream-address-url(network: string, address: string) -> string {
+        if (network == "main") {
+            return "https://blockstream.info/address/" + address;
+        } else {
+            return "https://blockstream.info/testnet/address/" + address;
+        }
+
     }
 }

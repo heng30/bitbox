@@ -10,6 +10,13 @@ export struct Account {
     balance-usd: string,
 }
 
+export struct BtcInfo {
+    price: string,
+    byte-fee-slow: string,
+    byte-fee-normal: string,
+    byte-fee-fast: string,
+}
+
 export struct MessageItem {
     text: string,
     text-type: string,
@@ -55,9 +62,16 @@ export global Store  {
         uuid: "default-uuid",
         name: "account-1",
         address: "tb1qq8jfvz4fzc83jrysyrtj83sn4ps0zenwjcetrl",
-        network: "main",
+        network: "test",
         balance-btc: "100.11",
         balance-usd: "1000000",
+    };
+
+    in-out property<BtcInfo> btc-info: {
+        price: "654321",
+        byte-fee-slow: "10",
+        byte-fee-normal: "25",
+        byte-fee-fast: "40",
     };
 
     in-out property<MessageItem> message;
@@ -69,7 +83,7 @@ export global Store  {
             font-size: "18",
             font-family: "SourceHanSerifCN",
             win-width: "500",
-            win-height: "500",
+            win-height: "550",
             language: "cn",
         },
         proxy: {
@@ -81,7 +95,7 @@ export global Store  {
 
     in-out property<AboutDialog> about-dialog: {
         show: false,
-        title: "bitbox v0.0.1",
+        title: "BitBox v0.0.1",
         text: "Based on Slint-UI. Copyright 2022-2030 The Heng30 Company Ltd. All rights reserved. The program is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.",
         sponsor: "0xf1199999751b1a3A74590adBf95401D19AB30014",
     };

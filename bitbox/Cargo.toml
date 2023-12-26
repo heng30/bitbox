@@ -19,7 +19,10 @@ clipboard = "=0.5.0"
 platform-dirs = "=0.3.0"
 crypto-hash = "=0.3.4"
 aes = "=0.7.0"
-block-modes="=0.8.0"
+block-modes = "=0.8.0"
+webbrowser = "=0.8.0"
+qrcode = "=0.13.0"
+image = "=0.24.7"
 
 bip32 = { version = "=0.5.1", features = ["std", "bip39" , "mnemonic"] }
 bitcoin = { version = "=0.31.0", features = ["rand-std", "serde", "bitcoinconsensus" ] }

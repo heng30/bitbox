@@ -1,6 +1,7 @@
 import { Theme } from "../theme.slint";
 import { Store } from "../store.slint";
 import { Logic } from "../logic.slint";
+import { Util } from "../util.slint";
 import { Label } from "../base/label.slint";
 import { IconBtn } from "../base/icon-btn.slint";
 import { Divider } from "../base/divider.slint";
@@ -18,9 +19,17 @@ export component Header inherits Rectangle {
                     width: parent.width;
                     text: Store.account.address;
                     overflow: elide;
+                    color: address-touch.has-hover ? Theme.link-text-color : Theme.primary-text-color;
+                }
+
+                address-touch := TouchArea {
+                    mouse-cursor: self.has-hover ? pointer : default;
+                    clicked => {
+                        Util.open-url(
+                            Util.blockstream-address-url(Store.account.network, Store.account.address));
+                    }
                 }
             }
-
         }
 
         right-hlayout := HorizontalLayout {
