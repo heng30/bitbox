@@ -54,7 +54,11 @@ export struct Translation {
     btc-price: string,
     btc-per-byte-fee: string,
 
+    address-book-header-name: string,
+    address-book-header-address: string,
+
     tip-copy: string,
+    tip-add: string,
     tip-delete: string,
     tip-send: string,
     tip-play: string,
@@ -146,8 +150,11 @@ export global Translator {
             btc-price: is-cn ? "BTC 价格" : "BTC Preice",
             btc-per-byte-fee: is-cn ? "费用(s/B)" : "Fee(s/B)",
 
+            address-book-header-name: is-cn ? "名称" : "Name",
+            address-book-header-address: is-cn ? "地址" : "Address",
 
             tip-copy: is-cn ? "复制" : "Copy",
+            tip-add: is-cn ? "添加" : "Add",
             tip-send: is-cn ? "发送" : "Send",
             tip-clear: is-cn ? "清除" : "Clear",
             tip-play: is-cn ? "播放" : "Play",

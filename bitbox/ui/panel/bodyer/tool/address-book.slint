@@ -1,8 +1,114 @@
+import { ListView } from "std-widgets.slint";
 import { Theme } from "../../../theme.slint";
 import { Store } from "../../../store.slint";
 import { Logic } from "../../../logic.slint";
 import { IconBtn } from "../../../base/icon-btn.slint";
+import { NoMessageImg } from "../../../base/no-message.slint";
+import { CenterLayout } from "../../../base/center-layout.slint";
+import { Label } from "../../../base/label.slint";
 
 export component AddressBook inherits Rectangle {
-    background: black;
+    property<string> selected-uuid;
+
+    CenterLayout {
+        NoMessageImg {
+            visible: Store.address-book-datas.length <= 0;
+            width: Theme.default-width * 0.618;
+            text: Store.translator.no-message;
+        }
+    }
+
+    VerticalLayout {
+        spacing: Theme.spacing;
+
+        Rectangle {
+            height: Theme.header-height;
+            background: Theme.lighter-border-color;
+            HorizontalLayout {
+                spacing: Theme.spacing * 2;
+                Label {
+                    width: root.width * 30%;
+                    text: Store.translator.address-book-header-name;
+                }
+
+                HorizontalLayout {
+                    alignment: space-between;
+                    Label {
+                        text: Store.translator.address-book-header-address;
+                    }
+
+                    HorizontalLayout {
+                        spacing: Theme.spacing;
+
+                        IconBtn {
+                            width: Theme.icon-size * 1.33;
+                            icon-width: Theme.icon-size;
+                            icon: @image-url("../../../images/add.svg");
+                            tip-pos: "left";
+                            tip-text: Store.translator.tip-add;
+                            clicked => {
+                                Logic.show-address-book-add-dialog();
+                            }
+                        }
+
+                        IconBtn {
+                            width: Theme.icon-size * 1.33;
+                            icon-width: Theme.icon-size * 0.8;
+                            icon: @image-url("../../../images/copy.svg");
+                            tip-pos: "left";
+                            tip-text: Store.translator.tip-copy;
+                            clicked => {
+                                Logic.copy-to-clipboard(Logic.address-book-item-address(root.selected-uuid));
+                            }
+                        }
+
+                        IconBtn {
+                            width: Theme.icon-size * 1.33;
+                            icon-width: Theme.icon-size * 0.8;
+                            icon: @image-url("../../../images/delete-light.svg");
+                            tip-pos: "left";
+                            tip-text: Store.translator.tip-delete;
+                            clicked => {
+                                Store.ok-cancel-dialog-setting.title-type = "warning";
+                                Store.ok-cancel-dialog-setting.title-text = Store.translator.warning;
+                                Store.ok-cancel-dialog-setting.body-text = Store.translator.delete-or-not;
+                                Store.ok-cancel-dialog-setting.handle-type = "address-book-delete-item";
+                                Store.ok-cancel-dialog-setting.handle-uuid = root.selected-uuid;
+                            }
+                        }
+
+                    }
+                }
+            }
+        }
+
+        lv := ListView {
+            for data[index] in Store.address-book-datas : address-item := Rectangle {
+                background: Store.address-book-datas[index].uuid == root.selected-uuid ? Theme.hover-color-dark : (address-item-touch.has-hover ? Theme.hover-color : Colors.transparent);
+
+                HorizontalLayout {
+                    spacing: Theme.spacing * 2;
+                    padding: Theme.padding;
+
+                    Label {
+                        width: root.width * 30%;
+                        text: Store.address-book-datas[index].name;
+                        overflow: elide;
+                    }
+
+                    Label {
+                        text: Store.address-book-datas[index].address;
+                        overflow: elide;
+                    }
+
+                }
+
+                address-item-touch := TouchArea {
+                    clicked => {
+                        root.selected-uuid = Store.address-book-datas[index].uuid;
+                    }
+                }
+            }
+        }
+    }
 }

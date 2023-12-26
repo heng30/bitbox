@@ -10,6 +10,12 @@ export struct Account {
     balance-usd: string,
 }
 
+export struct AddressBookItem {
+    uuid: string,
+    name: string,
+    address: string,
+}
+
 export struct BtcInfo {
     price: string,
     byte-fee-slow: string,
@@ -66,6 +72,19 @@ export global Store  {
         balance-btc: "100.11",
         balance-usd: "1000000",
     };
+
+    in-out property<[AddressBookItem]> address-book-datas: [
+        {
+            uuid: "uuid-1",
+            name: "name-1",
+            address: "address-1",
+        },
+        {
+            uuid: "uuid-2",
+            name: "name-2wjifjwifjwifjwifjweifjweif",
+            address: "address-2wjfowefjwifjwifjwijfwi jfwiefjwi",
+        },
+    ];
 
     in-out property<BtcInfo> btc-info: {
         price: "654321",

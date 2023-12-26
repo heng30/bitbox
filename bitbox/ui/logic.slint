@@ -13,5 +13,9 @@ export global Logic {
 
     callback flush-account();
     callback switch-network();
+
+    callback show-address-book-add-dialog();
+    callback address_book-delete-item(string); // argument: uuid
+    callback address-book-item-address(string) -> string; // argument: uuid
 }
 

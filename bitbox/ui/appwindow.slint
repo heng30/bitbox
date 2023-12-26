@@ -2,6 +2,7 @@ import { Theme } from "./theme.slint";
 import { Logic } from "./logic.slint";
 import { BaseLogic } from "./base/logic.slint";
 import { Store } from "./store.slint";
+import { AddressBookItem } from "./store.slint";
 import { Util } from "./util.slint";
 import { Translator } from "./translator.slint";
 import { Store } from "./store.slint";
@@ -68,9 +69,7 @@ export component AppWindow inherits Window {
                 width: root.width * 0.95;
             }
 
-            oc-dialog := OkCancelDialog {
-                width: root.width * 0.95;
-            }
+            oc-dialog := OkCancelDialog {}
 
             about-dialog := AboutDialog {
                 width: root.width * 0.95;
@@ -93,4 +92,4 @@ export component AppWindow inherits Window {
     }
 }
 
-export { Util, Logic, BaseLogic, Store }
+export { Util, Logic, BaseLogic, Store, AddressBookItem }

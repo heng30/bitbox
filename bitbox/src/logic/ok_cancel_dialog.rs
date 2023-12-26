@@ -8,8 +8,8 @@ pub fn init(ui: &AppWindow) {
             let ui = ui_handle.unwrap();
 
             match handle_type.as_str() {
-                "session-reset" => {
-                    // ui.global::<Logic>().invoke_reset_current_session_chats();
+                "address-book-delete-item" => {
+                    ui.global::<Logic>().invoke_address_book_delete_item(handle_uuid);
                 }
                 "chat-file-remove" => {
                     // ui.global::<Logic>()
