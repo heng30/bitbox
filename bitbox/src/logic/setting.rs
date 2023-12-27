@@ -37,18 +37,24 @@ pub fn init(ui: &AppWindow) {
             .parse()
             .unwrap_or(18);
         config.ui.font_family = setting_config.ui.font_family.to_string();
-        config.ui.win_width = setting_config
-            .ui
-            .win_width
-            .to_string()
-            .parse()
-            .unwrap_or(600);
-        config.ui.win_height = setting_config
-            .ui
-            .win_height
-            .to_string()
-            .parse()
-            .unwrap_or(800);
+        config.ui.win_width = u32::max(
+            setting_config
+                .ui
+                .win_width
+                .to_string()
+                .parse()
+                .unwrap_or(600),
+            600,
+        );
+        config.ui.win_height = u32::max(
+            setting_config
+                .ui
+                .win_height
+                .to_string()
+                .parse()
+                .unwrap_or(800),
+            800,
+        );
 
         config.ui.language = setting_config.ui.language.to_string();
 
@@ -81,8 +87,8 @@ fn init_setting_dialog(ui: Weak<AppWindow>) {
     let mut setting_dialog = ui.global::<Store>().get_setting_dialog_config();
     setting_dialog.ui.font_size = slint::format!("{}", ui_config.font_size);
     setting_dialog.ui.font_family = ui_config.font_family.into();
-    setting_dialog.ui.win_width = slint::format!("{}", ui_config.win_width);
-    setting_dialog.ui.win_height = slint::format!("{}", ui_config.win_height);
+    setting_dialog.ui.win_width = slint::format!("{}", u32::max(ui_config.win_width, 600));
+    setting_dialog.ui.win_height = slint::format!("{}", u32::max(ui_config.win_height, 800));
     setting_dialog.ui.language = ui_config.language.into();
 
     setting_dialog.proxy.enabled = socks5_config.enabled;

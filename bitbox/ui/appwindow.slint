@@ -11,6 +11,7 @@ import { Blanket } from "./base/blanket.slint";
 import { Panel } from "./panel/panel.slint";
 import { Message } from "./base/message.slint";
 import { SettingDialog } from "./dialog/setting/dialog.slint";
+import { AddressBookAddItemDialog } from "./dialog/address-book-add-item.slint";
 import { AboutDialog } from "./dialog/about.slint";
 import { HelpDialog } from "./dialog/help.slint";
 import { OkCancelDialog } from "./dialog/ok-cancel.slint";
@@ -25,6 +26,8 @@ export component AppWindow inherits Window {
     icon: @image-url("./images/icon.png");
     forward-focus: fscope;
     title: "bitbox";
+
+    property<length> dialog-max-width: Math.min(root.width * 0.95, Theme.dialog-max-width);
 
     init => { }
 
@@ -60,23 +63,29 @@ export component AppWindow inherits Window {
                     Store.about-dialog.show = false;
                 } else if (help-dialog.visible) {
                     Store.help-dialog.show = false;
+                } else if (address-book-add-item-dialog.visible) {
+                    Store.is-show-address-book-add-item-dialog = false;
                 }
             }
 
-            if setting-dialog.visible || oc-dialog.visible || about-dialog.visible || help-dialog.visible : low-modal := Blanket { }
+            if address-book-add-item-dialog.visible || setting-dialog.visible || oc-dialog.visible || about-dialog.visible || help-dialog.visible : low-modal := Blanket { }
+
+            address-book-add-item-dialog := AddressBookAddItemDialog {
+                width: root.dialog-max-width;
+            }
 
             setting-dialog := SettingDialog {
-                width: root.width * 0.95;
+                width: root.dialog-max-width;
             }
 
             oc-dialog := OkCancelDialog {}
 
             about-dialog := AboutDialog {
-                width: root.width * 0.95;
+                width: root.dialog-max-width;
             }
 
             help-dialog := HelpDialog {
-                width: root.width * 0.95;
+                width: root.dialog-max-width;
             }
         }
 

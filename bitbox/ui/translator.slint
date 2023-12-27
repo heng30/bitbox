@@ -11,6 +11,7 @@ export struct Translation {
     about-btn: string,
     help-btn: string,
     name: string,
+    address: string,
     warning: string,
     delete-or-not: string,
     reset-or-not: string,
@@ -56,6 +57,7 @@ export struct Translation {
 
     address-book-header-name: string,
     address-book-header-address: string,
+    address-book-add-item-dialog-title: string,
 
     tip-copy: string,
     tip-add: string,
@@ -69,16 +71,17 @@ export struct Translation {
     tip-network: string,
     tip-main-network: string,
     tip-test-network: string,
+    tip-qrcode: string,
 
     tool-send: string,
     tool-receive: string,
     tool-activity: string,
     tool-address-book: string,
 
+
     tip-help: string,
     tip-about: string,
     tip-setting: string,
-    tip-last-session-pos: string,
     tip-cur-session-pos: string,
     tip-edit: string,
     tip-up: string,
@@ -108,6 +111,7 @@ export global Translator {
             about: is-cn ?   "关     于" : "About",
             help: is-cn ?    "帮     助" : "Help",
             name: is-cn ?    "名     称" : "Name",
+            address: is-cn ?    "地     址" : "Address",
             warning: is-cn ? "警     告" : "Warning",
             delete-or-not: is-cn ? "是否删除？" : "Are You Sure to Delete?",
             reset-or-not: is-cn ? "是否重置？" : "Reset or not?",
@@ -148,10 +152,11 @@ export global Translator {
             no-message: is-cn ? "没有信息" : "No Message",
 
             btc-price: is-cn ? "BTC 价格" : "BTC Preice",
-            btc-per-byte-fee: is-cn ? "费用(s/B)" : "Fee(s/B)",
+            btc-per-byte-fee: is-cn ? "费用(sat/vB)" : "Fee(sat/vB)",
 
             address-book-header-name: is-cn ? "名称" : "Name",
             address-book-header-address: is-cn ? "地址" : "Address",
+            address-book-add-item-dialog-title: is-cn ? "添加地址" : "Add Address",
 
             tip-copy: is-cn ? "复制" : "Copy",
             tip-add: is-cn ? "添加" : "Add",
@@ -165,6 +170,7 @@ export global Translator {
             tip-network: is-cn ? "网络" : "Network",
             tip-main-network: is-cn ? "主网络" : "Main Network",
             tip-test-network: is-cn ? "测试网络" : "Test Network",
+            tip-qrcode: is-cn ? "二维码" : "QrCode",
 
             tool-send: is-cn ? "发送" : "Send",
             tool-receive: is-cn ? "接收" : "Receive",
@@ -175,7 +181,6 @@ export global Translator {
             tip-help: is-cn ? "帮助" : "Help",
             tip-about: is-cn ? "关于" : "About",
             tip-setting: is-cn ? "设置" : "Setting",
-            tip-last-session-pos: is-cn ? "上一次位置" : "Previous Position",
             tip-cur-session-pos: is-cn ? "当前位置" : "Current Position",
             tip-edit: is-cn ? "编辑" : "Edit",
             tip-up: is-cn ? "向上" : "Move Up",

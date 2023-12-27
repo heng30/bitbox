@@ -73,6 +73,9 @@ export global Store  {
         balance-usd: "1000000",
     };
 
+    in-out property<bool> is-show-address-book-add-item-dialog: false;
+    in-out property<bool> is-show-address-book-qrcode-dialog: false;
+
     in-out property<[AddressBookItem]> address-book-datas: [
         {
             uuid: "uuid-1",

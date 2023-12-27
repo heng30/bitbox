@@ -11,6 +11,8 @@ pub fn tr(text: &str) -> String {
     items.insert("原因", "Reason");
     items.insert("删除成功", "Delete success");
     items.insert("删除失败", "Delete failed");
+    items.insert("添加成功", "Add success");
+    items.insert("添加失败", "Add failed");
     items.insert("复制失败", "Copy failed");
     items.insert("复制成功", "Copy success");
     items.insert("清空失败", "Delete failed");
@@ -22,6 +24,7 @@ pub fn tr(text: &str) -> String {
     items.insert("发送失败", "Send failed");
     items.insert("下载成功", "Download success");
     items.insert("下载失败", "Download failed");
+    items.insert("加载失败", "Load failed");
     items.insert("正在重试...", "Retrying...");
     items.insert("正在下载...", "Downloading...");
     items.insert("刷新...", "Flush...");

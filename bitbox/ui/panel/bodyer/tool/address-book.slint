@@ -47,7 +47,18 @@ export component AddressBook inherits Rectangle {
                             tip-pos: "left";
                             tip-text: Store.translator.tip-add;
                             clicked => {
-                                Logic.show-address-book-add-dialog();
+                                Store.is-show-address-book-add-item-dialog = true;
+                            }
+                        }
+
+                        IconBtn {
+                            width: Theme.icon-size * 1.33;
+                            icon-width: Theme.icon-size;
+                            icon: @image-url("../../../images/qrcode.svg");
+                            tip-pos: "left";
+                            tip-text: Store.translator.tip-qrcode;
+                            clicked => {
+                                Store.is-show-address-book-qrcode-dialog = true;
                             }
                         }
 

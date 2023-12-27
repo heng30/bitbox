@@ -31,8 +31,10 @@ export component UI inherits VerticalLayout {
             }
 
             HorizontalLayout {
-                spacing: Theme.spacing * 2;
+                alignment: space-between;
+
                 win-width-lineedit := LineEdit {
+                    width: 40%;
                     placeholder-text: Store.translator.setting-dialog-ui-win-W;
                 }
 
@@ -41,6 +43,7 @@ export component UI inherits VerticalLayout {
                 }
 
                 win-height-lineedit := LineEdit {
+                    width: 40%;
                     placeholder-text: Store.translator.setting-dialog-ui-win-H;
                 }
             }

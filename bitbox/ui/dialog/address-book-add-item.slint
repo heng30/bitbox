@@ -1,0 +1,72 @@
+import { LineEdit } from "std-widgets.slint";
+import { CDialog } from "../base/cdialog.slint";
+import { Label } from "../base/label.slint";
+import { Store } from "../store.slint";
+import { Util } from "../util.slint";
+import { Logic } from "../logic.slint";
+import { Theme } from "../theme.slint";
+
+export component AddressBookAddItemDialog inherits CDialog {
+    in-out property name-text <=> name-lineedit.text;
+    in-out property address-text <=> address-lineedit.text;
+
+    visible: Store.is-show-address-book-add-item-dialog;
+    title: Store.translator.address-book-add-item-dialog-title;
+    max-width: 500px;
+
+    forward-focus: name-lineedit;
+
+    callback close();
+
+    VerticalLayout {
+        padding: Theme.padding * 2;
+        spacing: Theme.spacing * 2;
+
+        HorizontalLayout {
+            spacing: Theme.spacing * 2;
+
+            VerticalLayout {
+                alignment: center;
+                name-text := Label {
+                    width: Theme.default-label-width * 0.6;
+                    text: Store.translator.name + ":";
+                }
+            }
+
+            name-lineedit := LineEdit {
+                accepted => {
+                    root.ok-clicked();
+                }
+            }
+        }
+
+        HorizontalLayout {
+            spacing: Theme.spacing * 2;
+
+            VerticalLayout {
+                alignment: center;
+                address-text := Label {
+                    width: Theme.default-label-width * 0.6;
+                    text: Store.translator.address + ":";
+                }
+            }
+
+            address-lineedit := LineEdit { }
+        }
+    }
+
+    ok-clicked => {
+        if (name-lineedit.text != "" && address-lineedit.text != "") {
+            Logic.address-book-add-item(name-lineedit.text, address-lineedit.text);
+        }
+        name-lineedit.text = ""; address-lineedit.text = "";
+        Store.is-show-address-book-add-item-dialog = false;
+        root.close();
+    }
+
+    cancel-clicked => {
+        name-lineedit.text = ""; address-lineedit.text = "";
+        Store.is-show-address-book-add-item-dialog = false;
+        root.close();
+    }
+}

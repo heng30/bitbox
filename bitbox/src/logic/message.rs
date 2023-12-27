@@ -1,6 +1,6 @@
 use crate::slint_generatedAppWindow::{AppWindow, Logic, MessageItem, Store};
 use slint::ComponentHandle;
-use slint::{Timer, TimerMode};
+use slint::{Timer, TimerMode, Weak};
 
 #[macro_export]
 macro_rules! message_warn {
@@ -16,6 +16,22 @@ macro_rules! message_success {
         $ui.global::<Logic>()
             .invoke_show_message(slint::format!("{}", $msg), "success".into());
     };
+}
+
+pub fn async_message_warn(ui: Weak<AppWindow>, msg: String) {
+    let _ = slint::invoke_from_event_loop(move || {
+        ui.unwrap()
+            .global::<Logic>()
+            .invoke_show_message(slint::format!("{}", msg), "warning".into());
+    });
+}
+
+pub fn async_message_success(ui: Weak<AppWindow>, msg: String) {
+    let _ = slint::invoke_from_event_loop(move || {
+        ui.unwrap()
+            .global::<Logic>()
+            .invoke_show_message(slint::format!("{}", msg), "success".into());
+    });
 }
 
 pub fn init(ui: &AppWindow) {
