@@ -1,12 +1,11 @@
 use crate::util;
 use anyhow::{anyhow, Result};
-use bitcoin::amount::Amount;
 use serde_json::Value;
 use std::collections::HashMap;
 use std::time::Duration;
 
 // return satoshi
-pub async fn price() -> Result<u64> {
+pub async fn price() -> Result<f64> {
     const URL: &str = "https://api.alternative.me/v2/ticker/bitcoin/";
     let client = util::http::client()?;
 
@@ -33,7 +32,7 @@ pub async fn price() -> Result<u64> {
         .as_f64()
         .ok_or(anyhow!("invalid price format"))?;
 
-    Ok(Amount::from_btc(price)?.to_sat())
+    Ok(price)
 }
 
 // (low, middle, high)
@@ -75,7 +74,7 @@ mod tests {
         let price = super::price().await?;
         assert!(price > 0);
 
-        // println!("{}", price);
+        println!("{}", price);
         Ok(())
     }
 

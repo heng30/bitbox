@@ -29,7 +29,9 @@ pub async fn delete(uuid: &str) -> Result<()> {
 }
 
 pub async fn delete_all() -> Result<()> {
-    sqlx::query("DELETE FROM address_book").execute(&pool()).await?;
+    sqlx::query("DELETE FROM address_book")
+        .execute(&pool())
+        .await?;
     Ok(())
 }
 
@@ -61,9 +63,11 @@ pub async fn select(uuid: &str) -> Result<AddressBook> {
 }
 
 pub async fn select_all() -> Result<Vec<AddressBook>> {
-    Ok(sqlx::query_as::<_, AddressBook>("SELECT * FROM address_book")
-        .fetch_all(&pool())
-        .await?)
+    Ok(
+        sqlx::query_as::<_, AddressBook>("SELECT * FROM address_book")
+            .fetch_all(&pool())
+            .await?,
+    )
 }
 
 #[allow(dead_code)]

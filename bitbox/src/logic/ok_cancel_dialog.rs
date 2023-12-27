@@ -9,7 +9,8 @@ pub fn init(ui: &AppWindow) {
 
             match handle_type.as_str() {
                 "address-book-delete-item" => {
-                    ui.global::<Logic>().invoke_address_book_delete_item(handle_uuid);
+                    ui.global::<Logic>()
+                        .invoke_address_book_delete_item(handle_uuid);
                 }
                 "chat-file-remove" => {
                     // ui.global::<Logic>()

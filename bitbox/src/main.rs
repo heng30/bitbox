@@ -16,7 +16,7 @@ mod util;
 mod version;
 mod wallet;
 
-use logic::{about, clipboard, message, ok_cancel_dialog, setting, window, address_book};
+use logic::{about, address_book, btcinfo, clipboard, message, ok_cancel_dialog, setting, window};
 
 use anyhow::Result;
 use chrono::Local;
@@ -43,7 +43,10 @@ async fn main() -> Result<()> {
     about::init(&ui);
     setting::init(&ui);
     ok_cancel_dialog::init(&ui);
+
     address_book::init(&ui);
+    btcinfo::init(&ui);
+
     ui.run().unwrap();
 
     debug!("exit...");

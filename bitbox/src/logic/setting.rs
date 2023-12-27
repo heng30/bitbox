@@ -43,8 +43,8 @@ pub fn init(ui: &AppWindow) {
                 .win_width
                 .to_string()
                 .parse()
-                .unwrap_or(600),
-            600,
+                .unwrap_or(500),
+            500,
         );
         config.ui.win_height = u32::max(
             setting_config
@@ -87,7 +87,7 @@ fn init_setting_dialog(ui: Weak<AppWindow>) {
     let mut setting_dialog = ui.global::<Store>().get_setting_dialog_config();
     setting_dialog.ui.font_size = slint::format!("{}", ui_config.font_size);
     setting_dialog.ui.font_family = ui_config.font_family.into();
-    setting_dialog.ui.win_width = slint::format!("{}", u32::max(ui_config.win_width, 600));
+    setting_dialog.ui.win_width = slint::format!("{}", u32::max(ui_config.win_width, 500));
     setting_dialog.ui.win_height = slint::format!("{}", u32::max(ui_config.win_height, 800));
     setting_dialog.ui.language = ui_config.language.into();
 

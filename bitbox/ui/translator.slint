@@ -22,11 +22,7 @@ export struct Translation {
     offline: string,
     busy: string,
     idle: string,
-
-    file-name: string,
-    file-size: string,
-    file-status: string,
-    file-download: string,
+    update-time: string,
 
     error: string,
     undownload: string,
@@ -73,6 +69,7 @@ export struct Translation {
     tip-main-network: string,
     tip-test-network: string,
     tip-qrcode: string,
+    tip-logout: string,
 
     tool-send: string,
     tool-receive: string,
@@ -83,7 +80,6 @@ export struct Translation {
     tip-help: string,
     tip-about: string,
     tip-setting: string,
-    tip-cur-session-pos: string,
     tip-edit: string,
     tip-up: string,
     tip-down: string,
@@ -123,11 +119,7 @@ export global Translator {
             offline: is-cn ? "离线" : "Offline",
             busy: is-cn ? "正忙" : "Busy",
             idle: is-cn ? "空闲" : "Idle",
-
-            file-name: is-cn ? "名称:" : "Name:",
-            file-size: is-cn ? "大小:" : "Size:",
-            file-status: is-cn ? "状态:" : "Status:",
-            file-download: is-cn ? "下载": "Download",
+            update-time: is-cn ? "更新时间" : "Uptime",
 
             error: is-cn ? "出错" : "Error",
             undownload: is-cn ? "未下载" : "Undownload",
@@ -152,7 +144,7 @@ export global Translator {
             no-data: is-cn ? "没有数据" : "No Data",
             no-message: is-cn ? "没有信息" : "No Message",
 
-            btc-price: is-cn ? "BTC 价格" : "BTC Preice",
+            btc-price: is-cn ? "价格" : "Price",
             btc-per-byte-fee: is-cn ? "费用(sat/vB)" : "Fee(sat/vB)",
 
             address-book-header-name: is-cn ? "名称" : "Name",
@@ -173,6 +165,7 @@ export global Translator {
             tip-main-network: is-cn ? "主网络" : "Main Network",
             tip-test-network: is-cn ? "测试网络" : "Test Network",
             tip-qrcode: is-cn ? "二维码" : "QrCode",
+            tip-logout: is-cn ? "登出" : "Logout",
 
             tool-send: is-cn ? "发送" : "Send",
             tool-receive: is-cn ? "接收" : "Receive",
@@ -183,7 +176,6 @@ export global Translator {
             tip-help: is-cn ? "帮助" : "Help",
             tip-about: is-cn ? "关于" : "About",
             tip-setting: is-cn ? "设置" : "Setting",
-            tip-cur-session-pos: is-cn ? "当前位置" : "Current Position",
             tip-edit: is-cn ? "编辑" : "Edit",
             tip-up: is-cn ? "向上" : "Move Up",
             tip-down: is-cn ? "向下" : "Move down",

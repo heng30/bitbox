@@ -21,6 +21,7 @@ export struct BtcInfo {
     byte-fee-slow: string,
     byte-fee-normal: string,
     byte-fee-fast: string,
+    update-time: string,
 }
 
 export struct MessageItem {
@@ -90,10 +91,11 @@ export global Store  {
     ];
 
     in-out property<BtcInfo> btc-info: {
-        price: "654321",
-        byte-fee-slow: "10",
-        byte-fee-normal: "25",
-        byte-fee-fast: "40",
+        price: "0",
+        byte-fee-slow: "0",
+        byte-fee-normal: "0",
+        byte-fee-fast: "0",
+        update-time: "00:00:00",
     };
 
     in-out property<MessageItem> message;

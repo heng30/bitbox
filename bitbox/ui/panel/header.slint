@@ -76,6 +76,15 @@ export component Header inherits Rectangle {
                             Logic.switch-network();
                         }
                     }
+
+                    IconBtn {
+                        width: Theme.icon-size * 1.33;
+                        icon-width: Theme.icon-size;
+                        icon: @image-url("../images/logout.svg");
+                        tip-pos: "left";
+                        tip-text: Store.translator.tip-logout;
+                        clicked => { }
+                    }
                 }
             }
 
