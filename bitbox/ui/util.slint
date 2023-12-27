@@ -7,6 +7,11 @@ export global Util {
 
     out property<image> no-image: @image-url("./images/no-image.svg");
 
+    pure callback format_number_with_commas(string) -> string;
+    format_number_with_commas(number_str) => {
+        return number_str;
+    }
+
     pure callback generate-qrcode(string) -> image;
     generate-qrcode(msg) => {
         return no-image;

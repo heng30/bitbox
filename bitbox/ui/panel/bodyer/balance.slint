@@ -1,5 +1,6 @@
 import { Theme } from "../../theme.slint";
 import { Store } from "../../store.slint";
+import { Util } from "../../util.slint";
 import { CenterLayout } from "../../base/center-layout.slint";
 import { Label } from "../../base/label.slint";
 
@@ -10,7 +11,7 @@ export component Balance inherits Rectangle {
         alignment: center;
         CenterLayout {
             Label {
-                text: Store.account.balance-btc + " BTC";
+                text: Util.format_number_with_commas(Store.account.balance-btc) + " BTC";
                 font-size: Theme.default-font-size * 2;
                 font-weight: 900;
             }
@@ -18,7 +19,7 @@ export component Balance inherits Rectangle {
 
         CenterLayout {
             Label {
-                text: Store.account.balance-usd + " USD";
+                text: Util.format_number_with_commas(Store.account.balance-usd) + " USD";
             }
         }
     }

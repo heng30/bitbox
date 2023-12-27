@@ -1,0 +1,54 @@
+import { CDialog } from "../base/cdialog.slint";
+import { Label } from "../base/label.slint";
+import { CenterLayout } from "../base/center-layout.slint";
+import { IconBtn } from "../base/icon-btn.slint";
+import { Store } from "../store.slint";
+import { Util } from "../util.slint";
+import { Logic } from "../logic.slint";
+import { Theme } from "../theme.slint";
+
+export component AddressBookQrcodeDialog inherits CDialog {
+    visible: Store.is-show-address-book-qrcode-dialog;
+    title: Store.translator.address-book-qrcode-dialog-title;
+    is-hide-btns: true;
+
+    cancel-clicked() => {
+        Store.is-show-address-book-qrcode-dialog = false;
+    }
+
+    VerticalLayout {
+        alignment: center;
+        spacing: Theme.spacing * 2;
+        padding-bottom: Theme.padding * 4;
+
+        CenterLayout {
+            Image {
+                width: 250px;
+                height: self.width;
+                source: Util.generate-qrcode(Store.address-book-qrcode-address);
+            }
+        }
+
+        CenterLayout {
+            HorizontalLayout {
+                spacing: Theme.spacing * 2;
+
+                Label {
+                    text: Store.address-book-qrcode-address;
+                    overflow: elide;
+                }
+
+                IconBtn {
+                    width: Theme.icon-size * 1.33;
+                    icon-width: Theme.icon-size;
+                    icon: @image-url("../images/copy.svg");
+                    tip-pos: "top";
+                    tip-text: Store.translator.tip-copy;
+                    clicked => {
+                        Logic.copy-to-clipboard(Store.address-book-qrcode-address);
+                    }
+                }
+            }
+        }
+    }
+}

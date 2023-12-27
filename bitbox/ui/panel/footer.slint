@@ -1,6 +1,7 @@
 import { Theme } from "../theme.slint";
 import { Store } from "../store.slint";
 import { Logic } from "../logic.slint";
+import { Util } from "../util.slint";
 import { Label } from "../base/label.slint";
 import { Divider } from "../base/divider.slint";
 
@@ -18,7 +19,7 @@ export component Footer inherits Rectangle {
                 spacing: Theme.spacing * 4;
 
                 Label {
-                    text: Store.translator.btc-price + ": $" + Store.btc-info.price;
+                    text: Store.translator.btc-price + ": $" + Util.format-number-with-commas(Store.btc-info.price);
                 }
 
                 Label {

@@ -69,13 +69,13 @@ export global Store  {
         name: "account-1",
         address: "tb1qq8jfvz4fzc83jrysyrtj83sn4ps0zenwjcetrl",
         network: "test",
-        balance-btc: "100.11",
-        balance-usd: "1000000",
+        balance-btc: "1100.12",
+        balance-usd: "1000000.12",
     };
 
     in-out property<bool> is-show-address-book-add-item-dialog: false;
     in-out property<bool> is-show-address-book-qrcode-dialog: false;
-
+    in-out property<string> address-book-qrcode-address;
     in-out property<[AddressBookItem]> address-book-datas: [
         {
             uuid: "uuid-1",

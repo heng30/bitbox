@@ -58,6 +58,7 @@ export component AddressBook inherits Rectangle {
                             tip-pos: "left";
                             tip-text: Store.translator.tip-qrcode;
                             clicked => {
+                                Store.address-book-qrcode-address = Logic.address-book-item-address(root.selected-uuid);
                                 Store.is-show-address-book-qrcode-dialog = true;
                             }
                         }

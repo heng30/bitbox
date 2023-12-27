@@ -1,5 +1,6 @@
 use crate::message_warn;
 use crate::slint_generatedAppWindow::{AppWindow, Logic, Util};
+use crate::util::number;
 use crate::util::translator::tr;
 use image::Rgb;
 use qrcode::QrCode;
@@ -46,4 +47,9 @@ pub fn init(ui: &AppWindow) {
             }
         }
     });
+
+    ui.global::<Util>()
+        .on_format_number_with_commas(move |number_str| {
+            number::format_number_with_commas(number_str.as_str()).into()
+        });
 }

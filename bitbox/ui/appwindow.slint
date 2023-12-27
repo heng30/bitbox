@@ -12,6 +12,7 @@ import { Panel } from "./panel/panel.slint";
 import { Message } from "./base/message.slint";
 import { SettingDialog } from "./dialog/setting/dialog.slint";
 import { AddressBookAddItemDialog } from "./dialog/address-book-add-item.slint";
+import { AddressBookQrcodeDialog } from "./dialog/address-book-qrcode.slint";
 import { AboutDialog } from "./dialog/about.slint";
 import { HelpDialog } from "./dialog/help.slint";
 import { OkCancelDialog } from "./dialog/ok-cancel.slint";
@@ -65,12 +66,18 @@ export component AppWindow inherits Window {
                     Store.help-dialog.show = false;
                 } else if (address-book-add-item-dialog.visible) {
                     Store.is-show-address-book-add-item-dialog = false;
+                } else if (address-book-qrcode-dialog.visible) {
+                    Store.is-show-address-book-qrcode-dialog = false;
                 }
             }
 
-            if address-book-add-item-dialog.visible || setting-dialog.visible || oc-dialog.visible || about-dialog.visible || help-dialog.visible : low-modal := Blanket { }
+            if address-book-add-item-dialog.visible || address-book-qrcode-dialog.visible || setting-dialog.visible || oc-dialog.visible || about-dialog.visible || help-dialog.visible : low-modal := Blanket { }
 
             address-book-add-item-dialog := AddressBookAddItemDialog {
+                width: root.dialog-max-width;
+            }
+
+            address-book-qrcode-dialog := AddressBookQrcodeDialog {
                 width: root.dialog-max-width;
             }
 
