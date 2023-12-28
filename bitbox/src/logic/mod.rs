@@ -1,5 +1,6 @@
 pub mod about;
 pub mod address_book;
+pub mod activity;
 pub mod base;
 pub mod btcinfo;
 pub mod clipboard;

@@ -1,12 +1,11 @@
+use crate::config;
 use reqwest::{Client, Proxy, Result};
 
 pub fn client() -> Result<Client> {
-    let is_used = false;
-    let url = "";
-    let port = 0;
+    let config = config::socks5();
 
-    Ok(if is_used {
-        let proxy = Proxy::all(format!("socks5://{}:{}", url, port))?;
+    Ok(if config.enabled {
+        let proxy = Proxy::all(format!("socks5://{}:{}", config.url, config.port))?;
         Client::builder().proxy(proxy).build()?
     } else {
         Client::new()

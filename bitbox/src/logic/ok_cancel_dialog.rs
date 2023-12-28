@@ -12,9 +12,9 @@ pub fn init(ui: &AppWindow) {
                     ui.global::<Logic>()
                         .invoke_address_book_delete_item(handle_uuid);
                 }
-                "chat-file-remove" => {
-                    // ui.global::<Logic>()
-                    //     .invoke_remove_chat_file_item(handle_uuid);
+                "activity-delete-item" => {
+                    ui.global::<Logic>()
+                        .invoke_activity_delete_item(handle_uuid);
                 }
                 _ => (),
             }

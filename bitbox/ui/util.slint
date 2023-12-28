@@ -11,7 +11,7 @@ export global Util {
     local-now => { return "12:34:45"; }
 
     pure callback format_number_with_commas(string) -> string;
-    format_number_with_commas(number_str) => { return number_str; }
+    format_number-with-commas(number-str) => { return number-str; }
 
     pure callback generate-qrcode(string) -> image;
     generate-qrcode(msg) => { return no-image; }
@@ -44,6 +44,13 @@ export global Util {
         } else {
             return "https://blockstream.info/testnet/address/" + address;
         }
+    }
 
+    public pure function blockstream-txid-url(network: string, txid: string) -> string {
+        if (network == "main") {
+            return "https://blockstream.info/tx/" + txid;
+        } else {
+            return "https://blockstream.info/testnet/tx/" + txid;
+        }
     }
 }

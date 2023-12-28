@@ -2,14 +2,14 @@ use super::pool;
 use anyhow::Result;
 
 #[derive(Serialize, Deserialize, Debug, Clone, sqlx::FromRow)]
-pub struct AddressBook {
+pub struct Activity {
     pub uuid: String,
     pub data: String,
 }
 
 pub async fn new() -> Result<()> {
     sqlx::query(
-        "CREATE TABLE IF NOT EXISTS address_book (
+        "CREATE TABLE IF NOT EXISTS activity (
              id INTEGER PRIMARY KEY,
              uuid TEXT NOT NULL UNIQUE,
              data TEXT NOT NULL)",
@@ -21,7 +21,7 @@ pub async fn new() -> Result<()> {
 }
 
 pub async fn delete(uuid: &str) -> Result<()> {
-    sqlx::query("DELETE FROM address_book WHERE uuid=?")
+    sqlx::query("DELETE FROM activity WHERE uuid=?")
         .bind(uuid)
         .execute(&pool())
         .await?;
@@ -29,7 +29,7 @@ pub async fn delete(uuid: &str) -> Result<()> {
 }
 
 pub async fn insert(uuid: &str, data: &str) -> Result<()> {
-    sqlx::query("INSERT INTO address_book (uuid, data) VALUES (?, ?)")
+    sqlx::query("INSERT INTO activity (uuid, data) VALUES (?, ?)")
         .bind(uuid)
         .bind(data)
         .execute(&pool())
@@ -37,9 +37,9 @@ pub async fn insert(uuid: &str, data: &str) -> Result<()> {
     Ok(())
 }
 
-pub async fn select_all() -> Result<Vec<AddressBook>> {
+pub async fn select_all() -> Result<Vec<Activity>> {
     Ok(
-        sqlx::query_as::<_, AddressBook>("SELECT * FROM address_book")
+        sqlx::query_as::<_, Activity>("SELECT * FROM activity")
             .fetch_all(&pool())
             .await?,
     )

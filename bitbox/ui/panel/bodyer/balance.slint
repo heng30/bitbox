@@ -1,5 +1,6 @@
 import { Theme } from "../../theme.slint";
 import { Store } from "../../store.slint";
+import { Logic } from "../../logic.slint";
 import { Util } from "../../util.slint";
 import { CenterLayout } from "../../base/center-layout.slint";
 import { Label } from "../../base/label.slint";
@@ -11,7 +12,7 @@ export component Balance inherits Rectangle {
         alignment: center;
         CenterLayout {
             Label {
-                text: Util.format_number_with_commas(Store.account.balance-btc) + " BTC";
+                text: Util.format_number_with_commas(Logic.pretty-btc-price(Store.account.balance-btc)) + " BTC";
                 font-size: Theme.default-font-size * 2;
                 font-weight: 900;
             }

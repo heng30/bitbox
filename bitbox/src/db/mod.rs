@@ -8,6 +8,7 @@ use std::sync::Mutex;
 
 pub mod account;
 pub mod address_book;
+pub mod activity;
 
 const MAX_CONNECTIONS: u32 = 3;
 
@@ -35,6 +36,7 @@ async fn create_db(db_path: &str) -> Result<(), sqlx::Error> {
 pub async fn init(db_path: &str) {
     create_db(db_path).await.expect("create db");
     account::new().await.expect("account new");
+    activity::new().await.expect("activity new");
     address_book::new().await.expect("address_book new");
 }
 

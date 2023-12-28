@@ -1,8 +1,139 @@
+import { ListView } from "std-widgets.slint";
 import { Theme } from "../../../theme.slint";
 import { Store } from "../../../store.slint";
 import { Logic } from "../../../logic.slint";
+import { Util } from "../../../util.slint";
+import { Label } from "../../../base/label.slint";
 import { IconBtn } from "../../../base/icon-btn.slint";
+import { NoMessageImg } from "../../../base/no-message.slint";
+import { CenterLayout } from "../../../base/center-layout.slint";
 
 export component Activity inherits Rectangle {
-    background: green;
+    property<string> selected-uuid;
+
+    property<[length]> header-items-length: [
+        root.width * 25%,
+        root.width * 30%,
+        root.width * 10%,
+        root.width * 10%,
+    ];
+
+    CenterLayout {
+        NoMessageImg {
+            visible: Store.activity-datas.length <= 0;
+            width: Theme.default-width * 0.618;
+            text: Store.translator.no-message;
+        }
+    }
+
+    VerticalLayout {
+        Rectangle {
+            height: Theme.header-height;
+            background: Theme.lighter-border-color;
+            HorizontalLayout {
+                spacing: Theme.spacing;
+                padding: Theme.padding;
+
+                Label {
+                    width: header-items-length[0];
+                    text: Store.translator.activity-header-time;
+                }
+
+                Label {
+                    width: header-items-length[1];
+                    text: Store.translator.activity-header-txid;
+                }
+
+                Label {
+                    width: header-items-length[2];
+                    text: Store.translator.activity-header-operate;
+                }
+
+                Label {
+                    width: header-items-length[3];
+                    text: Store.translator.activity-header-amount;
+                }
+
+
+                HorizontalLayout {
+                    alignment: space-between;
+                    spacing: Theme.spacing;
+
+                    Label {
+                        text: Store.translator.activity-header-status;
+                    }
+
+                    IconBtn {
+                        width: Theme.icon-size * 1.33;
+                        icon-width: Theme.icon-size * 0.8;
+                        icon: @image-url("../../../images/delete-light.svg");
+                        tip-pos: "left";
+                        tip-text: Store.translator.tip-delete;
+                        clicked => {
+                            Store.ok-cancel-dialog-setting.title-type = "warning";
+                            Store.ok-cancel-dialog-setting.title-text = Store.translator.warning;
+                            Store.ok-cancel-dialog-setting.body-text = Store.translator.delete-or-not;
+                            Store.ok-cancel-dialog-setting.handle-type = "activity-delete-item";
+                            Store.ok-cancel-dialog-setting.handle-uuid = root.selected-uuid;
+                        }
+                    }
+                }
+            }
+        }
+
+        ListView {
+            for data[index] in Store.activity-datas : Rectangle {
+                background: data.uuid == root.selected-uuid ? Theme.hover-color-dark : (address-item-touch.has-hover || txid-touch.has-hover) ? Theme.hover-color : Colors.transparent;
+
+                address-item-touch := TouchArea {
+                    clicked => {
+                        root.selected-uuid = data.uuid;
+                    }
+                }
+
+                HorizontalLayout {
+                    spacing: Theme.spacing;
+                    padding: Theme.padding;
+
+                    Label {
+                        width: header-items-length[0];
+                        text: data.time;
+                        overflow: elide;
+                    }
+
+                    Label {
+                        width: header-items-length[1];
+                        text: data.txid;
+                        overflow: elide;
+                        color: txid-touch.has-hover ? Theme.link-text-color : Theme.primary-text-color;
+
+                        txid-touch := TouchArea {
+                            mouse-cursor: self.has-hover ? pointer : default;
+                            clicked => {
+                                Util.open-url(
+                                    Util.blockstream-txid-url(Store.account.network, data.txid));
+                            }
+                        }
+                    }
+
+                    Label {
+                        width: header-items-length[2];
+                        text: data.operate;
+                        overflow: elide;
+                    }
+
+                    Label {
+                        width: header-items-length[3];
+                        text: data.amount;
+                        overflow: elide;
+                    }
+
+                    Label {
+                        text: data.status;
+                        overflow: elide;
+                    }
+                }
+            }
+        }
+    }
 }

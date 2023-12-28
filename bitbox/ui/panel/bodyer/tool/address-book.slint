@@ -19,13 +19,13 @@ export component AddressBook inherits Rectangle {
     }
 
     VerticalLayout {
-        spacing: Theme.spacing;
-
         Rectangle {
             height: Theme.header-height;
             background: Theme.lighter-border-color;
             HorizontalLayout {
                 spacing: Theme.spacing * 2;
+                padding: Theme.padding;
+
                 Label {
                     width: root.width * 30%;
                     text: Store.translator.address-book-header-name;
@@ -53,7 +53,7 @@ export component AddressBook inherits Rectangle {
 
                         IconBtn {
                             width: Theme.icon-size * 1.33;
-                            icon-width: Theme.icon-size;
+                            icon-width: Theme.icon-size * 0.9;
                             icon: @image-url("../../../images/qrcode.svg");
                             tip-pos: "left";
                             tip-text: Store.translator.tip-qrcode;
@@ -95,8 +95,8 @@ export component AddressBook inherits Rectangle {
         }
 
         lv := ListView {
-            for data[index] in Store.address-book-datas : address-item := Rectangle {
-                background: Store.address-book-datas[index].uuid == root.selected-uuid ? Theme.hover-color-dark : (address-item-touch.has-hover ? Theme.hover-color : Colors.transparent);
+            for data[index] in Store.address-book-datas : Rectangle {
+                background: data.uuid == root.selected-uuid ? Theme.hover-color-dark : (address-item-touch.has-hover ? Theme.hover-color : Colors.transparent);
 
                 HorizontalLayout {
                     spacing: Theme.spacing * 2;
@@ -104,20 +104,19 @@ export component AddressBook inherits Rectangle {
 
                     Label {
                         width: root.width * 30%;
-                        text: Store.address-book-datas[index].name;
+                        text: data.name;
                         overflow: elide;
                     }
 
                     Label {
-                        text: Store.address-book-datas[index].address;
+                        text: data.address;
                         overflow: elide;
                     }
-
                 }
 
                 address-item-touch := TouchArea {
                     clicked => {
-                        root.selected-uuid = Store.address-book-datas[index].uuid;
+                        root.selected-uuid = data.uuid;
                     }
                 }
             }

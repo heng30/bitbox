@@ -62,16 +62,10 @@ export component Header inherits Rectangle {
                     IconBtn {
                         width: Theme.icon-size * 1.33;
                         icon-width: Theme.icon-size;
-                        icon: @image-url("../images/network.svg");
+                        icon: Store.account.network == "main" ? @image-url("../images/network.svg") : @image-url("../images/test-network.svg");
                         tip-pos: "left";
-                        tip-text:  {
-                            if (Store.account.network == "main") {
-                                Store.translator.tip-main-network;
-                            } else {
-                                Store.translator.tip-test-network;
-                            }
+                        tip-text:  Store.account.network == "main" ? Store.translator.tip-main-network : Store.translator.tip-test-network;
 
-                        }
                         clicked => {
                             Logic.switch-network();
                         }

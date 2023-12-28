@@ -14,8 +14,14 @@ export global Logic {
     callback flush-account();
     callback switch-network();
 
+    callback set-send-address(string); // argument: address
     callback address-book-add-item(string, string); // argument: name, address
     callback address-book-delete-item(string); // argument: uuid
     callback address-book-item-address(string) -> string; // argument: uuid
+
+    callback activity-delete-item(string); // argument: uuid
+
+    pure callback pretty-btc-price(string) -> string; // argument: price; return: format price
+    pretty-btc-price(price) => { return price; }
 }
 
