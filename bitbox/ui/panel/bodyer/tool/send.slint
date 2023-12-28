@@ -1,8 +1,169 @@
+import { LineEdit } from "std-widgets.slint";
 import { Theme } from "../../../theme.slint";
 import { Store } from "../../../store.slint";
 import { Logic } from "../../../logic.slint";
 import { IconBtn } from "../../../base/icon-btn.slint";
+import { Label } from "../../../base/label.slint";
+import { CenterLayout } from "../../../base/center-layout.slint";
+import { Btn } from "../../../base/btn.slint";
 
 export component Send inherits Rectangle {
-    background: green;
+    in-out property receive-address <=> receive-address-lineedit.text;
+    in-out property amount <=> amount-lineedit.text;
+    in-out property feerate <=> feerate-lineedit.text;
+
+    property<length> label-width: Theme.default-label-width;
+    property<length> btn-width: 80px;
+
+    VerticalLayout {
+        alignment: start;
+        padding: Theme.padding * 2;
+        spacing: Theme.spacing * 4;
+
+        HorizontalLayout {
+            Label {
+                width: root.label-width;
+                text: Store.translator.send-receive-address + ":";
+            }
+
+            HorizontalLayout {
+                spacing: Theme.spacing * 2;
+
+                receive-address-lineedit := LineEdit { }
+
+                IconBtn {
+                    width: Theme.icon-size * 1.33;
+                    icon-width: Theme.icon-size * 0.8;
+                    icon: @image-url("../../../images/address-book.svg");
+                    tip-pos: "left";
+                    tip-text: Store.translator.tip-address-book;
+                    clicked => {
+                        Store.is-show-address-book-dialog = true;
+                    }
+                }
+            }
+        }
+
+        HorizontalLayout {
+            Label {
+                width: root.label-width;
+                text: Store.translator.send-amount + ":";
+            }
+
+            HorizontalLayout {
+                spacing: Theme.spacing * 2;
+
+                amount-lineedit := LineEdit {
+                    text: "0";
+                }
+
+                IconBtn {
+                    width: Theme.icon-size * 1.33;
+                    icon-width: Theme.icon-size * 0.8;
+                    icon: @image-url("../../../images/max.svg");
+                    tip-pos: "left";
+                    tip-text: Store.translator.tip-max;
+                    clicked => {
+                        amount-lineedit.text = Store.account.balance-btc;
+                    }
+                }
+            }
+        }
+
+        HorizontalLayout {
+            alignment: start;
+
+            Label {
+                width: root.label-width;
+                text: Store.translator.send-feerate + ":";
+            }
+
+            HorizontalLayout {
+                spacing: 1px;
+
+                Btn {
+                    width: btn-width;
+                    bg-color: Theme.darker-fill-color;
+                    text-color: Theme.basic-black-color;
+                    text: Store.translator.slow;
+                    clicked => { feerate-lineedit.text = Store.btc-info.byte-fee-slow; }
+                }
+
+                Btn {
+                    width: btn-width;
+                    bg-color: Theme.darker-fill-color;
+                    text-color: Theme.basic-black-color;
+                    text: Store.translator.normal;
+                    clicked => { feerate-lineedit.text = Store.btc-info.byte-fee-normal; }
+                }
+
+                Btn {
+                    width: btn-width;
+                    bg-color: Theme.darker-fill-color;
+                    text-color: Theme.basic-black-color;
+                    text: Store.translator.fast;
+                    clicked => { feerate-lineedit.text = Store.btc-info.byte-fee-fast; }
+                }
+
+                HorizontalLayout {
+                    alignment: start;
+                    spacing: Theme.spacing;
+                    padding-left: Theme.padding;
+                    padding-right: Theme.padding;
+
+                    feerate-lineedit := LineEdit {
+                        width: 60px;
+                        text: Store.btc-info.byte-fee-normal;
+                    }
+
+                    Label {
+                        text: "sat/vB";
+                    }
+                }
+            }
+        }
+
+        HorizontalLayout {
+            alignment: start;
+
+            Rectangle {
+                width: root.label-width;
+            }
+
+            CenterLayout {
+                Label {
+                    color: Colors.red;
+                    text: "(" + "最大费率: " + Store.setting-dialog-config.account.max-feerate + " sat/vB" + ")";
+                }
+            }
+        }
+
+        HorizontalLayout {
+            alignment: center;
+            spacing: Theme.spacing * 6;
+            padding-top: Theme.padding * 6;
+
+            Btn {
+                width: btn-width * 2;
+                bg-color: Theme.darker-fill-color;
+                text-color: Theme.basic-black-color;
+                text: Store.translator.clear;
+                icon: @image-url("../../../images/cancel.svg");
+                clicked => {
+                    receive-address-lineedit.text = "";
+                    amount-lineedit.text = "0";
+                    feerate-lineedit.text = Store.btc-info.byte-fee-normal;
+                }
+            }
+
+            Btn {
+                width: btn-width * 2;
+                text-color: Theme.basic-black-color;
+                text: Store.translator.send;
+                icon: @image-url("../../../images/success-fill.svg");
+                clicked => { }
+            }
+
+        }
+    }
 }

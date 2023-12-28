@@ -7,9 +7,10 @@ import { TabBtn } from "../../base/tab-btn.slint";
 import { CDialog } from "../../base/cdialog.slint";
 import { UI } from "./ui.slint";
 import { Proxy } from "./proxy.slint";
+import { Account } from "./account.slint";
 
 export component SettingDialog inherits CDialog {
-    property<string> current-checked-item: "ui";
+    property<string> current-checked-item: "account";
 
     callback close();
 
@@ -43,6 +44,15 @@ export component SettingDialog inherits CDialog {
                 }
 
                 TabBtn {
+                    text: Store.translator.setting-dialog-account;
+                    icon: @image-url("../../images/account.svg");
+                    checked: current-checked-item == "account";
+                    clicked => {
+                        current-checked-item = "account";
+                    }
+                }
+
+                TabBtn {
                     text: Store.translator.setting-dialog-proxy;
                     icon: @image-url("../../images/proxy.svg");
                     checked: current-checked-item == "proxy";
@@ -68,6 +78,13 @@ export component SettingDialog inherits CDialog {
                     win-height: Theme.default-height / 1px;
                 }
 
+                account-tab := Account {
+                    visible: current-checked-item == "account";
+                    max-feerate: Store.setting-dialog-config.account.max-feerate;
+                    max-fee-amount: Store.setting-dialog-config.account.max-fee-amount;
+                    max-send-amount: Store.setting-dialog-config.account.max-send-amount;
+                }
+
                 proxy-tab := Proxy {
                     visible: current-checked-item == "proxy";
                     proxy-enabled: Store.setting-dialog-config.proxy.enabled;
@@ -87,6 +104,10 @@ export component SettingDialog inherits CDialog {
         ui-tab.win-height = Theme.default-height / 1px;
         ui-tab.set-language(Store.setting-dialog-config.ui.language);
 
+        account-tab.max-feerate = Store.setting-dialog-config.account.max-feerate;
+        account-tab.max-fee-amount = Store.setting-dialog-config.account.max-fee-amount;
+        account-tab.max-send-amount = Store.setting-dialog-config.account.max-send-amount;
+
         proxy-tab.proxy-enabled = Store.setting-dialog-config.proxy.enabled;
         proxy-tab.proxy-url = Store.setting-dialog-config.proxy.url;
         proxy-tab.proxy-port = Store.setting-dialog-config.proxy.port;
@@ -103,6 +124,11 @@ export component SettingDialog inherits CDialog {
                 win-width: ui-tab.win-width,
                 win-height: ui-tab.win-height,
                 language: ui-tab.language
+            },
+            account: {
+                max-feerate: account-tab.max-feerate,
+                max-fee-amount: account-tab.max-fee-amount,
+                max-send-amount: account-tab.max-send-amount,
             },
             proxy: {
                 enabled: proxy-tab.proxy-enabled,

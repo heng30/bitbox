@@ -24,7 +24,8 @@ export component Btn inherits Rectangle {
 
     hbox := HorizontalLayout {
         alignment: center;
-        spacing: Theme.spacing * 2;
+        spacing: img.width > 0 ? Theme.spacing * 2 : 0;
+
         CenterLayout {
             img := Image {
                 width: root.icon.width > 0 ? txt.height * 0.618 : 0;

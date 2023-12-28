@@ -54,6 +54,12 @@ export struct SettingUI {
     language: string,
 }
 
+export struct SettingAccount {
+    max-feerate: string,
+    max-fee-amount: string,
+    max-send-amount: string,
+}
+
 export struct SettingProxy {
     enabled: bool,
     url: string,
@@ -63,6 +69,7 @@ export struct SettingProxy {
 export struct SettingDialogConfig {
     show: bool,
     ui: SettingUI,
+    account: SettingAccount,
     proxy: SettingProxy,
 }
 
@@ -131,13 +138,16 @@ export global Store  {
     in-out property<OkCancelDialogSetting> ok-cancel-dialog-setting;
 
     in-out property<SettingDialogConfig> setting-dialog-config: {
-        show: false,
+        show: true,
         ui: {
             font-size: "18",
             font-family: "SourceHanSerifCN",
-            win-width: "500",
+            win-width: "550",
             win-height: "550",
             language: "cn",
+        },
+        account: {
+            max-feerate: "100",
         },
         proxy: {
             enabled: false,

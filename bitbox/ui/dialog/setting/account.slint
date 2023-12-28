@@ -1,0 +1,75 @@
+import { LineEdit } from "std-widgets.slint";
+import { Theme } from "../../theme.slint";
+import { Store } from "../../store.slint";
+import { Logic } from "../../logic.slint";
+import { Label } from "../../base/label.slint";
+import { Btn } from "../../base/btn.slint";
+
+export component Account inherits VerticalLayout {
+    property<length> btn-width: 100px;
+    property <length> label-width: Theme.default-label-width * 1.4;
+
+    in-out property max-feerate <=> max-feerate-lineedit.text;
+    in-out property max-fee-amount <=> max-fee-amount-lineedit.text;
+    in-out property max-send-amount <=> max-send-amount-lineedit.text;
+
+    VerticalLayout {
+        spacing: Theme.spacing * 4;
+        alignment: start;
+
+        HorizontalLayout {
+             Label {
+                width: label-width;
+                text: Store.translator.setting-dialog-account-max-fee-amount + ":";
+            }
+
+            max-fee-amount-lineedit := LineEdit { }
+        }
+
+        HorizontalLayout {
+            Label {
+                width: label-width;
+                text: Store.translator.setting-dialog-account-max-feerate + ":";
+            }
+
+            max-feerate-lineedit := LineEdit { }
+        }
+
+        HorizontalLayout {
+            Label {
+                width: label-width;
+                text: Store.translator.setting-dialog-account-max-send-amount + ":";
+            }
+
+            max-send-amount-lineedit := LineEdit { }
+        }
+
+        HorizontalLayout {
+            alignment: space-around;
+            padding-top: Theme.padding * 6;
+
+            Btn {
+                width: 40%;
+                bg-color: Theme.danger-color;
+                text-color: Theme.basic-black-color;
+                text: Store.translator.setting-dialog-account-delete;
+                icon: @image-url("../../images/delete-light.svg");
+                clicked => {
+                    Store.setting-dialog-config.show = false;
+                    Logic.delete-account(Store.account.uuid);
+                }
+            }
+
+            Btn {
+                width: 40%;
+                text-color: Theme.basic-black-color;
+                text: Store.translator.setting-dialog-account-show-mnemonic;
+                icon: @image-url("../../images/eye.svg");
+                clicked => {
+                    Store.setting-dialog-config.show = false;
+                    Logic.show-mnemonic(Store.account.uuid);
+                }
+            }
+        }
+    }
+}

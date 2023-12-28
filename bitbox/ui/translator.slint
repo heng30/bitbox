@@ -15,6 +15,8 @@ export struct Translation {
     warning: string,
     delete-or-not: string,
     reset-or-not: string,
+    send: string,
+    clear: string,
 
     name-label: string,
     status-label: string,
@@ -30,6 +32,11 @@ export struct Translation {
     downloaded: string,
     download-failed: string,
 
+    slow: string,
+    normal: string,
+    fast: string,
+    customer: string,
+
     setting-dialog-ui: string,
     setting-dialog-ui-font-size: string,
     setting-dialog-ui-font-family: string,
@@ -37,6 +44,13 @@ export struct Translation {
     setting-dialog-ui-win-W: string,
     setting-dialog-ui-win-H: string,
     setting-dialog-ui-language: string,
+
+    setting-dialog-account: string,
+    setting-dialog-account-max-feerate: string,
+    setting-dialog-account-max-fee-amount: string,
+    setting-dialog-account-max-send-amount: string,
+    setting-dialog-account-delete: string,
+    setting-dialog-account-show-mnemonic: string,
 
     setting-dialog-proxy: string,
     setting-dialog-proxy-disabled: string,
@@ -50,6 +64,15 @@ export struct Translation {
 
     btc-price: string,
     btc-per-byte-fee: string,
+
+    tool-send: string,
+    tool-receive: string,
+    tool-activity: string,
+    tool-address-book: string,
+
+    send-receive-address: string,
+    send-amount: string,
+    send-feerate: string,
 
     address-book-header-name: string,
     address-book-header-address: string,
@@ -77,11 +100,8 @@ export struct Translation {
     tip-test-network: string,
     tip-qrcode: string,
     tip-logout: string,
-
-    tool-send: string,
-    tool-receive: string,
-    tool-activity: string,
-    tool-address-book: string,
+    tip-address-book: string,
+    tip-max: string,
 
 
     tip-help: string,
@@ -95,9 +115,6 @@ export struct Translation {
     tip-flush: string,
     tip-zoom-out: string,
     tip-zoom-in: string,
-    tip-download: string,
-    tip-send-image: string,
-    tip-send-file: string,
 }
 
 export global Translator {
@@ -119,6 +136,8 @@ export global Translator {
             warning: is-cn ? "警     告" : "Warning",
             delete-or-not: is-cn ? "是否删除？" : "Are You Sure to Delete?",
             reset-or-not: is-cn ? "是否重置？" : "Reset or not?",
+            send: is-cn ? "发送" : "Send",
+            clear: is-cn ? "清空" : "Clear",
 
             name-label: is-cn ? "昵称:" : "Name:",
             status-label: is-cn ? "状态:" : "Status:",
@@ -134,6 +153,11 @@ export global Translator {
             downloaded: is-cn ? "已下载" : "Downloaded",
             download-failed: is-cn ? "下载失败" : "Download Failed",
 
+            slow: is-cn ? "慢" : "slow",
+            normal: is-cn ? "正常" : "normal",
+            fast: is-cn ? "快" : "fast",
+            customer: is-cn ? "自定义" : "customer",
+
             setting-dialog-ui: is-cn ? "界面" : "UI",
             setting-dialog-ui-font-size: is-cn ? "字体大小:" : "Font Size:",
             setting-dialog-ui-font-family: is-cn ? "字体样式:" : "Font Family:",
@@ -141,6 +165,13 @@ export global Translator {
             setting-dialog-ui-win-W: is-cn ? "宽" : "Width",
             setting-dialog-ui-win-H: is-cn ?  "高" : "Height",
             setting-dialog-ui-language: is-cn ? "选择语言:" : "Language:",
+
+            setting-dialog-account: is-cn ? "账户" : "Account",
+            setting-dialog-account-max-feerate: is-cn ? "最大费率(sat/vB)" : "Max Fee(sat/vB)",
+            setting-dialog-account-max-fee-amount: is-cn ? "最大费用(sat)" : "Max Fee(sat)",
+            setting-dialog-account-max-send-amount: is-cn ? "最大发送数量(BTC)" : "Max Send Amount(BTC)",
+            setting-dialog-account-delete: is-cn ? "删除账户" : "Delete Account",
+            setting-dialog-account-show-mnemonic: is-cn ? "查看组记词" : "Show Mnemonic",
 
             setting-dialog-proxy: is-cn ? "代理" : "Proxy",
             setting-dialog-proxy-type: is-cn ? "代理类型:" : "Type:",
@@ -152,7 +183,17 @@ export global Translator {
             no-message: is-cn ? "没有信息" : "No Message",
 
             btc-price: is-cn ? "价格" : "Price",
-            btc-per-byte-fee: is-cn ? "费用(sat/vB)" : "Fee(sat/vB)",
+            btc-per-byte-fee: is-cn ? "费率(sat/vB)" : "Fee(sat/vB)",
+
+
+            tool-send: is-cn ? "发送" : "Send",
+            tool-receive: is-cn ? "接收" : "Receive",
+            tool-activity: is-cn ? "活动" : "Activity",
+            tool-address-book: is-cn ? "地址簿" : "Address",
+
+            send-receive-address: is-cn ? "接收地址" : "Address",
+            send-amount: is-cn ? "发送数量" : "Amount",
+            send-feerate: is-cn ? "费率(sat/vB)" : "Fee(sat/vB)",
 
             address-book-header-name: is-cn ? "名称" : "Name",
             address-book-header-address: is-cn ? "地址" : "Address",
@@ -180,11 +221,8 @@ export global Translator {
             tip-test-network: is-cn ? "测试网络" : "Test Network",
             tip-qrcode: is-cn ? "二维码" : "QrCode",
             tip-logout: is-cn ? "登出" : "Logout",
-
-            tool-send: is-cn ? "发送" : "Send",
-            tool-receive: is-cn ? "接收" : "Receive",
-            tool-activity: is-cn ? "活动" : "Activity",
-            tool-address-book: is-cn ? "地址簿" : "Address",
+            tip-address-book: is-cn ? "地址簿" : "Address Book",
+            tip-max: is-cn ? "最大数量" : "Max Value",
 
 
             tip-help: is-cn ? "帮助" : "Help",
@@ -198,9 +236,6 @@ export global Translator {
             tip-flush: is-cn ? "刷新" : "Flush",
             tip-zoom-out: is-cn ? "缩小" : "Zoom Out",
             tip-zoom-in: is-cn ? "放大" : "Zoom In",
-            tip-download: is-cn ? "下载" : "Download",
-            tip-send-image: is-cn ? "发送图片" : "Send Image",
-            tip-send-file: is-cn ? "发送文件" : "Send File",
         };
     }
 }

@@ -43,8 +43,8 @@ pub fn init(ui: &AppWindow) {
                 .win_width
                 .to_string()
                 .parse()
-                .unwrap_or(500),
-            500,
+                .unwrap_or(550),
+            550,
         );
         config.ui.win_height = u32::max(
             setting_config
@@ -52,11 +52,29 @@ pub fn init(ui: &AppWindow) {
                 .win_height
                 .to_string()
                 .parse()
-                .unwrap_or(800),
-            800,
+                .unwrap_or(550),
+            550,
         );
-
         config.ui.language = setting_config.ui.language.to_string();
+
+        config.account.max_feerate = setting_config
+            .account
+            .max_feerate
+            .to_string()
+            .parse()
+            .unwrap_or(100);
+        config.account.max_fee_amount = setting_config
+            .account
+            .max_fee_amount
+            .to_string()
+            .parse()
+            .unwrap_or(10_000);
+        config.account.max_send_amount = setting_config
+            .account
+            .max_send_amount
+            .to_string()
+            .parse()
+            .unwrap_or(1_f64);
 
         config.socks5.enabled = setting_config.proxy.enabled;
         config.socks5.url = setting_config.proxy.url.to_string();
@@ -83,13 +101,18 @@ fn init_setting_dialog(ui: Weak<AppWindow>) {
     let ui = ui.unwrap();
     let ui_config = config::ui();
     let socks5_config = config::socks5();
+    let account_config = config::account();
 
     let mut setting_dialog = ui.global::<Store>().get_setting_dialog_config();
     setting_dialog.ui.font_size = slint::format!("{}", ui_config.font_size);
     setting_dialog.ui.font_family = ui_config.font_family.into();
-    setting_dialog.ui.win_width = slint::format!("{}", u32::max(ui_config.win_width, 500));
-    setting_dialog.ui.win_height = slint::format!("{}", u32::max(ui_config.win_height, 800));
+    setting_dialog.ui.win_width = slint::format!("{}", u32::max(ui_config.win_width, 550));
+    setting_dialog.ui.win_height = slint::format!("{}", u32::max(ui_config.win_height, 550));
     setting_dialog.ui.language = ui_config.language.into();
+
+    setting_dialog.account.max_feerate = slint::format!("{}", account_config.max_feerate);
+    setting_dialog.account.max_fee_amount = slint::format!("{}", account_config.max_fee_amount);
+    setting_dialog.account.max_send_amount = slint::format!("{}", account_config.max_send_amount);
 
     setting_dialog.proxy.enabled = socks5_config.enabled;
     setting_dialog.proxy.url = socks5_config.url.into();

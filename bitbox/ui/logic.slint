@@ -21,6 +21,9 @@ export global Logic {
 
     callback activity-delete-item(string); // argument: uuid
 
+    callback delete-account(string); // argument: uuid;
+    callback show-mnemonic(string); // argument: uuid;
+
     pure callback pretty-btc-price(string) -> string; // argument: price; return: format price
     pretty-btc-price(price) => { return price; }
 }

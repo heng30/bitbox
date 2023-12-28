@@ -11,6 +11,8 @@ pub struct Config {
 
     pub ui: UI,
 
+    pub account: Account,
+
     pub socks5: Socks5,
 }
 
@@ -21,6 +23,7 @@ impl Default for Config {
             db_path: "".to_string(),
             cache_dir: "".to_string(),
             ui: UI::default(),
+            account: Account::default(),
             socks5: Socks5::default(),
         }
     }
@@ -43,6 +46,23 @@ impl Default for UI {
             win_width: 600,
             win_height: 800,
             language: "cn".to_string(),
+        }
+    }
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct Account {
+    pub max_feerate: u32,
+    pub max_fee_amount: u32,
+    pub max_send_amount: f64,
+}
+
+impl Default for Account {
+    fn default() -> Self {
+        Self {
+            max_feerate: 100_u32,
+            max_fee_amount: 10_000_u32,
+            max_send_amount: 1_f64,
         }
     }
 }
