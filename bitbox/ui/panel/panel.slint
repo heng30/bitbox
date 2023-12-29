@@ -7,6 +7,8 @@ import { Footer } from "./footer.slint";
 import { Divider } from "../base/divider.slint";
 
 export component Panel inherits VerticalLayout {
+    in-out property receive-address <=> bodyer.receive-address;
+
     padding: Theme.padding;
     spacing: Theme.spacing;
     forward-focus: footer;

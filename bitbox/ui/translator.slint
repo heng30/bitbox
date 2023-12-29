@@ -17,6 +17,9 @@ export struct Translation {
     reset-or-not: string,
     send: string,
     clear: string,
+    password-mismatch: string,
+    input-password: string,
+    please-login: string,
 
     name-label: string,
     status-label: string,
@@ -52,6 +55,7 @@ export struct Translation {
     setting-dialog-account-delete: string,
     setting-dialog-account-show-mnemonic: string,
     setting-dialog-account-change-password: string,
+    setting-dialog-account-recover: string,
 
     setting-dialog-proxy: string,
     setting-dialog-proxy-disabled: string,
@@ -160,6 +164,9 @@ export global Translator {
             reset-or-not: is-cn ? "是否重置？" : "Reset or not?",
             send: is-cn ? "发送" : "Send",
             clear: is-cn ? "清空" : "Clear",
+            password-mismatch: is-cn ? "密码错误" : "Password Mismatch",
+            input-password: is-cn ? "请输入密码" : "Please Input Password",
+            please-login: is-cn ? "请登陆" : "Please Login",
 
             name-label: is-cn ? "昵称:" : "Name:",
             status-label: is-cn ? "状态:" : "Status:",
@@ -195,6 +202,7 @@ export global Translator {
             setting-dialog-account-delete: is-cn ? "删除账户" : "Delete Account",
             setting-dialog-account-show-mnemonic: is-cn ? "查看组记词" : "Show Mnemonic",
             setting-dialog-account-change-password: is-cn ? "更改密码" : "Change Password",
+            setting-dialog-account-recover: is-cn ? "恢复账户" : "Recover Account",
 
             setting-dialog-proxy: is-cn ? "代理" : "Proxy",
             setting-dialog-proxy-type: is-cn ? "代理类型:" : "Type:",

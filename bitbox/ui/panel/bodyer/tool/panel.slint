@@ -9,6 +9,8 @@ import { Activity } from "./activity.slint";
 import { AddressBook } from "./address-book.slint";
 
 export component Tool inherits Rectangle {
+    in-out property receive-address <=> send-tab.receive-address;
+
     property<string> current-checked-item: "send";
 
     VerticalLayout {

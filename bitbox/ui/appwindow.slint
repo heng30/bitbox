@@ -4,6 +4,7 @@ import { BaseLogic } from "./base/logic.slint";
 import { Store } from "./store.slint";
 import { AddressBookItem } from "./store.slint";
 import { ActivityItem } from "./store.slint";
+import { Account } from "./store.slint";
 import { Util } from "./util.slint";
 import { Translator } from "./translator.slint";
 import { Store } from "./store.slint";
@@ -35,6 +36,8 @@ export component AppWindow inherits Window {
     title: "bitbox";
 
     property<length> dialog-max-width: Math.min(root.width * 0.95, Theme.dialog-max-width);
+
+    in-out property receive-address <=> panel.receive-address;
 
     init => { }
 
@@ -134,4 +137,4 @@ export component AppWindow inherits Window {
     }
 }
 
-export { Util, Logic, BaseLogic, Store, ActivityItem, AddressBookItem }
+export { Util, Logic, BaseLogic, Store, Account, ActivityItem, AddressBookItem }

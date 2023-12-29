@@ -82,6 +82,22 @@ export component Account inherits VerticalLayout {
 
                 Btn {
                     width: 40%;
+                    bg-color: Theme.warning-color;
+                    text-color: Theme.basic-black-color;
+                    text: Store.translator.setting-dialog-account-recover;
+                    icon: @image-url("../../images/recover.svg");
+                    clicked => {
+                        Store.setting-dialog-config.show = false;
+
+
+                        Store.password-dialog-config.handle-type = "recover-account";
+                        Store.password-dialog-config.handle-uuid = Store.account.uuid;
+                        Store.password-dialog-config.show = true;
+                    }
+                }
+
+                Btn {
+                    width: 40%;
                     bg-color: Theme.danger-color;
                     text-color: Theme.basic-black-color;
                     text: Store.translator.setting-dialog-account-delete;
@@ -96,9 +112,6 @@ export component Account inherits VerticalLayout {
                     }
                 }
 
-                Rectangle {
-                    width: 40%;
-                }
             }
         }
     }

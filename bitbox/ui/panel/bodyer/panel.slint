@@ -7,11 +7,13 @@ import { Balance } from "./balance.slint";
 import { Tool } from "./tool/panel.slint";
 
 export component Bodyer inherits Rectangle {
+    in-out property receive-address <=> tool.receive-address;
+
     VerticalLayout {
         spacing: Theme.spacing;
 
         Balance {}
-        Tool {}
+        tool := Tool {}
     }
 }
 

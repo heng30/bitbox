@@ -1,6 +1,9 @@
 use crate::slint_generatedAppWindow::{AppWindow, Logic, Store};
 use crate::util::translator::tr;
-use slint::ComponentHandle;
+use crate::{db, util};
+use serde_json::Value;
+use slint::{ComponentHandle, Weak};
+use tokio::task::spawn;
 
 pub fn init(ui: &AppWindow) {
     let ui_handle = ui.as_weak();
@@ -18,28 +21,45 @@ pub fn init(ui: &AppWindow) {
                         .invoke_show_mnemonic(handle_uuid, password);
                 }
                 "logout" => {
-                    handle_logout(&ui, password.as_str());
+                    handle_logout(ui.as_weak(), handle_uuid.to_string(), password.to_string());
                 }
                 _ => (),
             }
         });
 }
 
-fn handle_logout(ui: &AppWindow, password: &str) {
-    let mut config = ui.global::<Store>().get_password_dialog_config();
+fn handle_logout(ui: Weak<AppWindow>, uuid: String, password: String) {
+    spawn(async move {
+        let ret = is_password_verify(uuid, password).await;
 
-    if is_password_verify(password) {
-        ui.global::<Logic>()
-            .invoke_show_message("warning".into(), tr("密码错误").into());
-        config.show = false;
-    } else {
-        config.show = true;
-    }
+        let _ = slint::invoke_from_event_loop(move || {
+            let ui = ui.unwrap();
 
-    ui.global::<Store>().set_password_dialog_config(config);
+            let mut config = ui.global::<Store>().get_password_dialog_config();
+
+            if !ret {
+                ui.global::<Logic>()
+                    .invoke_show_message(tr("密码错误").into(), "warning".into());
+            }
+
+            config.show = !ret;
+            ui.global::<Store>().set_password_dialog_config(config);
+        });
+    });
 }
 
-// TODO
-pub fn is_password_verify(password: &str) -> bool {
-    false
+pub async fn is_password_verify(uuid: String, password: String) -> bool {
+    match db::account::select(&uuid).await {
+        Ok(account) => match serde_json::from_str::<Value>(&account.data) {
+            Err(e) => {
+                log::warn!("Error: {e:?}");
+                false
+            }
+            Ok(value) => util::crypto::hash(&password) == value["password"],
+        },
+        Err(e) => {
+            log::warn!("Error: {e:?}");
+            false
+        }
+    }
 }

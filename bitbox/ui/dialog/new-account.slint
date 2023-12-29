@@ -40,7 +40,7 @@ export component NewAccountDialog inherits CDialog {
                         width: 200px;
                         model: [Store.translator.new-account-dialog-type-new, Store.translator.new-account-dialog-type-recover];
                         current-value: self.model[0];
-                        current-index: 0;
+                        current-index: Math.max(Store.new-account-dialog-type-index, 1);
                     }
 
                     if type-combox.current-index == 0 : IconBtn {
@@ -203,7 +203,7 @@ export component NewAccountDialog inherits CDialog {
 
     ok-clicked => {
         if (password-lineedit.text != password-confirm-lineedit.text) {
-            Logic.show-message("warning", Store.translator.new-account-dialog-password-mismatch);
+            Logic.show-message(Store.translator.new-account-dialog-password-mismatch, "warning");
             return ;
         }
 
@@ -219,7 +219,7 @@ export component NewAccountDialog inherits CDialog {
     }
 
     cancel-clicked => {
-        Logic.show-message("warning", Store.translator.new-account-dialog-failed);
+        Logic.show-message(Store.translator.new-account-dialog-failed, "warning");
     }
 }
 

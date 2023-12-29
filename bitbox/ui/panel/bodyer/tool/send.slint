@@ -148,7 +148,7 @@ export component Send inherits Rectangle {
                 bg-color: Theme.darker-fill-color;
                 text-color: Theme.basic-black-color;
                 text: Store.translator.clear;
-                icon: @image-url("../../../images/cancel.svg");
+                icon: @image-url("../../../images/delete-light.svg");
                 clicked => {
                     receive-address-lineedit.text = "";
                     amount-lineedit.text = "0";
@@ -160,7 +160,7 @@ export component Send inherits Rectangle {
                 width: btn-width * 2;
                 text-color: Theme.basic-black-color;
                 text: Store.translator.send;
-                icon: @image-url("../../../images/success-fill.svg");
+                icon: @image-url("../../../images/send.svg");
                 clicked => { }
             }
 

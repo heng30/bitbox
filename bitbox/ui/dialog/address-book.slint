@@ -71,7 +71,7 @@ export component AddressBookDialog inherits CDialog {
 
                     address-item-touch := TouchArea {
                         clicked => {
-                            Logic.set-send-address(data.address);
+                            Logic.set-receive-address(data.address);
                             Store.is-show-address-book-dialog = false;
                         }
                     }

@@ -88,10 +88,6 @@ export struct AboutDialog {
 
 export global Store  {
     in-out property<Account> account: {
-        uuid: "default-uuid",
-        name: "account-1",
-        address: "tb1qq8jfvz4fzc83jrysyrtj83sn4ps0zenwjcetrl",
-        network: "test",
         balance-btc: "0",
         balance-usd: "0",
     };
@@ -99,6 +95,7 @@ export global Store  {
     in-out property<bool> is-show-change-account-password-dialog: false;
     in-out property<bool> is-show-show-mnemonic-dialog: false;
     in-out property<bool> is-show-new-account-dialog: false;
+    in-out property<int> new-account-dialog-type-index: 0;
     in-out property<string> account-mnemonic;
 
     in-out property<bool> is-show-address-book-add-item-dialog: false;

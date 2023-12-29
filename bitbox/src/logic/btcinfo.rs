@@ -1,7 +1,7 @@
-use crate::btc;
 use crate::slint_generatedAppWindow::{AppWindow, Logic, Store};
-use crate::util;
 use crate::wallet::transaction::blockstream;
+use crate::{btc, db, util};
+use serde_json::Value;
 use slint::{ComponentHandle, Weak};
 use tokio::task::spawn;
 use tokio::time::{sleep, Duration};
@@ -24,13 +24,45 @@ pub fn init(ui: &AppWindow) {
     });
 }
 
-fn update_timer(ui_handle: Weak<AppWindow>) {
+fn update_timer(ui: Weak<AppWindow>) {
     spawn(async move {
         loop {
-            // TODO
-            let address = "tb1qq8jfvz4fzc83jrysyrtj83sn4ps0zenwjcetrl";
-            let network = "test";
-            let balance = match blockstream::fetch_balance(network, address).await {
+            let (network, address) = match db::account::select_all().await {
+                Ok(items) => {
+                    if items.is_empty() {
+                        (None, None)
+                    } else {
+                        match serde_json::from_str::<Value>(&items[0].data) {
+                            Err(e) => {
+                                log::warn!("Error: {e:?}");
+                                (None, None)
+                            }
+                            Ok(value) => {
+                                let network = value["network"].as_str().unwrap().to_string();
+                                let address = if network == "main" {
+                                    value["main-address"].as_str().unwrap().to_string()
+                                } else {
+                                    value["test-address"].as_str().unwrap().to_string()
+                                };
+
+                                (Some(network), Some(address))
+                            }
+                        }
+                    }
+                }
+                Err(e) => {
+                    log::warn!("Error: {}", e);
+                    (None, None)
+                }
+            };
+
+            if network.is_none() || address.is_none() {
+                sleep(Duration::from_secs(10)).await;
+                continue;
+            }
+
+            let (network, address) = (network.unwrap(), address.unwrap());
+            let balance = match blockstream::fetch_balance(&network, &address).await {
                 Err(e) => {
                     log::warn!("{:?}", e);
                     None
@@ -54,9 +86,11 @@ fn update_timer(ui_handle: Weak<AppWindow>) {
                 Ok(item) => item,
             };
 
-            let ui = ui_handle.clone();
+            let ui = ui.clone();
             let _ = slint::invoke_from_event_loop(move || {
-                let mut info = ui.clone().unwrap().global::<Store>().get_btc_info();
+                let ui = ui.unwrap();
+                let mut info = ui.global::<Store>().get_btc_info();
+
                 if price > 0 {
                     info.price = slint::format!("{}", price);
                 }
@@ -67,9 +101,9 @@ fn update_timer(ui_handle: Weak<AppWindow>) {
                     info.byte_fee_fast = slint::format!("{}", fast);
                 }
                 info.update_time = util::time::local_now("%H:%M:%S").into();
-                ui.clone().unwrap().global::<Store>().set_btc_info(info);
+                ui.global::<Store>().set_btc_info(info);
 
-                let mut account = ui.clone().unwrap().global::<Store>().get_account();
+                let mut account = ui.global::<Store>().get_account();
 
                 if balance.is_some() {
                     account.balance_btc = slint::format!("{}", balance.unwrap());
@@ -81,7 +115,7 @@ fn update_timer(ui_handle: Weak<AppWindow>) {
                 }
 
                 if balance.is_some() || price > 0 {
-                    ui.clone().unwrap().global::<Store>().set_account(account);
+                    ui.global::<Store>().set_account(account);
                 }
             });
 

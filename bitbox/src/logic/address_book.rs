@@ -11,6 +11,11 @@ pub fn init(ui: &AppWindow) {
     load_items(ui.as_weak());
 
     let ui_handle = ui.as_weak();
+    ui.global::<Logic>().on_set_receive_address(move |address| {
+        ui_handle.unwrap().set_receive_address(address);
+    });
+
+    let ui_handle = ui.as_weak();
     ui.global::<Logic>()
         .on_address_book_delete_item(move |uuid| {
             let ui = ui_handle.unwrap();

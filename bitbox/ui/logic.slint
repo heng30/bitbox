@@ -14,7 +14,7 @@ export global Logic {
     callback flush-account();
     callback switch-network();
 
-    callback set-send-address(string); // argument: address
+    callback set-receive-address(string); // argument: address
     callback address-book-add-item(string, string); // argument: name, address
     callback address-book-delete-item(string); // argument: uuid
     callback address-book-item-address(string) -> string; // argument: uuid
@@ -25,7 +25,7 @@ export global Logic {
     callback new-account(string, string); // argument: password, mnemonic;
     callback delete-account(string, string); // argument: uuid, password;
     callback show-mnemonic(string, string); // argument: uuid, password;
-    pure callback mnemonic-word(string, int) -> string; // argument: index
+    pure callback mnemonic-word(string, int) -> string; // argument: mnemonic, index
     mnemonic-word(mnemonic, index) => { return "none-" + index; }
 
     callback handle-password-dialog(string, string, string); // argument: type, uuid, password
