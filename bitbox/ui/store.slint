@@ -25,6 +25,12 @@ export struct AddressBookItem {
     address: string,
 }
 
+export struct Password {
+    show: bool,
+    handle-type: string,
+    handle-uuid: string,
+}
+
 export struct BtcInfo {
     price: string,
     byte-fee-slow: string,
@@ -90,6 +96,11 @@ export global Store  {
         balance-usd: "0",
     };
 
+    in-out property<bool> is-show-change-account-password-dialog: false;
+    in-out property<bool> is-show-show-mnemonic-dialog: false;
+    in-out property<bool> is-show-new-account-dialog: false;
+    in-out property<string> account-mnemonic;
+
     in-out property<bool> is-show-address-book-add-item-dialog: false;
     in-out property<bool> is-show-address-book-qrcode-dialog: false;
     in-out property<bool> is-show-address-book-dialog: false;
@@ -106,6 +117,10 @@ export global Store  {
             address: "address-2wjfowefjwifjwifjwijfwi jfwiefjwi",
         },
     ];
+
+    in-out property<Password> password-dialog-config: {
+        show: false,
+    };
 
     in-out property<[ActivityItem]> activity-datas: [
         {
@@ -138,7 +153,7 @@ export global Store  {
     in-out property<OkCancelDialogSetting> ok-cancel-dialog-setting;
 
     in-out property<SettingDialogConfig> setting-dialog-config: {
-        show: true,
+        show: false,
         ui: {
             font-size: "18",
             font-family: "SourceHanSerifCN",

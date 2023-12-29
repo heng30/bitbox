@@ -77,7 +77,10 @@ export component Header inherits Rectangle {
                         icon: @image-url("../images/logout.svg");
                         tip-pos: "left";
                         tip-text: Store.translator.tip-logout;
-                        clicked => { }
+                        clicked => {
+                            Store.password-dialog-config.handle-type = "logout";
+                            Store.password-dialog-config.show = true;
+                        }
                     }
                 }
             }

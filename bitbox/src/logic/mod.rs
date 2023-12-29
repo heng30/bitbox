@@ -6,6 +6,7 @@ pub mod btcinfo;
 pub mod clipboard;
 pub mod message;
 pub mod ok_cancel_dialog;
+pub mod password_dialog;
 pub mod setting;
 pub mod util;
 pub mod window;

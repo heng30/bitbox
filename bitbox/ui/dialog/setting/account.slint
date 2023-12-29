@@ -44,30 +44,60 @@ export component Account inherits VerticalLayout {
             max-send-amount-lineedit := LineEdit { }
         }
 
-        HorizontalLayout {
-            alignment: space-around;
-            padding-top: Theme.padding * 6;
+        VerticalLayout {
+            spacing: Theme.padding * 2;
 
-            Btn {
-                width: 40%;
-                bg-color: Theme.danger-color;
-                text-color: Theme.basic-black-color;
-                text: Store.translator.setting-dialog-account-delete;
-                icon: @image-url("../../images/delete-light.svg");
-                clicked => {
-                    Store.setting-dialog-config.show = false;
-                    Logic.delete-account(Store.account.uuid);
+            HorizontalLayout {
+                alignment: space-around;
+
+                Btn {
+                    width: 40%;
+                    bg-color: Theme.info-color;
+                    text-color: Theme.basic-black-color;
+                    text: Store.translator.setting-dialog-account-change-password;
+                    icon: @image-url("../../images/edit.svg");
+                    clicked => {
+                        Store.setting-dialog-config.show = false;
+                        Store.is-show-change-account-password-dialog = true;
+                    }
+                }
+
+                Btn {
+                    width: 40%;
+                    text-color: Theme.basic-black-color;
+                    text: Store.translator.setting-dialog-account-show-mnemonic;
+                    icon: @image-url("../../images/eye.svg");
+                    clicked => {
+                        Store.setting-dialog-config.show = false;
+
+                        Store.password-dialog-config.handle-type = "show-mnemonic";
+                        Store.password-dialog-config.handle-uuid = Store.account.uuid;
+                        Store.password-dialog-config.show = true;
+                    }
                 }
             }
 
-            Btn {
-                width: 40%;
-                text-color: Theme.basic-black-color;
-                text: Store.translator.setting-dialog-account-show-mnemonic;
-                icon: @image-url("../../images/eye.svg");
-                clicked => {
-                    Store.setting-dialog-config.show = false;
-                    Logic.show-mnemonic(Store.account.uuid);
+            HorizontalLayout {
+                alignment: space-around;
+
+                Btn {
+                    width: 40%;
+                    bg-color: Theme.danger-color;
+                    text-color: Theme.basic-black-color;
+                    text: Store.translator.setting-dialog-account-delete;
+                    icon: @image-url("../../images/delete-light.svg");
+                    clicked => {
+                        Store.setting-dialog-config.show = false;
+
+
+                        Store.password-dialog-config.handle-type = "delete-account";
+                        Store.password-dialog-config.handle-uuid = Store.account.uuid;
+                        Store.password-dialog-config.show = true;
+                    }
+                }
+
+                Rectangle {
+                    width: 40%;
                 }
             }
         }

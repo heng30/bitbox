@@ -51,6 +51,7 @@ export struct Translation {
     setting-dialog-account-max-send-amount: string,
     setting-dialog-account-delete: string,
     setting-dialog-account-show-mnemonic: string,
+    setting-dialog-account-change-password: string,
 
     setting-dialog-proxy: string,
     setting-dialog-proxy-disabled: string,
@@ -86,6 +87,26 @@ export struct Translation {
     activity-header-amount: string,
     activity-header-status: string,
 
+    password-dialog-title: string,
+    password-dialog-password: string,
+
+    change-password-dialog-title: string,
+    change-password-dialog-old-password: string,
+    change-password-dialog-new-password: string,
+    change-password-dialog-confirm-password: string,
+
+    new-account-dialog-title: string,
+    new-account-dialog-password: string,
+    new-account-dialog-password-confirm: string,
+    new-account-dialog-mnemonic: string,
+    new-account-dialog-password-mismatch: string,
+    new-account-dialog-failed: string,
+    new-account-dialog-type-new: string,
+    new-account-dialog-type-recover: string,
+    new-account-dialog-type-recover-placeholder: string,
+
+    show-mnemonic-dialog-title: string,
+
     tip-copy: string,
     tip-add: string,
     tip-delete: string,
@@ -102,6 +123,7 @@ export struct Translation {
     tip-logout: string,
     tip-address-book: string,
     tip-max: string,
+    tip-new-mnemonic: string,
 
 
     tip-help: string,
@@ -172,6 +194,7 @@ export global Translator {
             setting-dialog-account-max-send-amount: is-cn ? "最大发送数量(BTC)" : "Max Send Amount(BTC)",
             setting-dialog-account-delete: is-cn ? "删除账户" : "Delete Account",
             setting-dialog-account-show-mnemonic: is-cn ? "查看组记词" : "Show Mnemonic",
+            setting-dialog-account-change-password: is-cn ? "更改密码" : "Change Password",
 
             setting-dialog-proxy: is-cn ? "代理" : "Proxy",
             setting-dialog-proxy-type: is-cn ? "代理类型:" : "Type:",
@@ -207,6 +230,26 @@ export global Translator {
             activity-header-amount: is-cn ? "数量" : "Amount",
             activity-header-status: is-cn ? "状态" : "Status",
 
+            password-dialog-title: is-cn ? "请输入密码" : "Please Input Password",
+            password-dialog-password: is-cn ? "密  码" : "Password",
+
+            change-password-dialog-title: is-cn ? "更改密码" : "Change Password",
+            change-password-dialog-old-password: is-cn ? "旧  密  码" : "Old Password",
+            change-password-dialog-new-password: is-cn ? "新  密  码" : "New Password",
+            change-password-dialog-confirm-password: is-cn ? "重新输入" : "Confirm Password",
+
+            new-account-dialog-title: is-cn ? "创建用户" : "New Account",
+            new-account-dialog-password: is-cn ? "输入密码" : "Input Password",
+            new-account-dialog-password-confirm: is-cn ? "确认密码" : "Confirm Password",
+            new-account-dialog-mnemonic: is-cn ? "组记词" : "Mnemonic",
+            new-account-dialog-password-mismatch: is-cn ? "密码错误" : "Password Mismatch",
+            new-account-dialog-failed: is-cn ? "创建账户失败" : "New Account Failed",
+            new-account-dialog-type-new: is-cn ? "新建账户" : "New Account",
+            new-account-dialog-type-recover: is-cn ? "恢复账户" : "Recover Account",
+            new-account-dialog-type-recover-placeholder: is-cn ? "空格分割组记词" : "Space between each mnemonic",
+
+            show-mnemonic-dialog-title: is-cn ? "组记词" : "Mnemonic",
+
             tip-copy: is-cn ? "复制" : "Copy",
             tip-add: is-cn ? "添加" : "Add",
             tip-send: is-cn ? "发送" : "Send",
@@ -223,7 +266,7 @@ export global Translator {
             tip-logout: is-cn ? "登出" : "Logout",
             tip-address-book: is-cn ? "地址簿" : "Address Book",
             tip-max: is-cn ? "最大数量" : "Max Value",
-
+            tip-new-mnemonic: is-cn ? "重新生成组记词" : "Renew Mnemonic",
 
             tip-help: is-cn ? "帮助" : "Help",
             tip-about: is-cn ? "关于" : "About",

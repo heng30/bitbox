@@ -25,6 +25,7 @@ pub fn tr(text: &str) -> String {
     items.insert("下载成功", "Download success");
     items.insert("下载失败", "Download failed");
     items.insert("加载失败", "Load failed");
+    items.insert("密码错误", "Password Invalid");
     items.insert("正在重试...", "Retrying...");
     items.insert("正在下载...", "Downloading...");
     items.insert("刷新...", "Flush...");

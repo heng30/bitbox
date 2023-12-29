@@ -21,8 +21,16 @@ export global Logic {
 
     callback activity-delete-item(string); // argument: uuid
 
-    callback delete-account(string); // argument: uuid;
-    callback show-mnemonic(string); // argument: uuid;
+    pure callback new-mnemonic() -> string;
+    callback new-account(string, string); // argument: password, mnemonic;
+    callback delete-account(string, string); // argument: uuid, password;
+    callback show-mnemonic(string, string); // argument: uuid, password;
+    pure callback mnemonic-word(string, int) -> string; // argument: index
+    mnemonic-word(mnemonic, index) => { return "none-" + index; }
+
+    callback handle-password-dialog(string, string, string); // argument: type, uuid, password
+
+    callback change-password(string, string); // argument: old password, new password
 
     pure callback pretty-btc-price(string) -> string; // argument: price; return: format price
     pretty-btc-price(price) => { return price; }

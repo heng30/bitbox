@@ -1,0 +1,225 @@
+import { TextEdit, LineEdit, ComboBox } from "std-widgets.slint";
+import { Theme } from "../theme.slint";
+import { Store } from "../store.slint";
+import { Logic } from "../logic.slint";
+import { IconBtn } from "../base/icon-btn.slint";
+import { CenterLayout } from "../base/center-layout.slint";
+import { Label } from "../base/label.slint";
+import { CDialog } from "../base/cdialog.slint";
+
+export component NewAccountDialog inherits CDialog {
+    visible: Store.is-show-new-account-dialog;
+    title: Store.translator.new-account-dialog-title;
+
+    property<length> label-width: Store.setting-dialog-config.ui.language == "cn" ? 100px : 200px;
+    property<length> lineedit-width: 100px;
+    property<bool> is-show-password: false;
+    property<bool> is-show-password-confirm: false;
+
+    VerticalLayout {
+        alignment: start;
+        padding: Theme.padding * 4;
+        spacing: Theme.spacing * 4;
+
+        VerticalLayout {
+            spacing: Theme.spacing * 2;
+
+            HorizontalLayout {
+                alignment: space-between;
+
+                Label {
+                    width: label-width;
+                    text: Store.translator.new-account-dialog-mnemonic + ":";
+                    font-size: Theme.title3-font-size;
+                }
+
+                HorizontalLayout {
+                    spacing: Theme.spacing * 2;
+
+                    type-combox := ComboBox {
+                        width: 200px;
+                        model: [Store.translator.new-account-dialog-type-new, Store.translator.new-account-dialog-type-recover];
+                        current-value: self.model[0];
+                        current-index: 0;
+                    }
+
+                    if type-combox.current-index == 0 : IconBtn {
+                        width: Theme.icon-size * 1.33;
+                        icon-width: Theme.icon-size;
+                        icon: @image-url("../images/copy.svg");
+                        tip-pos: "left";
+                        tip-text: Store.translator.tip-copy;
+                        clicked => {
+                            Logic.copy-to-clipboard(Store.account-mnemonic);
+                        }
+                    }
+
+                    if type-combox.current-index == 0 : IconBtn {
+                        width: Theme.icon-size * 1.33;
+                        icon-width: Theme.icon-size * 0.8;
+                        icon: @image-url("../images/reset.svg");
+                        tip-pos: "left";
+                        tip-text: Store.translator.tip-new-mnemonic;
+                        clicked => {
+                            Store.account-mnemonic = Logic.new-mnemonic();
+                        }
+                    }
+                }
+             }
+
+            if type-combox.current-index == 0 : VerticalLayout {
+                spacing: Theme.spacing * 2;
+
+                for index in 6 : Rectangle {
+                    HorizontalLayout {
+                        HorizontalLayout {
+                            width: 25%;
+                            alignment: end;
+                            spacing: Theme.spacing;
+
+                            Label {
+                                text: index * 4 + 1;
+                            }
+
+                            LineEdit {
+                                width: lineedit-width;
+                                read-only: true;
+                                text: Logic.mnemonic-word(Store.account-mnemonic, index * 4);
+                            }
+                        }
+
+                        HorizontalLayout {
+                            width: 25%;
+                            alignment: end;
+                            spacing: Theme.spacing;
+                            Label {
+                                text: index * 4 + 2;
+                            }
+                            LineEdit {
+                                width: lineedit-width;
+                                read-only: true;
+                                text: Logic.mnemonic-word(Store.account-mnemonic, index * 4 + 1);
+                            }
+                        }
+
+                        HorizontalLayout {
+                            width: 25%;
+                            alignment: end;
+                            spacing: Theme.spacing;
+                            Label {
+                                text: index * 4 + 3;
+                            }
+                            LineEdit {
+                                width: lineedit-width;
+                                read-only: true;
+                                text: Logic.mnemonic-word(Store.account-mnemonic, index * 4 + 2);
+                            }
+                        }
+
+                        HorizontalLayout {
+                            width: 25%;
+                            alignment: end;
+                            spacing: Theme.spacing;
+                            Label {
+                                text: index * 4 + 4;
+                            }
+                            LineEdit {
+                                width: lineedit-width;
+                                read-only: true;
+                                text: Logic.mnemonic-word(Store.account-mnemonic, index * 4 + 3);
+                            }
+                        }
+                    }
+                }
+            }
+
+            Rectangle {
+                clip: true;
+                height: type-combox.current-index == 1 ? 200px : 0;
+
+                recover-textedit := TextEdit {
+                    width: 100%;
+                    height: 100%;
+                }
+
+                Label {
+                    x: Theme.padding * 4;
+                    y: Theme.padding * 3;
+                    color: Theme.darker-fill-color;
+                    text: recover-textedit.text == "" ? Store.translator.new-account-dialog-type-recover-placeholder : "";
+                }
+            }
+        }
+
+        HorizontalLayout {
+            spacing: Theme.spacing * 2;
+
+            Label {
+                width: label-width;
+                text: Store.translator.new-account-dialog-password + ":";
+            }
+
+            password-lineedit := LineEdit {
+                input-type: is-show-password ? text : password;
+            }
+
+            IconBtn {
+                width: Theme.icon-size * 1.33;
+                icon-width: Theme.icon-size;
+                icon: is-show-password ? @image-url("../images/eye-close.svg") : @image-url("../images/eye.svg");
+                tip-pos: "left";
+                tip-text: is-show-password ? Store.translator.tip-hide : Store.translator.tip-show;
+                clicked => {
+                    is-show-password = !is-show-password;
+                }
+            }
+        }
+
+        HorizontalLayout {
+            spacing: Theme.spacing * 2;
+
+            Label {
+                width: label-width;
+                text: Store.translator.new-account-dialog-password-confirm + ":";
+            }
+
+            password-confirm-lineedit := LineEdit {
+                input-type: is-show-password-confirm ? text : password;
+            }
+
+            IconBtn {
+                width: Theme.icon-size * 1.33;
+                icon-width: Theme.icon-size;
+                icon: is-show-password-confirm ? @image-url("../images/eye-close.svg") : @image-url("../images/eye.svg");
+                tip-pos: "left";
+                tip-text: is-show-password-confirm ? Store.translator.tip-hide : Store.translator.tip-show;
+                clicked => {
+                    is-show-password-confirm = !is-show-password-confirm;
+                }
+            }
+        }
+
+    }
+
+    ok-clicked => {
+        if (password-lineedit.text != password-confirm-lineedit.text) {
+            Logic.show-message("warning", Store.translator.new-account-dialog-password-mismatch);
+            return ;
+        }
+
+        if (type-combox.current-index == 0) {
+            Logic.new-account(password-lineedit.text, Store.account-mnemonic);
+        } else {
+            Logic.new-account(password-lineedit.text, recover-textedit.text);
+        }
+
+        password-lineedit.text = "";
+        Store.account-mnemonic = "";
+        Store.is-show-new-account-dialog = false;
+    }
+
+    cancel-clicked => {
+        Logic.show-message("warning", Store.translator.new-account-dialog-failed);
+    }
+}
+

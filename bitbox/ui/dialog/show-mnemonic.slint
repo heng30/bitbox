@@ -1,0 +1,122 @@
+import { TextEdit, LineEdit } from "std-widgets.slint";
+import { Theme } from "../theme.slint";
+import { Store } from "../store.slint";
+import { Logic } from "../logic.slint";
+import { IconBtn } from "../base/icon-btn.slint";
+import { CenterLayout } from "../base/center-layout.slint";
+import { Label } from "../base/label.slint";
+import { CDialog } from "../base/cdialog.slint";
+
+export component ShowMnemonicDialog inherits CDialog {
+    visible: Store.is-show-show-mnemonic-dialog;
+    title: Store.translator.show-mnemonic-dialog-title;
+    is-hide-btns: true;
+
+    property<length> lineedit-width: 100px;
+
+    VerticalLayout {
+        alignment: start;
+        padding: Theme.padding * 4;
+        spacing: Theme.spacing * 4;
+
+        VerticalLayout {
+            spacing: Theme.spacing * 2;
+
+            HorizontalLayout {
+                alignment: space-between;
+
+                Label {
+                    text: Store.translator.new-account-dialog-mnemonic + ":";
+                    font-size: Theme.title3-font-size;
+                }
+
+                HorizontalLayout {
+                    spacing: Theme.spacing * 2;
+
+                    IconBtn {
+                        width: Theme.icon-size * 1.33;
+                        icon-width: Theme.icon-size;
+                        icon: @image-url("../images/copy.svg");
+                        tip-pos: "left";
+                        tip-text: Store.translator.tip-copy;
+                        clicked => {
+                            Logic.copy-to-clipboard(Store.account-mnemonic);
+                        }
+                    }
+                }
+            }
+
+            VerticalLayout {
+                spacing: Theme.spacing * 2;
+
+                for index in 6 : Rectangle {
+                    HorizontalLayout {
+                        HorizontalLayout {
+                            width: 25%;
+                            alignment: end;
+                            spacing: Theme.spacing;
+
+                            Label {
+                                text: index * 4 + 1;
+                            }
+
+                            LineEdit {
+                                width: lineedit-width;
+                                read-only: true;
+                                text: Logic.mnemonic-word(Store.account-mnemonic, index * 4);
+                            }
+                        }
+
+                        HorizontalLayout {
+                            width: 25%;
+                            alignment: end;
+                            spacing: Theme.spacing;
+                            Label {
+                                text: index * 4 + 2;
+                            }
+                            LineEdit {
+                                width: lineedit-width;
+                                read-only: true;
+                                text: Logic.mnemonic-word(Store.account-mnemonic, index * 4 + 1);
+                            }
+                        }
+
+                        HorizontalLayout {
+                            width: 25%;
+                            alignment: end;
+                            spacing: Theme.spacing;
+                            Label {
+                                text: index * 4 + 3;
+                            }
+                            LineEdit {
+                                width: lineedit-width;
+                                read-only: true;
+                                text: Logic.mnemonic-word(Store.account-mnemonic, index * 4 + 2);
+                            }
+                        }
+
+                        HorizontalLayout {
+                            width: 25%;
+                            alignment: end;
+                            spacing: Theme.spacing;
+                            Label {
+                                text: index * 4 + 4;
+                            }
+                            LineEdit {
+                                width: lineedit-width;
+                                read-only: true;
+                                text: Logic.mnemonic-word(Store.account-mnemonic, index * 4 + 3);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    cancel-clicked => {
+        Store.account-mnemonic = "";
+        Store.is-show-show-mnemonic-dialog = false;
+    }
+}
+
