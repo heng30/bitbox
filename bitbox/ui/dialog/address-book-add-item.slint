@@ -57,7 +57,7 @@ export component AddressBookAddItemDialog inherits CDialog {
 
     ok-clicked => {
         if (name-lineedit.text != "" && address-lineedit.text != "") {
-            Logic.address-book-add-item(name-lineedit.text, address-lineedit.text);
+            Logic.address-book-add-item(name-lineedit.text, address-lineedit.text, Store.account.network);
         }
         name-lineedit.text = ""; address-lineedit.text = "";
         Store.is-show-address-book-add-item-dialog = false;

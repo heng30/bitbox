@@ -9,7 +9,8 @@ use tokio::task::spawn;
 use uuid::Uuid;
 
 pub fn init(ui: &AppWindow) {
-    load_items(ui.as_weak());
+    let account = ui.global::<Store>().get_account();
+    load_items(ui.as_weak(), account.network.to_string());
 
     let ui_handle = ui.as_weak();
     ui.global::<Logic>().on_activity_delete_item(move |uuid| {
@@ -40,9 +41,9 @@ pub fn init(ui: &AppWindow) {
     });
 }
 
-fn load_items(ui: Weak<AppWindow>) {
+pub fn load_items(ui: Weak<AppWindow>, network: String) {
     spawn(async move {
-        match db::activity::select_all().await {
+        match db::activity::select_all_network(&network).await {
             Ok(items) => {
                 let mut activity_items = vec![];
                 for item in items.iter().rev() {
@@ -82,12 +83,14 @@ fn load_items(ui: Weak<AppWindow>) {
 
 pub fn activity_add_item(
     ui: &AppWindow,
+    network: &str,
     txid: &str,
     operate: &str,
     amount: &str,
     status: &str,
 ) {
     let uuid = Uuid::new_v4().to_string();
+    let network = network.to_string();
     let time = util::time::local_now("%m-%d %H:%M:%S");
 
     let item = ActivityItem {
@@ -117,7 +120,7 @@ pub fn activity_add_item(
         .insert(0_usize, item);
 
     spawn(async move {
-        match db::activity::insert(&uuid, &json).await {
+        match db::activity::insert(&uuid, &network, &json).await {
             Err(e) => log::warn!("Error: {:?}", e),
             _ => (),
         }
@@ -127,7 +130,13 @@ pub fn activity_add_item(
 #[allow(unused)]
 fn test_add(ui: &AppWindow) {
     for i in 0..5 {
+        let network = if i % 2 == 0 {
+            "main"
+        } else {
+            "test"
+        };
+
         let i = format!("{}", i);
-        activity_add_item(&ui, &i, &i, &i, &i);
+        activity_add_item(&ui, network, &i, &i, &i, &i);
     }
 }

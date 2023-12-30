@@ -12,10 +12,10 @@ export global Logic {
     callback setting-ok(SettingDialogConfig);
 
     callback flush-account();
-    callback switch-network();
+    callback switch-network(string, string); // argument: uuid, network
 
     callback set-receive-address(string); // argument: address
-    callback address-book-add-item(string, string); // argument: name, address
+    callback address-book-add-item(string, string, string); // argument: name, address, network
     callback address-book-delete-item(string); // argument: uuid
     callback address-book-item-address(string) -> string; // argument: uuid
 
@@ -23,6 +23,7 @@ export global Logic {
 
     pure callback new-mnemonic() -> string;
     callback new-account(string, string); // argument: password, mnemonic;
+    callback recover-account(string, string);  // argument: uuid, password
     callback delete-account(string, string); // argument: uuid, password;
     callback show-mnemonic(string, string); // argument: uuid, password;
     pure callback mnemonic-word(string, int) -> string; // argument: mnemonic, index
@@ -30,7 +31,7 @@ export global Logic {
 
     callback handle-password-dialog(string, string, string); // argument: type, uuid, password
 
-    callback change-password(string, string); // argument: old password, new password
+    callback change-password(string, string, string); // argument: uuid, old password, new password
 
     pure callback pretty-btc-price(string) -> string; // argument: price; return: format price
     pretty-btc-price(price) => { return price; }

@@ -12,6 +12,7 @@ pub async fn new() -> Result<()> {
         "CREATE TABLE IF NOT EXISTS activity (
              id INTEGER PRIMARY KEY,
              uuid TEXT NOT NULL UNIQUE,
+             network TEXT NOT NULL,
              data TEXT NOT NULL)",
     )
     .execute(&pool())
@@ -28,9 +29,15 @@ pub async fn delete(uuid: &str) -> Result<()> {
     Ok(())
 }
 
-pub async fn insert(uuid: &str, data: &str) -> Result<()> {
-    sqlx::query("INSERT INTO activity (uuid, data) VALUES (?, ?)")
+pub async fn delete_all() -> Result<()> {
+    sqlx::query("DELETE FROM activity").execute(&pool()).await?;
+    Ok(())
+}
+
+pub async fn insert(uuid: &str, network: &str, data: &str) -> Result<()> {
+    sqlx::query("INSERT INTO activity (uuid, network, data) VALUES (?, ?, ?)")
         .bind(uuid)
+        .bind(network)
         .bind(data)
         .execute(&pool())
         .await?;
@@ -38,8 +45,15 @@ pub async fn insert(uuid: &str, data: &str) -> Result<()> {
 }
 
 pub async fn select_all() -> Result<Vec<Activity>> {
+    Ok(sqlx::query_as::<_, Activity>("SELECT * FROM activity")
+        .fetch_all(&pool())
+        .await?)
+}
+
+pub async fn select_all_network(network: &str) -> Result<Vec<Activity>> {
     Ok(
-        sqlx::query_as::<_, Activity>("SELECT * FROM activity")
+        sqlx::query_as::<_, Activity>("SELECT * FROM activity WHERE network=?")
+            .bind(network)
             .fetch_all(&pool())
             .await?,
     )

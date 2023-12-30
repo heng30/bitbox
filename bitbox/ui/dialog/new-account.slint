@@ -11,6 +11,8 @@ export component NewAccountDialog inherits CDialog {
     visible: Store.is-show-new-account-dialog;
     title: Store.translator.new-account-dialog-title;
 
+    in-out property type-index <=> type-combox.current-index;
+
     property<length> label-width: Store.setting-dialog-config.ui.language == "cn" ? 100px : 200px;
     property<length> lineedit-width: 100px;
     property<bool> is-show-password: false;
@@ -39,8 +41,8 @@ export component NewAccountDialog inherits CDialog {
                     type-combox := ComboBox {
                         width: 200px;
                         model: [Store.translator.new-account-dialog-type-new, Store.translator.new-account-dialog-type-recover];
-                        current-value: self.model[0];
-                        current-index: Math.max(Store.new-account-dialog-type-index, 1);
+                        current-value: self.model[self.current-index];
+                        current-index: 0;
                     }
 
                     if type-combox.current-index == 0 : IconBtn {
@@ -204,8 +206,10 @@ export component NewAccountDialog inherits CDialog {
     ok-clicked => {
         if (password-lineedit.text != password-confirm-lineedit.text) {
             Logic.show-message(Store.translator.new-account-dialog-password-mismatch, "warning");
-            return ;
+            return;
         }
+
+        Store.is-show-new-account-dialog = false;
 
         if (type-combox.current-index == 0) {
             Logic.new-account(password-lineedit.text, Store.account-mnemonic);
@@ -214,11 +218,15 @@ export component NewAccountDialog inherits CDialog {
         }
 
         password-lineedit.text = "";
+        password-confirm-lineedit.text = "";
+        recover-textedit.text = "";
         Store.account-mnemonic = "";
-        Store.is-show-new-account-dialog = false;
     }
 
     cancel-clicked => {
+        password-lineedit.text = "";
+        password-confirm-lineedit.text = "";
+        recover-textedit.text = "";
         Logic.show-message(Store.translator.new-account-dialog-failed, "warning");
     }
 }

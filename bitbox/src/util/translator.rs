@@ -31,6 +31,10 @@ pub fn tr(text: &str) -> String {
     items.insert("创建账户成功", "Create account success");
     items.insert("创建账户失败", "Create account failed");
     items.insert("密码错误", "Wrong password");
+    items.insert("修改密码成功", "Change password success");
+    items.insert("组记词错误", "Mnemonic is wrong");
+    items.insert("恢复账户失败", "Recover account failed");
+    items.insert("切换网络成功", "Switch network success");
     items.insert("刷新...", "Flush...");
     items.insert("在线", "Online");
     items.insert("正忙", "Busy");

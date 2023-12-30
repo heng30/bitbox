@@ -67,7 +67,7 @@ export component Header inherits Rectangle {
                         tip-text:  Store.account.network == "main" ? Store.translator.tip-main-network : Store.translator.tip-test-network;
 
                         clicked => {
-                            Logic.switch-network();
+                            Logic.switch-network(Store.account.uuid, Store.account.network == "main" ? "test" : "main");
                         }
                     }
 

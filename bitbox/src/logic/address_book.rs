@@ -8,7 +8,8 @@ use tokio::task::spawn;
 use uuid::Uuid;
 
 pub fn init(ui: &AppWindow) {
-    load_items(ui.as_weak());
+    let account = ui.global::<Store>().get_account();
+    load_items(ui.as_weak(), account.network.to_string());
 
     let ui_handle = ui.as_weak();
     ui.global::<Logic>().on_set_receive_address(move |address| {
@@ -65,9 +66,10 @@ pub fn init(ui: &AppWindow) {
 
     let ui_handle = ui.as_weak();
     ui.global::<Logic>()
-        .on_address_book_add_item(move |name, address| {
+        .on_address_book_add_item(move |name, address, network| {
             let ui = ui_handle.unwrap();
             let uuid = Uuid::new_v4().to_string();
+            let network = network.to_string();
 
             let item = AddressBookItem {
                 uuid: uuid.clone().into(),
@@ -91,7 +93,7 @@ pub fn init(ui: &AppWindow) {
 
             let ui = ui.as_weak();
             spawn(async move {
-                match db::address_book::insert(&uuid, &json).await {
+                match db::address_book::insert(&uuid, &network, &json).await {
                     Ok(_) => async_message_success(ui.clone(), tr("添加成功")),
                     Err(e) => async_message_warn(
                         ui.clone(),
@@ -102,9 +104,9 @@ pub fn init(ui: &AppWindow) {
         });
 }
 
-fn load_items(ui: Weak<AppWindow>) {
+pub fn load_items(ui: Weak<AppWindow>, network: String) {
     spawn(async move {
-        match db::address_book::select_all().await {
+        match db::address_book::select_all_network(&network).await {
             Ok(items) => {
                 let mut address_items = vec![];
                 for item in items.iter() {

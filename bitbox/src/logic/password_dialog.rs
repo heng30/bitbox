@@ -20,6 +20,10 @@ pub fn init(ui: &AppWindow) {
                     ui.global::<Logic>()
                         .invoke_show_mnemonic(handle_uuid, password);
                 }
+                "recover-account" => {
+                    ui.global::<Logic>()
+                        .invoke_recover_account(handle_uuid, password);
+                }
                 "logout" => {
                     handle_logout(ui.as_weak(), handle_uuid.to_string(), password.to_string());
                 }
