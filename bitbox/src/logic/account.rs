@@ -335,6 +335,9 @@ fn load_items(ui: Weak<AppWindow>) {
                             value["test-address"].as_str().unwrap().to_string()
                         };
 
+                        super::activity::load_items(ui.clone(), network.clone());
+                        super::address_book::load_items(ui.clone(), network.clone());
+
                         let _ = slint::invoke_from_event_loop(move || {
                             let ui = ui.clone().unwrap();
 

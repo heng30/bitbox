@@ -8,9 +8,6 @@ use tokio::task::spawn;
 use uuid::Uuid;
 
 pub fn init(ui: &AppWindow) {
-    let account = ui.global::<Store>().get_account();
-    load_items(ui.as_weak(), account.network.to_string());
-
     let ui_handle = ui.as_weak();
     ui.global::<Logic>().on_set_receive_address(move |address| {
         ui_handle.unwrap().set_receive_address(address);

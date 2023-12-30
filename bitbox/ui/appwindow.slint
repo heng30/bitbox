@@ -37,8 +37,10 @@ export component AppWindow inherits Window {
 
     property<length> dialog-max-width: Math.min(root.width * 0.95, Theme.dialog-max-width);
 
-    in-out property receive-address <=> panel.receive-address;
     in-out property new-account-dialog-type-index <=> new_account_dialog.type-index;
+    in-out property receive-address <=> panel.receive-address;
+    in-out property send-amount <=> panel.send-amount;
+    in-out property feerate <=> panel.feerate;
 
     init => { }
 

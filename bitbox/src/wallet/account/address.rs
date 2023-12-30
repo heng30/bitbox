@@ -17,7 +17,6 @@ pub const ACCOUNT_DERIVATION_PATH: &str = "m/0'/0'";
 pub struct Info {
     pub uuid: String,
     pub name: String,
-    pub balance: u64, // satoshi
     pub mnemonic: String,
     pub network: String,
     pub address: (String, String),

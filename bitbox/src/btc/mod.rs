@@ -72,7 +72,7 @@ mod tests {
     #[tokio::test]
     async fn test_price() -> Result<()> {
         let price = super::price().await?;
-        assert!(price > 0);
+        assert!(price > 0_f64);
 
         println!("{}", price);
         Ok(())

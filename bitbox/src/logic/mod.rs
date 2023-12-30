@@ -11,5 +11,6 @@ pub mod setting;
 pub mod util;
 pub mod window;
 pub mod account;
+pub mod send_tx;
 
 pub use message::*;

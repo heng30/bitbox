@@ -23,7 +23,9 @@ export component Account inherits VerticalLayout {
                 text: Store.translator.setting-dialog-account-max-fee-amount + ":";
             }
 
-            max-fee-amount-lineedit := LineEdit { }
+            max-fee-amount-lineedit := LineEdit {
+                input-type: number;
+            }
         }
 
         HorizontalLayout {
@@ -32,7 +34,9 @@ export component Account inherits VerticalLayout {
                 text: Store.translator.setting-dialog-account-max-feerate + ":";
             }
 
-            max-feerate-lineedit := LineEdit { }
+            max-feerate-lineedit := LineEdit {
+                input-type: number;
+            }
         }
 
         HorizontalLayout {
@@ -41,7 +45,9 @@ export component Account inherits VerticalLayout {
                 text: Store.translator.setting-dialog-account-max-send-amount + ":";
             }
 
-            max-send-amount-lineedit := LineEdit { }
+            max-send-amount-lineedit := LineEdit {
+                input-type: number;
+            }
         }
 
         VerticalLayout {

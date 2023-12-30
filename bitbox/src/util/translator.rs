@@ -35,6 +35,8 @@ pub fn tr(text: &str) -> String {
     items.insert("组记词错误", "Mnemonic is wrong");
     items.insert("恢复账户失败", "Recover account failed");
     items.insert("切换网络成功", "Switch network success");
+    items.insert("非法输入", "Invalid input");
+    items.insert("生成交易失败", "Generate translation failed");
     items.insert("刷新...", "Flush...");
     items.insert("在线", "Online");
     items.insert("正忙", "Busy");

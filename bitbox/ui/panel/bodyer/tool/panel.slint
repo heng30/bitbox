@@ -10,6 +10,8 @@ import { AddressBook } from "./address-book.slint";
 
 export component Tool inherits Rectangle {
     in-out property receive-address <=> send-tab.receive-address;
+    in-out property send-amount <=> send-tab.send-amount;
+    in-out property feerate <=> send-tab.feerate;
 
     property<string> current-checked-item: "send";
 

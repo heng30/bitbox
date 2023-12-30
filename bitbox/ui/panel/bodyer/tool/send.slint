@@ -9,7 +9,7 @@ import { Btn } from "../../../base/btn.slint";
 
 export component Send inherits Rectangle {
     in-out property receive-address <=> receive-address-lineedit.text;
-    in-out property amount <=> amount-lineedit.text;
+    in-out property send-amount <=> amount-lineedit.text;
     in-out property feerate <=> feerate-lineedit.text;
 
     property<length> label-width: Theme.default-label-width;
@@ -54,7 +54,7 @@ export component Send inherits Rectangle {
                 spacing: Theme.spacing * 2;
 
                 amount-lineedit := LineEdit {
-                    text: "0";
+                    input-type: number;
                 }
 
                 IconBtn {
@@ -114,6 +114,7 @@ export component Send inherits Rectangle {
                     feerate-lineedit := LineEdit {
                         width: 60px;
                         text: Store.btc-info.byte-fee-normal;
+                        input-type: number;
                     }
 
                     Label {
@@ -151,7 +152,7 @@ export component Send inherits Rectangle {
                 icon: @image-url("../../../images/delete-light.svg");
                 clicked => {
                     receive-address-lineedit.text = "";
-                    amount-lineedit.text = "0";
+                    amount-lineedit.text = "";
                     feerate-lineedit.text = Store.btc-info.byte-fee-normal;
                 }
             }
@@ -161,7 +162,11 @@ export component Send inherits Rectangle {
                 text-color: Theme.basic-black-color;
                 text: Store.translator.send;
                 icon: @image-url("../../../images/send.svg");
-                clicked => { }
+                clicked => {
+                    Store.password-dialog-config.handle-type = "send-tx";
+                    Store.password-dialog-config.handle-uuid = Store.account.uuid;
+                    Store.password-dialog-config.show = true;
+                }
             }
 
         }

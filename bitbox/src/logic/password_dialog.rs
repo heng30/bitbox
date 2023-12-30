@@ -24,6 +24,14 @@ pub fn init(ui: &AppWindow) {
                     ui.global::<Logic>()
                         .invoke_recover_account(handle_uuid, password);
                 }
+                "send-tx" => {
+                    let receive_address = ui.get_receive_address();
+                    let send_amount = ui.get_send_amount();
+                    let feerate = ui.get_feerate();
+
+                    ui.global::<Logic>()
+                    .invoke_send_tx(handle_uuid, password, receive_address, send_amount, feerate);
+                }
                 "logout" => {
                     handle_logout(ui.as_weak(), handle_uuid.to_string(), password.to_string());
                 }

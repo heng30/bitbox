@@ -352,7 +352,6 @@ mod tests {
     {
         "uuid":"2a42cc5b-1663-424d-a391-cd700b5c2f25",
         "name":"account1",
-        "balance":0,
         "mnemonic": "b9cd46a3394670456d56a9d47c38da1df0e0ea226c270b08770c20dd738ee69ee54ae400283d587973ffc653eb48b5e46d1bc4153d433ce6bc5db90dc5f02b01cdb47eb9cffad0043587d941469f20c272045151446e9ceb872495c99d7f4353f4b9b88ea02d92645eb6863c85ac6a73ced1d0224b8b2783c72bf3911e15971d5a152d56e383abbe48c6d87b1ed4d4953e40fd465ee125e48379abb039128f04",
         "network": "test",
         "address": [
@@ -365,7 +364,6 @@ mod tests {
     {
         "uuid": "0d2fe06d-570f-4eda-9746-1316685ba75b",
         "name": "account2",
-        "balance": 0,
         "mnemonic": "9dfb1e817d1d0b261a62cba4681c92c5982ca59f7ad5be5087107ab26fedd2c996481a34f5968ebbdcf4f53f00a03ed3b1afdbcd2fd8c45559ccdc354f6c4ee02bf33ca1c4b3d9790b3b741771ed518d1b5ed6a2a9458c19f82a20fabaf8220d79083531cc3be119d30a575dc3b20c6e734238a25bf68051881480bfb5f86310c49b13e19d4b5ee7fedb23070ff1b89bf26c091e0f879052007141dd416a37ac",
         "network": "test",
         "address": [
@@ -378,6 +376,9 @@ mod tests {
     async fn build_transaction_1to2() -> Result<TxDetail> {
         let acnt_1: address::Info = serde_json::from_str(TEST_ACCOUNT_1)?;
         let acnt_2: address::Info = serde_json::from_str(TEST_ACCOUNT_2)?;
+
+        let mnemonic = acnt_1.decrypt_mnemonic(PASSWORD)?;
+        println!("{mnemonic}");
 
         let tx_info = sendinfo::Info {
             recipient_address: acnt_2.address.1.clone(),
