@@ -2,6 +2,7 @@ use anyhow::Result;
 use std::path::PathBuf;
 use std::{env, fs, io};
 
+#[allow(dead_code)]
 pub fn working_dir() -> Result<PathBuf> {
     let mut dir = env::current_exe()?;
     dir.pop();

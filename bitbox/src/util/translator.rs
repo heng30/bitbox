@@ -36,7 +36,9 @@ pub fn tr(text: &str) -> String {
     items.insert("恢复账户失败", "Recover account failed");
     items.insert("切换网络成功", "Switch network success");
     items.insert("非法输入", "Invalid input");
-    items.insert("生成交易失败", "Generate translation failed");
+    items.insert("生成交易失败", "Generate transaction failed");
+    items.insert("发送交易成功", "Send transaction success");
+    items.insert("发送交易失败", "Send transaction failed");
     items.insert("刷新...", "Flush...");
     items.insert("在线", "Online");
     items.insert("正忙", "Busy");

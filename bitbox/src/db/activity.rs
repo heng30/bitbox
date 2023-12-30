@@ -44,6 +44,7 @@ pub async fn insert(uuid: &str, network: &str, data: &str) -> Result<()> {
     Ok(())
 }
 
+#[allow(dead_code)]
 pub async fn select_all() -> Result<Vec<Activity>> {
     Ok(sqlx::query_as::<_, Activity>("SELECT * FROM activity")
         .fetch_all(&pool())

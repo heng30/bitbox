@@ -1,7 +1,7 @@
 #!/bin/bash
 
 build-evn=SLINT_STYLE=fluent
-run-evn=RUST_LOG=error,warn,info,debug
+run-evn=RUST_LOG=error,warn,info,sqlx=off,reqwest=off
 
 all:
 	$(build-evn) cargo build --release

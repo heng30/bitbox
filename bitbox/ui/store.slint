@@ -19,6 +19,19 @@ export struct ActivityItem {
     status: string,
 }
 
+export struct TxDetail {
+    show: bool,
+    network: string,
+    send-address: string,
+    receive-address: string,
+    send-amount-btc: string,
+    send-amount-usd: string,
+    fee-amount-btc: string,
+    fee-amount-usd: string,
+    detail-hex: string,
+    detail-raw: string,
+}
+
 export struct AddressBookItem {
     uuid: string,
     name: string,
@@ -97,6 +110,10 @@ export global Store  {
     in-out property<bool> is-show-new-account-dialog: false;
     in-out property<string> account-mnemonic;
 
+    in-out property<TxDetail> tx-detail-dialog: {
+        show: false,
+    };
+
     in-out property<bool> is-show-address-book-add-item-dialog: false;
     in-out property<bool> is-show-address-book-qrcode-dialog: false;
     in-out property<bool> is-show-address-book-dialog: false;
@@ -123,17 +140,17 @@ export global Store  {
             uuid: "uuid-1",
             time: "12-10 23:45:12",
             txid: "31040072e777e124e120f6f157fdec1482062fb10055ba684e6dfc7b112f8241",
-            operate: "发送",
+            operate: "send",
             amount: "0.12",
-            status: "未确认",
+            status: "unconfirm",
         },
         {
             uuid: "uuid-2",
             time: "12-10 22:43:12",
             txid: "31040072e777e124e120f6f157fdec1482062fb10055ba684e6dfc7b112f8241",
-            operate: "发送",
+            operate: "send",
             amount: "0.2",
-            status: "已确认",
+            status: "confirm",
         }
     ];
 

@@ -50,6 +50,7 @@ pub async fn is_table_exist(table_name: &str) -> Result<()> {
     Ok(())
 }
 
+#[allow(dead_code)]
 pub async fn drop_table(table_name: &str) -> Result<()> {
     sqlx::query(&format!("DROP TABLE {}", table_name))
         .execute(&pool())

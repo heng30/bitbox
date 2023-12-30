@@ -1,16 +1,14 @@
-use crate::config;
-use crate::db;
 use crate::message::{async_message_success, async_message_warn};
 use crate::password_dialog::is_password_verify;
-use crate::slint_generatedAppWindow::{AddressBookItem, AppWindow, Logic, Store};
+use crate::slint_generatedAppWindow::{AppWindow, Logic, Store, TxDetail};
 use crate::util::translator::tr;
 use crate::wallet::{
     account::{address, sendinfo, tx},
     transaction::blockstream,
 };
-use crate::{message_success, message_warn};
+use crate::{config, db, message_warn};
 use serde_json::Value;
-use slint::{ComponentHandle, Weak};
+use slint::ComponentHandle;
 use tokio::task::spawn;
 use uuid::Uuid;
 
@@ -29,6 +27,13 @@ pub fn init(ui: &AppWindow) {
                 message_warn!(ui, tr("非法输入"));
                 return;
             }
+
+            let btc_price: f64 = ui
+                .global::<Store>()
+                .get_btc_info()
+                .price
+                .parse()
+                .unwrap_or(0_f64);
 
             let ui = ui.as_weak();
             spawn(async move {
@@ -68,14 +73,49 @@ pub fn init(ui: &AppWindow) {
                                 )
                                 .unwrap();
 
+                            let mut tx_detail = TxDetail {
+                                show: true,
+                                network: address_info.network.clone().into(),
+                                receive_address: receive_address.clone().into(),
+                                send_amount_usd: slint::format!(
+                                    "{:.2}",
+                                    btc_price * send_amount.parse::<f64>().unwrap_or(0_f64)
+                                ),
+                                send_amount_btc: send_amount.into(),
+                                send_address: if address_info.network == "main" {
+                                    address_info.address.0.clone().into()
+                                } else {
+                                    address_info.address.1.clone().into()
+                                },
+                                ..Default::default()
+                            };
+
                             match tx::build(&password, address_info, send_info).await {
                                 Err(e) => async_message_warn(
                                     ui.clone(),
                                     format!("{}. {}: {e:?}", tr("生成交易失败"), tr("原因")),
                                 ),
-                                Ok(tx_detail) => {
-                                    log::debug!("{tx_detail:?}");
-                                    // TODO
+                                Ok(detail) => {
+                                    tx_detail.fee_amount_usd = slint::format!(
+                                        "{:.2}",
+                                        detail.fee_amount as f64 * btc_price / 1e8
+                                    );
+
+                                    tx_detail.fee_amount_btc =
+                                        slint::format!("{}", detail.fee_amount as f64 / 1e8);
+
+                                    tx_detail.detail_raw = tx::parse_tx(&detail.tx_hex)
+                                        .unwrap_or(String::default())
+                                        .into();
+
+                                    tx_detail.detail_hex = detail.tx_hex.into();
+
+                                    let _ = slint::invoke_from_event_loop(move || {
+                                        ui.clone()
+                                            .unwrap()
+                                            .global::<Store>()
+                                            .set_tx_detail_dialog(tx_detail);
+                                    });
                                 }
                             }
                         }
@@ -88,4 +128,28 @@ pub fn init(ui: &AppWindow) {
             });
         },
     );
+
+    let ui_handle = ui.as_weak();
+    ui.global::<Logic>()
+        .on_broadcast_tx(move |network, tx_hex| {
+            let ui = ui_handle.clone();
+            let network = network.to_string();
+            let tx_hex = tx_hex.to_string();
+
+            spawn(async move {
+                match blockstream::broadcast_transaction(&network, tx_hex).await {
+                    Err(e) => async_message_warn(
+                        ui.clone(),
+                        format!("{}. {}: {e:?}", tr("发送交易失败"), tr("原因")),
+                    ),
+                    Ok(txid) => {
+                        // TODO
+                        async_message_success(
+                            ui.clone(),
+                            format!("{}. txid: {txid}", tr("发送交易成功")),
+                        );
+                    }
+                }
+            });
+        });
 }

@@ -39,6 +39,7 @@ pub async fn insert(uuid: &str, network: &str, data: &str) -> Result<()> {
     Ok(())
 }
 
+#[allow(dead_code)]
 pub async fn select_all() -> Result<Vec<AddressBook>> {
     Ok(
         sqlx::query_as::<_, AddressBook>("SELECT * FROM address_book")

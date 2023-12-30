@@ -94,6 +94,15 @@ export struct Translation {
     password-dialog-title: string,
     password-dialog-password: string,
 
+    tx-detail-dialog-title: string,
+    tx-detail-dialog-network: string,
+    tx-detail-dialog-send-address: string,
+    tx-detail-dialog-receive-address: string,
+    tx-detail-dialog-send-amount: string,
+    tx-detail-dialog-fee-amount: string,
+    tx-detail-dialog-tx-hex: string,
+    tx-detail-dialog-tx-raw: string,
+
     change-password-dialog-title: string,
     change-password-dialog-old-password: string,
     change-password-dialog-new-password: string,
@@ -240,6 +249,15 @@ export global Translator {
 
             password-dialog-title: is-cn ? "请输入密码" : "Please input password",
             password-dialog-password: is-cn ? "密  码" : "Password",
+
+            tx-detail-dialog-title: is-cn ? "交易详情" : "Tx Detail",
+            tx-detail-dialog-network: is-cn ? "网       络" : "Network",
+            tx-detail-dialog-send-address: is-cn ? "发送地址" : "Send address",
+            tx-detail-dialog-receive-address: is-cn ? "接受地址" : "Receive address",
+            tx-detail-dialog-send-amount: is-cn ? "发送数量" : "Send amount",
+            tx-detail-dialog-fee-amount: is-cn ? "交易费用" : "Fee amount",
+            tx-detail-dialog-tx-hex: is-cn ? "交易细节(Hex)" : "Tx Detail(Hex)",
+            tx-detail-dialog-tx-raw: is-cn ? "交易细节(Raw)" : "Tx Detail(Raw)",
 
             change-password-dialog-title: is-cn ? "更改密码" : "Change password",
             change-password-dialog-old-password: is-cn ? "旧  密  码" : "Old password",

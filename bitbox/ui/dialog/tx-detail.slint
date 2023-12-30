@@ -1,0 +1,107 @@
+import { ComboBox, TextEdit, LineEdit } from "std-widgets.slint";
+import { Theme } from "../theme.slint";
+import { Store } from "../store.slint";
+import { Logic } from "../logic.slint";
+import { IconBtn } from "../base/icon-btn.slint";
+import { CenterLayout } from "../base/center-layout.slint";
+import { Label } from "../base/label.slint";
+import { CDialog } from "../base/cdialog.slint";
+
+export component TxDetailDialog inherits CDialog {
+    visible: Store.tx-detail-dialog.show;
+    title: Store.translator.tx-detail-dialog-title;
+
+    property<length> label-width: Theme.default-label-width;
+
+    VerticalLayout {
+        alignment: start;
+        padding: Theme.padding * 4;
+        spacing: Theme.spacing * 4;
+
+        HorizontalLayout {
+            spacing: Theme.spacing;
+            Label {
+                width: label-width;
+                text: Store.translator.tx-detail-dialog-network + ":";
+            }
+            Label {
+                text: Store.tx-detail-dialog.network == "main" ? Store.translator.tip-main-network : Store.translator.tip-test-network;
+            }
+        }
+
+        HorizontalLayout {
+            spacing: Theme.spacing;
+            Label {
+                width: label-width;
+                text: Store.translator.tx-detail-dialog-send-address + ":";
+            }
+            Label {
+                text: Store.tx-detail-dialog.send-address;
+            }
+        }
+
+        HorizontalLayout {
+            spacing: Theme.spacing;
+            Label {
+                width: label-width;
+                text: Store.translator.tx-detail-dialog-receive-address + ":";
+            }
+            Label {
+                text: Store.tx-detail-dialog.receive-address;
+            }
+        }
+
+        HorizontalLayout {
+            spacing: Theme.spacing;
+            Label {
+                width: label-width;
+                text: Store.translator.tx-detail-dialog-send-amount + ":";
+            }
+            Label {
+                text: Store.tx-detail-dialog.send-amount-btc + " BTC" + " / " + Store.tx-detail-dialog.send-amount-usd + " USD";
+            }
+        }
+
+        HorizontalLayout {
+            spacing: Theme.spacing;
+            Label {
+                width: label-width;
+                text: Store.translator.tx-detail-dialog-fee-amount + ":";
+            }
+            Label {
+                text: Store.tx-detail-dialog.fee-amount-btc + " BTC" + " / " + Store.tx-detail-dialog.fee-amount-usd + " USD";
+            }
+        }
+
+        VerticalLayout {
+            spacing: Theme.spacing;
+            detail-combox := ComboBox {
+                model: [Store.translator.tx-detail-dialog-tx-hex, Store.translator.tx-detail-dialog-tx-raw];
+                current-value: self.model[0];
+                current-index: 0;
+            }
+
+            if detail-combox.current-index == 0 : TextEdit {
+                height: 150px;
+                read-only: true;
+                text: Store.tx-detail-dialog.detail-hex;
+            }
+
+            if detail-combox.current-index == 1 : TextEdit {
+                height: 150px;
+                read-only: true;
+                text: Store.tx-detail-dialog.detail-raw;
+            }
+        }
+    }
+
+    ok-clicked => {
+        Logic.broadcast-tx(Store.tx-detail-dialog.network, Store.tx-detail-dialog.detail_hex);
+        Store.tx-detail-dialog.show = false;
+    }
+
+    cancel-clicked => {
+        Store.tx-detail-dialog.show = false;
+    }
+}
+

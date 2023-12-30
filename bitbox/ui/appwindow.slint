@@ -4,6 +4,7 @@ import { BaseLogic } from "./base/logic.slint";
 import { Store } from "./store.slint";
 import { AddressBookItem } from "./store.slint";
 import { ActivityItem } from "./store.slint";
+import { TxDetail } from "./store.slint";
 import { Account } from "./store.slint";
 import { Util } from "./util.slint";
 import { Translator } from "./translator.slint";
@@ -13,6 +14,7 @@ import { Blanket } from "./base/blanket.slint";
 import { Panel } from "./panel/panel.slint";
 import { Message } from "./base/message.slint";
 import { SettingDialog } from "./dialog/setting/dialog.slint";
+import { TxDetailDialog } from "./dialog/tx-detail.slint";
 import { PasswordDialog } from "./dialog/password.slint";
 import { ChangePasswordDialog } from "./dialog/change-password.slint";
 import { AddressBookAddItemDialog } from "./dialog/address-book-add-item.slint";
@@ -87,7 +89,7 @@ export component AppWindow inherits Window {
                 }
             }
 
-            if address-book-add-item-dialog.visible || address-book-qrcode-dialog.visible || address-book-dialog.visible || setting-dialog.visible || oc-dialog.visible || about-dialog.visible || help-dialog.visible || password-dialog.visible || new-account-dialog.visible || show-mnemonic-dialog.visible || change-password-dialog.visible : low-modal := Blanket { }
+            if address-book-add-item-dialog.visible || address-book-qrcode-dialog.visible || address-book-dialog.visible || setting-dialog.visible || oc-dialog.visible || about-dialog.visible || help-dialog.visible || password-dialog.visible || new-account-dialog.visible || show-mnemonic-dialog.visible || tx-detail-dialog.visible || change-password-dialog.visible : low-modal := Blanket { }
 
             address-book-add-item-dialog := AddressBookAddItemDialog {
                 width: root.dialog-max-width;
@@ -110,6 +112,10 @@ export component AppWindow inherits Window {
             }
 
             new-account-dialog := NewAccountDialog {
+                width: root.dialog-max-width;
+            }
+
+            tx-detail-dialog := TxDetailDialog {
                 width: root.dialog-max-width;
             }
 
@@ -140,4 +146,4 @@ export component AppWindow inherits Window {
     }
 }
 
-export { Util, Logic, BaseLogic, Store, Account, ActivityItem, AddressBookItem }
+export { Util, Logic, BaseLogic, Store, Account, ActivityItem, AddressBookItem, TxDetail }

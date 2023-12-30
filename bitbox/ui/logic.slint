@@ -15,6 +15,7 @@ export global Logic {
     callback switch-network(string, string); // argument: uuid, network
 
     callback send-tx(string, string, string, string, string); // argument: uuid, password, receive-address, amount, feerate
+    callback broadcast-tx(string, string); // argument: network, tx-hex
 
     callback set-receive-address(string); // argument: address
     callback address-book-add-item(string, string, string); // argument: name, address, network
