@@ -45,7 +45,6 @@ impl Info {
             mnemonic: util::crypto::encrypt(password, mnemonic.as_bytes())?,
             network: "main".to_string(),
             address: (address[0].clone(), address[1].clone()),
-            ..Default::default()
         })
     }
     #[allow(dead_code)]
@@ -54,7 +53,7 @@ impl Info {
     }
 
     pub fn mnemonic() -> String {
-        let mnemonic = Mnemonic::random(&mut OsRng, Default::default());
+        let mnemonic = Mnemonic::random(OsRng, Default::default());
         mnemonic.phrase().to_string()
     }
 

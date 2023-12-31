@@ -1,5 +1,5 @@
 pub fn format_number_with_commas(number_str: &str) -> String {
-    if number_str.len() == 0 {
+    if number_str.is_empty() {
         return String::default();
     }
 
@@ -7,9 +7,9 @@ pub fn format_number_with_commas(number_str: &str) -> String {
     let decimal_index = chars.iter().position(|&c| c == '.').unwrap_or(chars.len());
 
     let left_part = &mut chars[0..decimal_index]
-        .into_iter()
+        .iter()
         .rev()
-        .map(|c| *c)
+        .copied()
         .collect::<Vec<char>>();
 
     let right_part = &number_str[decimal_index..];

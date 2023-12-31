@@ -252,8 +252,10 @@ impl WatchOnly {
 
         let (mut total_input_amount, mut change_amount, mut fee_amount) = (0, 0, 0);
         for utxo in utxos.iter() {
-            let mut input = TxIn::default();
-            input.previous_output = OutPoint::new(Txid::from_str(&utxo.txid)?, utxo.vout);
+            let input = TxIn {
+                previous_output: OutPoint::new(Txid::from_str(&utxo.txid)?, utxo.vout),
+                ..Default::default()
+            };
             inputs.push(input);
             raw_inputs.push(utxo.clone());
 

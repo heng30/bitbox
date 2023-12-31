@@ -61,11 +61,13 @@ pub fn init(ui: &AppWindow) {
                             };
 
                             let account_conf = config::account();
-                            let mut send_info = sendinfo::Info::default();
-                            send_info.recipient_address = receive_address.to_string();
-                            send_info.fee_rate = feerate.parse().unwrap();
-                            send_info.max_fee_rate = account_conf.max_feerate as u64;
-                            send_info.max_fee_amount = account_conf.max_fee_amount as u64;
+                            let send_info = sendinfo::Info {
+                                recipient_address: receive_address.to_string(),
+                                fee_rate: feerate.parse().unwrap(),
+                                max_fee_rate: account_conf.max_feerate as u64,
+                                max_fee_amount: account_conf.max_fee_amount as u64,
+                                ..Default::default()
+                            };
                             let send_info = send_info
                                 .amount_from_btc(
                                     send_amount.as_str(),

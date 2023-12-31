@@ -65,20 +65,17 @@ fn check_confirm_timer(ui: Weak<AppWindow>) {
                                 Ok(mut value) => {
                                     if value["status"].as_str().unwrap() == "unconfirmed" {
                                         let txid = value["txid"].as_str().unwrap();
-                                        match blockstream::is_tx_confirmed(&item.network, &txid)
-                                            .await
+                                        if let Ok(true) =
+                                            blockstream::is_tx_confirmed(&item.network, txid).await
                                         {
-                                            Ok(true) => {
-                                                value["status"] =
-                                                    Value::String("confirmed".to_string());
-                                                let _ = db::activity::update(
-                                                    &item.uuid,
-                                                    &value.to_string(),
-                                                )
-                                                .await;
-                                                update_items.push((item.uuid, item.network));
-                                            }
-                                            _ => (),
+                                            value["status"] =
+                                                Value::String("confirmed".to_string());
+                                            let _ = db::activity::update(
+                                                &item.uuid,
+                                                &value.to_string(),
+                                            )
+                                            .await;
+                                            update_items.push((item.uuid, item.network));
                                         }
                                     }
                                 }
@@ -201,9 +198,8 @@ pub fn activity_add_item(
         .insert(0_usize, item);
 
     spawn(async move {
-        match db::activity::insert(&uuid, &network, &json).await {
-            Err(e) => log::warn!("Error: {:?}", e),
-            _ => (),
+        if let Err(e) = db::activity::insert(&uuid, &network, &json).await {
+            log::warn!("Error: {:?}", e);
         }
     });
 }
@@ -214,6 +210,6 @@ fn test_add(ui: &AppWindow) {
         let network = if i % 2 == 0 { "main" } else { "test" };
 
         let i = format!("{}", i);
-        activity_add_item(&ui, network, &i, &i, &i, &i);
+        activity_add_item(ui, network, &i, &i, &i, &i);
     }
 }

@@ -19,7 +19,7 @@ pub fn init(ui: &AppWindow) {
             slint::format!("{:.2}", price)
         } else if price >= 0_f64 {
             slint::format!("{:.3}", price)
-        } else if price >= 0.00_001_f64 {
+        } else if price >= 0.000_01_f64 {
             slint::format!("{:.5}", price)
         } else {
             slint::format!("{:.8}", price)
@@ -67,8 +67,7 @@ fn update_timer(ui: Weak<AppWindow>) {
                     }
                 };
 
-                if network.is_some() && address.is_some() {
-                    let (network, address) = (network.unwrap(), address.unwrap());
+                if let (Some(network), Some(address)) = (network, address) {
                     let balance = match blockstream::fetch_balance(&network, &address).await {
                         Err(e) => {
                             log::warn!("{:?}", e);
