@@ -75,6 +75,12 @@ pub fn init(ui: &AppWindow) {
             .to_string()
             .parse()
             .unwrap_or(1_f64);
+        config.account.skip_utxo_amount = setting_config
+            .account
+            .skip_utxo_amount
+            .to_string()
+            .parse()
+            .unwrap_or(1_000);
 
         config.socks5.enabled = setting_config.proxy.enabled;
         config.socks5.url = setting_config.proxy.url.to_string();
@@ -113,6 +119,7 @@ fn init_setting_dialog(ui: Weak<AppWindow>) {
     setting_dialog.account.max_feerate = slint::format!("{}", account_config.max_feerate);
     setting_dialog.account.max_fee_amount = slint::format!("{}", account_config.max_fee_amount);
     setting_dialog.account.max_send_amount = slint::format!("{}", account_config.max_send_amount);
+    setting_dialog.account.skip_utxo_amount = slint::format!("{}", account_config.skip_utxo_amount);
 
     setting_dialog.proxy.enabled = socks5_config.enabled;
     setting_dialog.proxy.url = socks5_config.url.into();

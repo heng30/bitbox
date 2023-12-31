@@ -4,6 +4,7 @@ use anyhow::Result;
 #[derive(Serialize, Deserialize, Debug, Clone, sqlx::FromRow)]
 pub struct AddressBook {
     pub uuid: String,
+    pub network: String,
     pub data: String,
 }
 

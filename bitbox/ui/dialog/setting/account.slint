@@ -12,10 +12,22 @@ export component Account inherits VerticalLayout {
     in-out property max-feerate <=> max-feerate-lineedit.text;
     in-out property max-fee-amount <=> max-fee-amount-lineedit.text;
     in-out property max-send-amount <=> max-send-amount-lineedit.text;
+    in-out property skip-utxo-amount <=> skip-utxo-amount-lineedit.text;
 
     VerticalLayout {
         spacing: Theme.spacing * 4;
         alignment: start;
+
+        HorizontalLayout {
+             Label {
+                width: label-width;
+                text: Store.translator.setting-dialog-account-skip-utxo-amount + ":";
+            }
+
+            skip-utxo-amount-lineedit := LineEdit {
+                input-type: number;
+            }
+        }
 
         HorizontalLayout {
              Label {

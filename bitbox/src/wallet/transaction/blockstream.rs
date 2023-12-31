@@ -1,4 +1,4 @@
-use crate::util;
+use crate::{config, util};
 use anyhow::{anyhow, Result};
 use serde::Deserialize;
 use std::time::Duration;
@@ -64,17 +64,22 @@ pub async fn fetch_utxos(network: &str, address: &str) -> Result<Vec<Utxo>> {
 }
 
 pub async fn fetch_confirmed_utxos(network: &str, address: &str) -> Result<Vec<Utxo>> {
+    let skip_utxo_amount = config::account().skip_utxo_amount as u64;
+
     Ok(fetch_utxos(network, address)
         .await?
         .into_iter()
-        .filter(|item| item.status.confirmed)
+        .filter(|item| item.status.confirmed && item.value > skip_utxo_amount)
         .collect())
 }
 
 pub async fn fetch_balance(network: &str, address: &str) -> Result<u64> {
+    let skip_utxo_amount = config::account().skip_utxo_amount as u64;
+
     Ok(fetch_utxos(network, address)
         .await?
         .into_iter()
+        .filter(|item| item.value > skip_utxo_amount)
         .map(|item| item.value)
         .sum())
 }

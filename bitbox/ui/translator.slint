@@ -56,6 +56,7 @@ export struct Translation {
     setting-dialog-account-show-mnemonic: string,
     setting-dialog-account-change-password: string,
     setting-dialog-account-recover: string,
+    setting-dialog-account-skip-utxo-amount: string,
 
     setting-dialog-proxy: string,
     setting-dialog-proxy-disabled: string,
@@ -205,13 +206,14 @@ export global Translator {
             setting-dialog-ui-language: is-cn ? "选择语言:" : "Language:",
 
             setting-dialog-account: is-cn ? "账户" : "Account",
-            setting-dialog-account-max-feerate: is-cn ? "最大费率(sat/vB)" : "Max Fee(sat/vB)",
-            setting-dialog-account-max-fee-amount: is-cn ? "最大费用(sat)" : "Max Fee(sat)",
-            setting-dialog-account-max-send-amount: is-cn ? "最大发送数量(BTC)" : "Max Send Amount(BTC)",
+            setting-dialog-account-max-feerate: is-cn ? "最大费率(sat/vB)" : "Max fee(sat/vB)",
+            setting-dialog-account-max-fee-amount: is-cn ? "最大费用(sat)" : "Max fee(sat)",
+            setting-dialog-account-max-send-amount: is-cn ? "最大发送数量(BTC)" : "Max send(BTC)",
             setting-dialog-account-delete: is-cn ? "删除账户    " : "Delete account",
             setting-dialog-account-show-mnemonic: is-cn ? "查看组记词" : "Show mnemonic",
             setting-dialog-account-change-password: is-cn ? "更改密码" : "Change password",
             setting-dialog-account-recover: is-cn ? "恢复账户" : "Recover account",
+            setting-dialog-account-skip-utxo-amount: is-cn ? "跳过 UTXO(sat)" : "Skip UTXO(sat)",
 
             setting-dialog-proxy: is-cn ? "代理" : "Proxy",
             setting-dialog-proxy-type: is-cn ? "代理类型:" : "Type:",

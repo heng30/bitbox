@@ -55,6 +55,7 @@ pub struct Account {
     pub max_feerate: u32,
     pub max_fee_amount: u32,
     pub max_send_amount: f64,
+    pub skip_utxo_amount: u32,
 }
 
 impl Default for Account {
@@ -63,6 +64,7 @@ impl Default for Account {
             max_feerate: 100_u32,
             max_fee_amount: 10_000_u32,
             max_send_amount: 1_f64,
+            skip_utxo_amount: 1_000_u32,
         }
     }
 }

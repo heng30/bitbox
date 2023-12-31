@@ -1,6 +1,5 @@
 extern crate rand;
 
-use crate::db;
 use crate::util;
 use anyhow::{anyhow, Result};
 use bip32::{Language, Mnemonic, Seed};
@@ -49,7 +48,7 @@ impl Info {
             ..Default::default()
         })
     }
-
+    #[allow(dead_code)]
     pub fn recover(password: &str, mnemonic: &str) -> Result<Self> {
         Self::new("account_0", password, mnemonic)
     }
@@ -92,11 +91,6 @@ impl Info {
         }
 
         Ok(())
-    }
-
-    pub async fn save(&self) -> Result<()> {
-        let text = serde_json::to_string(self)?;
-        db::account::insert(&self.uuid, &text).await
     }
 }
 

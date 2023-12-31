@@ -1,14 +1,20 @@
-use crate::db;
 use crate::message::{async_message_success, async_message_warn};
 use crate::slint_generatedAppWindow::{ActivityItem, AppWindow, Logic, Store};
-use crate::util;
 use crate::util::translator::tr;
+use crate::wallet::transaction::blockstream;
+use crate::{db, util};
 use serde_json::{json, Value};
 use slint::{ComponentHandle, Model, VecModel, Weak};
+use std::sync::atomic::{AtomicBool, Ordering};
 use tokio::task::spawn;
+use tokio::time::{sleep, Duration};
 use uuid::Uuid;
 
+static IS_FLUSH_NOW: AtomicBool = AtomicBool::new(false);
+
 pub fn init(ui: &AppWindow) {
+    check_confirm_timer(ui.as_weak());
+
     let ui_handle = ui.as_weak();
     ui.global::<Logic>().on_activity_delete_item(move |uuid| {
         let ui = ui_handle.unwrap();
@@ -34,6 +40,84 @@ pub fn init(ui: &AppWindow) {
                 });
                 return;
             }
+        }
+    });
+
+    ui.global::<Logic>().on_flush_activity(move || {
+        IS_FLUSH_NOW.store(true, Ordering::SeqCst);
+    });
+}
+
+fn check_confirm_timer(ui: Weak<AppWindow>) {
+    spawn(async move {
+        const FLUSH_INTERVAL: u64 = 60_u64;
+        let mut inc_index = 0_u64;
+
+        loop {
+            if inc_index % FLUSH_INTERVAL == 0 || IS_FLUSH_NOW.load(Ordering::SeqCst) {
+                match db::activity::select_all().await {
+                    Ok(items) => {
+                        let mut update_items = vec![];
+
+                        for item in items.into_iter() {
+                            match serde_json::from_str::<Value>(&item.data) {
+                                Err(e) => log::warn!("Error: {e:?}"),
+                                Ok(mut value) => {
+                                    if value["status"].as_str().unwrap() == "unconfirmed" {
+                                        let txid = value["txid"].as_str().unwrap();
+                                        match blockstream::is_tx_confirmed(&item.network, &txid)
+                                            .await
+                                        {
+                                            Ok(true) => {
+                                                value["status"] =
+                                                    Value::String("confirmed".to_string());
+                                                let _ = db::activity::update(
+                                                    &item.uuid,
+                                                    &value.to_string(),
+                                                )
+                                                .await;
+                                                update_items.push((item.uuid, item.network));
+                                            }
+                                            _ => (),
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+                        let ui = ui.clone();
+                        let _ = slint::invoke_from_event_loop(move || {
+                            let ui = ui.unwrap();
+                            let current_network =
+                                ui.global::<Store>().get_account().network.to_string();
+
+                            for (uuid, network) in update_items.into_iter() {
+                                if current_network != network {
+                                    continue;
+                                }
+
+                                for (index, mut item) in
+                                    ui.global::<Store>().get_activity_datas().iter().enumerate()
+                                {
+                                    if uuid.as_str() != item.uuid.as_str() {
+                                        continue;
+                                    }
+
+                                    item.status = "confirmed".into();
+                                    ui.global::<Store>()
+                                        .get_activity_datas()
+                                        .set_row_data(index, item);
+                                }
+                            }
+                        });
+                    }
+                    Err(e) => log::warn!("Error: {}", e),
+                };
+            }
+
+            inc_index += 1;
+            IS_FLUSH_NOW.store(false, Ordering::SeqCst);
+            sleep(Duration::from_secs(1)).await;
         }
     });
 }
@@ -127,11 +211,7 @@ pub fn activity_add_item(
 #[allow(unused)]
 fn test_add(ui: &AppWindow) {
     for i in 0..5 {
-        let network = if i % 2 == 0 {
-            "main"
-        } else {
-            "test"
-        };
+        let network = if i % 2 == 0 { "main" } else { "test" };
 
         let i = format!("{}", i);
         activity_add_item(&ui, network, &i, &i, &i, &i);

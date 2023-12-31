@@ -4,16 +4,17 @@ use anyhow::Result;
 #[derive(Serialize, Deserialize, Debug, Clone, sqlx::FromRow)]
 pub struct Activity {
     pub uuid: String,
+    pub network: String,
     pub data: String,
 }
 
 pub async fn new() -> Result<()> {
     sqlx::query(
         "CREATE TABLE IF NOT EXISTS activity (
-             id INTEGER PRIMARY KEY,
-             uuid TEXT NOT NULL UNIQUE,
-             network TEXT NOT NULL,
-             data TEXT NOT NULL)",
+            id INTEGER PRIMARY KEY,
+            uuid TEXT NOT NULL UNIQUE,
+            network TEXT NOT NULL,
+            data TEXT NOT NULL)",
     )
     .execute(&pool())
     .await?;
@@ -31,6 +32,16 @@ pub async fn delete(uuid: &str) -> Result<()> {
 
 pub async fn delete_all() -> Result<()> {
     sqlx::query("DELETE FROM activity").execute(&pool()).await?;
+    Ok(())
+}
+
+pub async fn update(uuid: &str, data: &str) -> Result<()> {
+    sqlx::query("UPDATE activity SET data=? WHERE uuid=?")
+        .bind(data)
+        .bind(uuid)
+        .execute(&pool())
+        .await?;
+
     Ok(())
 }
 

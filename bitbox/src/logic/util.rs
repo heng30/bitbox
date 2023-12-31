@@ -1,7 +1,7 @@
 use crate::message_warn;
 use crate::slint_generatedAppWindow::{AppWindow, Logic, Util};
 use crate::util::translator::tr;
-use crate::util::{number, time};
+use crate::util::{self, number, time};
 use image::Rgb;
 use qrcode::QrCode;
 use slint::{ComponentHandle, Image, Rgb8Pixel, SharedPixelBuffer};
@@ -55,4 +55,11 @@ pub fn init(ui: &AppWindow) {
 
     ui.global::<Util>()
         .on_local_now(move |format| time::local_now(format.as_str()).into());
+
+    ui.global::<Util>()
+        .on_split_and_join_string(move |input, length, sep| {
+            util::str::split_string_to_fixed_length_parts(input.as_str(), length as usize)
+                .join(sep.as_str())
+                .into()
+        });
 }

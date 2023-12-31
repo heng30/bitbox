@@ -12,10 +12,11 @@ export global Logic {
     callback setting-ok(SettingDialogConfig);
 
     callback flush-account();
+    callback flush-activity();
     callback switch-network(string, string); // argument: uuid, network
 
     callback send-tx(string, string, string, string, string); // argument: uuid, password, receive-address, amount, feerate
-    callback broadcast-tx(string, string); // argument: network, tx-hex
+    callback broadcast-tx(string, string, string); // argument: network, tx-hex, send-amount-btc
 
     callback set-receive-address(string); // argument: address
     callback address-book-add-item(string, string, string); // argument: name, address, network

@@ -1,7 +1,8 @@
-import { ComboBox, TextEdit, LineEdit } from "std-widgets.slint";
+import { ComboBox, LineEdit, ListView } from "std-widgets.slint";
 import { Theme } from "../theme.slint";
 import { Store } from "../store.slint";
 import { Logic } from "../logic.slint";
+import { Util } from "../util.slint";
 import { IconBtn } from "../base/icon-btn.slint";
 import { CenterLayout } from "../base/center-layout.slint";
 import { Label } from "../base/label.slint";
@@ -75,28 +76,53 @@ export component TxDetailDialog inherits CDialog {
 
         VerticalLayout {
             spacing: Theme.spacing;
-            detail-combox := ComboBox {
-                model: [Store.translator.tx-detail-dialog-tx-hex, Store.translator.tx-detail-dialog-tx-raw];
-                current-value: self.model[0];
-                current-index: 0;
+            HorizontalLayout {
+                spacing: Theme.spacing * 2;
+
+                detail-combox := ComboBox {
+                    model: [Store.translator.tx-detail-dialog-tx-hex, Store.translator.tx-detail-dialog-tx-raw];
+                    current-value: self.model[0];
+                    current-index: 0;
+                }
+
+                IconBtn {
+                    width: Theme.icon-size * 1.33;
+                    icon-width: Theme.icon-size;
+                    icon: @image-url("../images/copy.svg");
+                    tip-pos: "left";
+                    tip-text: Store.translator.tip-copy;
+                    clicked => {
+                        if (detail-combox.current-index == 0) {
+                            Logic.copy-to-clipboard(Store.tx-detail-dialog.detail-hex);
+                        } else if (detail-combox.current-index == 1) {
+                            Logic.copy-to-clipboard(Store.tx-detail-dialog.detail-raw);
+                        }
+                    }
+                }
             }
 
-            if detail-combox.current-index == 0 : TextEdit {
+            if detail-combox.current-index == 0 : ListView {
                 height: 150px;
-                read-only: true;
-                text: Store.tx-detail-dialog.detail-hex;
+                for index in 1: CenterLayout {
+                    Label {
+                        wrap: word-wrap;
+                        text: Util.split-and-join-string(Store.tx-detail-dialog.detail-hex, 50, "\n");
+                    }
+                }
             }
 
-            if detail-combox.current-index == 1 : TextEdit {
+            if detail-combox.current-index == 1 : ListView {
                 height: 150px;
-                read-only: true;
-                text: Store.tx-detail-dialog.detail-raw;
+                for index in 1: Label {
+                    wrap: word-wrap;
+                    text: Store.tx-detail-dialog.detail-raw;
+                }
             }
         }
     }
 
     ok-clicked => {
-        Logic.broadcast-tx(Store.tx-detail-dialog.network, Store.tx-detail-dialog.detail_hex);
+        Logic.broadcast-tx(Store.tx-detail-dialog.network, Store.tx-detail-dialog.detail_hex, Store.tx-detail-dialog.send-amount-btc);
         Store.tx-detail-dialog.show = false;
     }
 

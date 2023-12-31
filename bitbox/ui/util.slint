@@ -16,6 +16,9 @@ export global Util {
     pure callback generate-qrcode(string) -> image;
     generate-qrcode(msg) => { return no-image; }
 
+    pure callback split-and-join-string(string, int, string) -> string;
+    split-and-join-string(input, length, sep) => { return input; }
+
     public pure function text-color(type: string) -> color {
        if (type == "success") {
            return Theme.success-color;

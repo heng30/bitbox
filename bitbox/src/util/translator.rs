@@ -39,6 +39,7 @@ pub fn tr(text: &str) -> String {
     items.insert("生成交易失败", "Generate transaction failed");
     items.insert("发送交易成功", "Send transaction success");
     items.insert("发送交易失败", "Send transaction failed");
+    items.insert("非法交易", "Invalid transaction");
     items.insert("刷新...", "Flush...");
     items.insert("在线", "Online");
     items.insert("正忙", "Busy");

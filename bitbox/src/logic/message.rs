@@ -18,6 +18,14 @@ macro_rules! message_success {
     };
 }
 
+#[macro_export]
+macro_rules! message_info {
+    ($ui:expr, $msg:expr) => {
+        $ui.global::<Logic>()
+            .invoke_show_message(slint::format!("{}", $msg), "info".into());
+    };
+}
+
 pub fn async_message_warn(ui: Weak<AppWindow>, msg: String) {
     let _ = slint::invoke_from_event_loop(move || {
         ui.unwrap()
@@ -31,6 +39,14 @@ pub fn async_message_success(ui: Weak<AppWindow>, msg: String) {
         ui.unwrap()
             .global::<Logic>()
             .invoke_show_message(slint::format!("{}", msg), "success".into());
+    });
+}
+
+pub fn async_message_info(ui: Weak<AppWindow>, msg: String) {
+    let _ = slint::invoke_from_event_loop(move || {
+        ui.unwrap()
+            .global::<Logic>()
+            .invoke_show_message(slint::format!("{}", msg), "info".into());
     });
 }
 

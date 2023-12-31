@@ -130,6 +130,7 @@ fn update_timer(ui: Weak<AppWindow>) {
             }
 
             inc_index += 1;
+            IS_FLUSH_NOW.store(false, Ordering::SeqCst);
             sleep(Duration::from_secs(1)).await;
         }
     });

@@ -1,4 +1,5 @@
-use crate::message::{async_message_success, async_message_warn};
+use crate::activity::activity_add_item;
+use crate::message::async_message_warn;
 use crate::password_dialog::is_password_verify;
 use crate::slint_generatedAppWindow::{AppWindow, Logic, Store, TxDetail};
 use crate::util::translator::tr;
@@ -6,11 +7,10 @@ use crate::wallet::{
     account::{address, sendinfo, tx},
     transaction::blockstream,
 };
-use crate::{config, db, message_warn};
+use crate::{config, db, message_info, message_success, message_warn};
 use serde_json::Value;
 use slint::ComponentHandle;
 use tokio::task::spawn;
-use uuid::Uuid;
 
 pub fn init(ui: &AppWindow) {
     let ui_handle = ui.as_weak();
@@ -111,10 +111,8 @@ pub fn init(ui: &AppWindow) {
                                     tx_detail.detail_hex = detail.tx_hex.into();
 
                                     let _ = slint::invoke_from_event_loop(move || {
-                                        ui.clone()
-                                            .unwrap()
-                                            .global::<Store>()
-                                            .set_tx_detail_dialog(tx_detail);
+                                        let ui = ui.clone().unwrap();
+                                        ui.global::<Store>().set_tx_detail_dialog(tx_detail);
                                     });
                                 }
                             }
@@ -131,10 +129,13 @@ pub fn init(ui: &AppWindow) {
 
     let ui_handle = ui.as_weak();
     ui.global::<Logic>()
-        .on_broadcast_tx(move |network, tx_hex| {
+        .on_broadcast_tx(move |network, tx_hex, send_amount_btc| {
             let ui = ui_handle.clone();
             let network = network.to_string();
             let tx_hex = tx_hex.to_string();
+            let amount = send_amount_btc.to_string();
+
+            message_info!(ui.clone().unwrap(), tr("正在发送交易..."));
 
             spawn(async move {
                 match blockstream::broadcast_transaction(&network, tx_hex).await {
@@ -143,11 +144,19 @@ pub fn init(ui: &AppWindow) {
                         format!("{}. {}: {e:?}", tr("发送交易失败"), tr("原因")),
                     ),
                     Ok(txid) => {
-                        // TODO
-                        async_message_success(
-                            ui.clone(),
-                            format!("{}. txid: {txid}", tr("发送交易成功")),
-                        );
+                        if !tx::is_valid_txid(&txid) {
+                            async_message_warn(
+                                ui.clone(),
+                                format!("{}. txid: {txid}", tr("非法交易")),
+                            );
+                            return;
+                        }
+
+                        let _ = slint::invoke_from_event_loop(move || {
+                            let ui = ui.clone().unwrap();
+                            activity_add_item(&ui, &network, &txid, "send", &amount, "unconfirmed");
+                            message_success!(ui, tr("发送交易成功"));
+                        });
                     }
                 }
             });

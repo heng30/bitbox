@@ -77,6 +77,7 @@ export struct SettingAccount {
     max-feerate: string,
     max-fee-amount: string,
     max-send-amount: string,
+    skip-utxo-amount: string,
 }
 
 export struct SettingProxy {
@@ -126,8 +127,8 @@ export global Store  {
         },
         {
             uuid: "uuid-2",
-            name: "name-2wjifjwifjwifjwifjweifjweif",
-            address: "address-2wjfowefjwifjwifjwijfwi jfwiefjwi",
+            name: "name-2wjifjwifjwif",
+            address: "address-2wjfowefjwifjwifjwijfwijfwiefjwi",
         },
     ];
 
@@ -178,6 +179,7 @@ export global Store  {
             max-feerate: "0",
             max-fee-amount: "0",
             max-send-amount: "0",
+            skip-utxo-amount: "0",
         },
         proxy: {
             enabled: false,
@@ -203,7 +205,7 @@ export global Store  {
             + "  2. 数据保存在~/.local/share/bitbox目录下。\n",
 
         text-en:
-              "Configuration And Data:\n"
+              "Configuration and data:\n"
             + "  1. Configuration is stored in the ~/.config/bitbox directory.\n"
             + "  2. Data is stored in the ~/.local/share/bitbox directory.\n",
     };

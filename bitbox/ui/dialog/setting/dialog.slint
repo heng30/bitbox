@@ -10,7 +10,7 @@ import { Proxy } from "./proxy.slint";
 import { Account } from "./account.slint";
 
 export component SettingDialog inherits CDialog {
-    property<string> current-checked-item: "account";
+    property<string> current-checked-item: "ui";
 
     callback close();
 
@@ -83,6 +83,7 @@ export component SettingDialog inherits CDialog {
                     max-feerate: Store.setting-dialog-config.account.max-feerate;
                     max-fee-amount: Store.setting-dialog-config.account.max-fee-amount;
                     max-send-amount: Store.setting-dialog-config.account.max-send-amount;
+                    skip-utxo-amount: Store.setting-dialog-config.account.skip-utxo-amount;
                 }
 
                 proxy-tab := Proxy {
@@ -107,6 +108,7 @@ export component SettingDialog inherits CDialog {
         account-tab.max-feerate = Store.setting-dialog-config.account.max-feerate;
         account-tab.max-fee-amount = Store.setting-dialog-config.account.max-fee-amount;
         account-tab.max-send-amount = Store.setting-dialog-config.account.max-send-amount;
+        account-tab.skip-utxo-amount = Store.setting-dialog-config.account.skip-utxo-amount;
 
         proxy-tab.proxy-enabled = Store.setting-dialog-config.proxy.enabled;
         proxy-tab.proxy-url = Store.setting-dialog-config.proxy.url;
@@ -129,6 +131,7 @@ export component SettingDialog inherits CDialog {
                 max-feerate: account-tab.max-feerate,
                 max-fee-amount: account-tab.max-fee-amount,
                 max-send-amount: account-tab.max-send-amount,
+                skip-utxo-amount: account-tab.skip-utxo-amount,
             },
             proxy: {
                 enabled: proxy-tab.proxy-enabled,
