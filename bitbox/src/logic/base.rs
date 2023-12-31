@@ -22,7 +22,7 @@ pub fn init(ui: &AppWindow) {
     });
 
     ui.global::<BaseLogic>()
-        .on_list_item_trim(move |text| text.replacen("-", " ", 1).trim().into());
+        .on_list_item_trim(move |text| text.replacen('-', " ", 1).trim().into());
 
     ui.global::<BaseLogic>().on_leading_spaces(move |text| {
         text.chars()

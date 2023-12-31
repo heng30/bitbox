@@ -1,23 +1,23 @@
 ![screenshot](./screenshot/bitbox.png)
 
-[中文文档](./README.zh-CN.md)
+[English Documentation](./README.zh-CN.md)
 
-#### Introduction
-It is a easily used bitcoin wallet.
+#### 简介
+一个简洁的bitcoin钱包。
 
-#### Features
-- [x] new wallet account
-- [x] recover wallet account
-- [x] send and receive bitcoin
-- [x] show transations activity
-- [x] address book
+#### 功能
+- [x] 生成钱包账号
+- [x] 恢复钱包
+- [x] 发送和接收BTC
+- [x] 展示交易活动
+- [x] 地址簿
 
-#### How to build?
-- Install `Rust` and `Cargo`
-- Run `make`
-- Refer to [Makefile](./Makefile) for more information
+#### 如何构建?
+- 安装 `Rust` 和 `Cargo`
+- 运行 `make`
+- 参考 [Makefile](./Makefile) 了解更多信息
 
-#### Testnet Faucets
+#### 测试网水龙头
 - https://testnet.qc.to/
 - https://testnet-faucet.mempool.co/
 - https://coinfaucet.eu/en/btc-testnet/
@@ -26,7 +26,7 @@ It is a easily used bitcoin wallet.
 - https://testnet.help/en/btcfaucet/testnet
 - https://tbtc.mocacinno.com/
 
-#### Reference
+#### 参考
 - [Slint Language Documentation](https://slint-ui.com/releases/1.0.0/docs/slint/)
 - [github/slint-ui](https://github.com/slint-ui/slint)
 - [Viewer for Slint](https://github.com/slint-ui/slint/tree/master/tools/viewer)

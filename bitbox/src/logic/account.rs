@@ -169,9 +169,11 @@ pub fn init(ui: &AppWindow) {
                 let _ = slint::invoke_from_event_loop(move || {
                     let ui = ui.clone().unwrap();
 
-                    let mut account = SAccount::default();
-                    account.balance_btc = "0".into();
-                    account.balance_usd = "0".into();
+                    let account = SAccount {
+                        balance_btc: "0".into(),
+                        balance_usd: "0".into(),
+                        ..Default::default()
+                    };
                     ui.global::<Store>().set_account(account);
 
                     ui.global::<Store>()
@@ -242,9 +244,11 @@ pub fn init(ui: &AppWindow) {
                 let _ = slint::invoke_from_event_loop(move || {
                     let ui = ui.clone().unwrap();
 
-                    let mut account = SAccount::default();
-                    account.balance_btc = "0".into();
-                    account.balance_usd = "0".into();
+                    let account = SAccount {
+                        balance_btc: "0".into(),
+                        balance_usd: "0".into(),
+                        ..Default::default()
+                    };
                     ui.global::<Store>().set_account(account);
 
                     ui.set_new_account_dialog_type_index(1);
@@ -323,7 +327,6 @@ fn load_items(ui: Weak<AppWindow>) {
 
                             ui.global::<Store>().set_is_show_new_account_dialog(true);
                         });
-                        return;
                     }
                     Ok(value) => {
                         let uuid = value["uuid"].as_str().unwrap().to_string();

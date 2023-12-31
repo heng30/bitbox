@@ -1,5 +1,5 @@
 use super::data::{self, Config};
-use anyhow::{anyhow, Result};
+use anyhow::Result;
 use log::debug;
 use platform_dirs::AppDirs;
 use std::cell::RefCell;
@@ -118,12 +118,12 @@ impl Config {
                     self.socks5 = c.socks5;
                     Ok(())
                 }
-                Err(e) => Err(anyhow!("{}", e.to_string()).into()),
+                Err(e) => Err(e.into()),
             },
 
             Err(_) => match serde_json::to_string_pretty(self) {
                 Ok(text) => Ok(fs::write(&self.config_path, text)?),
-                Err(e) => Err(anyhow!("{}", e.to_string()).into()),
+                Err(e) => Err(e.into()),
             },
         }
     }
@@ -131,7 +131,7 @@ impl Config {
     pub fn save(&self) -> Result<()> {
         match serde_json::to_string_pretty(self) {
             Ok(text) => Ok(fs::write(&self.config_path, text)?),
-            Err(e) => Err(anyhow!("{}", e.to_string()).into()),
+            Err(e) => Err(e.into()),
         }
     }
 }

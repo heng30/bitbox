@@ -70,8 +70,8 @@ pub fn init(ui: &AppWindow) {
 
             let item = AddressBookItem {
                 uuid: uuid.clone().into(),
-                name: name,
-                address: address,
+                name,
+                address,
             };
 
             let json_item = json!({
