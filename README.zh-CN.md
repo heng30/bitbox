@@ -1,4 +1,4 @@
-![screenshot](./screenshot/bitbox.png)
+![screenshot](./screenshot/bitbox-cn.png)
 
 [English Documentation](./README.zh-CN.md)
 
