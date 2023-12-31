@@ -3,7 +3,7 @@
 [中文文档](./README.zh-CN.md)
 
 #### Introduction
-It is a easily used bitcoin wallet.
+It is a easily used bitcoin light wallet. Using blockstream API to broadcast transaction and fetch on chain information. I test it only in bitcoin **test network**, so you take you only risk to use this bitcoin light wallet on the bitcoin man network.
 
 #### Features
 - [x] new wallet account
