@@ -79,6 +79,7 @@ export struct Translation {
     send-receive-address: string,
     send-amount: string,
     send-feerate: string,
+    send-max-feerate: string,
 
     address-book-header-name: string,
     address-book-header-address: string,
@@ -236,6 +237,7 @@ export global Translator {
             send-receive-address: is-cn ? "接收地址" : "Address",
             send-amount: is-cn ? "发送数量(BTC)" : "Amount(BTC)",
             send-feerate: is-cn ? "费率(sat/vB)" : "Fee(sat/vB)",
+            send-max-feerate: is-cn ? "最大费率" : "max fee rate",
 
             address-book-header-name: is-cn ? "名称" : "Name",
             address-book-header-address: is-cn ? "地址" : "Address",

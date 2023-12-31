@@ -134,7 +134,7 @@ export component Send inherits Rectangle {
             CenterLayout {
                 Label {
                     color: Colors.red;
-                    text: "(" + "最大费率: " + Store.setting-dialog-config.account.max-feerate + " sat/vB" + ")";
+                    text: "(" + Store.translator.send-max-feerate + ": " + Store.setting-dialog-config.account.max-feerate + " sat/vB" + ")";
                 }
             }
         }
