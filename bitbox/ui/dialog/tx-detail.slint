@@ -75,7 +75,8 @@ export component TxDetailDialog inherits CDialog {
         }
 
         VerticalLayout {
-            spacing: Theme.spacing;
+            spacing: Theme.spacing * 2;
+
             HorizontalLayout {
                 spacing: Theme.spacing * 2;
 
@@ -103,11 +104,9 @@ export component TxDetailDialog inherits CDialog {
 
             if detail-combox.current-index == 0 : ListView {
                 height: 150px;
-                for index in 1: CenterLayout {
-                    Label {
-                        wrap: word-wrap;
-                        text: Util.split-and-join-string(Store.tx-detail-dialog.detail-hex, 50, "\n");
-                    }
+                for index in 1: Label {
+                    wrap: word-wrap;
+                    text: Util.split-and-join-string(Store.tx-detail-dialog.detail-hex, 50, "\n");
                 }
             }
 

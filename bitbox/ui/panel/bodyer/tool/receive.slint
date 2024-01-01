@@ -26,7 +26,17 @@ export component Receive inherits Rectangle {
                 Label {
                     text: Store.account.address;
                     overflow: elide;
+                    color: address-touch.has-hover ? Theme.link-text-color : Theme.primary-text-color;
+
+                    address-touch := TouchArea {
+                        mouse-cursor: self.has-hover ? pointer : default;
+                        clicked => {
+                            Util.open-url(
+                                Util.blockstream-address-url(Store.account.network, Store.account.address));
+                        }
+                    }
                 }
+
 
                 IconBtn {
                     width: Theme.icon-size * 1.33;

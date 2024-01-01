@@ -4,133 +4,102 @@ import { Logic } from "../logic.slint";
 import { Util } from "../util.slint";
 import { Label } from "../base/label.slint";
 import { IconBtn } from "../base/icon-btn.slint";
-import { Divider } from "../base/divider.slint";
 
 export component Header inherits Rectangle {
     height: Theme.header-height;
     background: Theme.lighter-border-color;
 
     HorizontalLayout {
-        HorizontalLayout {
-            padding-left: Theme.padding;
+        alignment: space-between;
+        padding-left: Theme.padding * 2;
+        padding-right: Theme.padding * 2;
 
-            Rectangle {
-                address-label := Label {
-                    width: parent.width;
-                    text: Store.account.address;
-                    overflow: elide;
-                    color: address-touch.has-hover ? Theme.link-text-color : Theme.primary-text-color;
+        VerticalLayout {
+            alignment: center;
+            HorizontalLayout {
+                spacing: Theme.spacing * 2;
+
+                IconBtn {
+                    width: Theme.icon-size * 1.33;
+                    icon-width: Theme.icon-size * 0.85;
+                    icon: @image-url("../images/logout.svg");
+                    tip-pos: "bottom";
+                    tip-text: Store.translator.tip-logout;
+                    clicked => {
+                        Store.password-dialog-config.handle-type = "logout";
+                        Store.password-dialog-config.handle-uuid = Store.account.uuid;
+                        Store.password-dialog-config.show = true;
+                    }
                 }
 
-                address-touch := TouchArea {
-                    mouse-cursor: self.has-hover ? pointer : default;
+                IconBtn {
+                    width: Theme.icon-size * 1.33;
+                    icon-width: Theme.icon-size;
+                    icon: Store.account.network == "main" ? @image-url("../images/network.svg") : @image-url("../images/test-network.svg");
+                    tip-pos: "bottom";
+                    tip-text:  Store.account.network == "main" ? Store.translator.tip-main-network : Store.translator.tip-test-network;
+
                     clicked => {
-                        Util.open-url(
-                            Util.blockstream-address-url(Store.account.network, Store.account.address));
+                        Logic.switch-network(Store.account.uuid, Store.account.network == "main" ? "test" : "main");
+                    }
+                }
+
+                IconBtn {
+                    width: Theme.icon-size * 1.33;
+                    icon-width: Theme.icon-size * 0.8;
+                    icon: @image-url("../images/browser.svg");
+                    tip-pos: "bottom";
+                    tip-text: Store.translator.tip-browser;
+                    clicked => {
+                        Util.open-url(Util.blockstream-address-url(Store.account.network, Store.account.address));
+                    }
+                }
+
+                IconBtn {
+                    width: Theme.icon-size * 1.33;
+                    icon-width: Theme.icon-size * 0.7;
+                    icon: @image-url("../images/reset.svg");
+                    tip-pos: "bottom";
+                    tip-text: Store.translator.tip-flush;
+                    clicked => {
+                        Logic.flush-account();
+                        Logic.flush-activity();
                     }
                 }
             }
         }
 
-        right-hlayout := HorizontalLayout {
-             VerticalLayout {
-                alignment: center;
-                HorizontalLayout {
-                    spacing: Theme.spacing * 2;
-                    IconBtn {
-                        width: Theme.icon-size * 1.33;
-                        icon-width: Theme.icon-size;
-                        icon: @image-url("../images/copy.svg");
-                        tip-pos: "left";
-                        tip-text: Store.translator.tip-copy;
-                        clicked => {
-                            Logic.copy-to-clipboard(Store.account.address);
-                        }
-                    }
-
-                    IconBtn {
-                        width: Theme.icon-size * 1.33;
-                        icon-width: Theme.icon-size * 0.8;
-                        icon: @image-url("../images/reset.svg");
-                        tip-pos: "left";
-                        tip-text: Store.translator.tip-flush;
-                        clicked => {
-                            Logic.flush-account();
-                            Logic.flush-activity();
-                        }
-                    }
-
-                    IconBtn {
-                        width: Theme.icon-size * 1.33;
-                        icon-width: Theme.icon-size;
-                        icon: Store.account.network == "main" ? @image-url("../images/network.svg") : @image-url("../images/test-network.svg");
-                        tip-pos: "left";
-                        tip-text:  Store.account.network == "main" ? Store.translator.tip-main-network : Store.translator.tip-test-network;
-
-                        clicked => {
-                            Logic.switch-network(Store.account.uuid, Store.account.network == "main" ? "test" : "main");
-                        }
-                    }
-
-                    IconBtn {
-                        width: Theme.icon-size * 1.33;
-                        icon-width: Theme.icon-size;
-                        icon: @image-url("../images/logout.svg");
-                        tip-pos: "left";
-                        tip-text: Store.translator.tip-logout;
-                        clicked => {
-                            Store.password-dialog-config.handle-type = "logout";
-                            Store.password-dialog-config.handle-uuid = Store.account.uuid;
-                            Store.password-dialog-config.show = true;
-                        }
+        VerticalLayout {
+            alignment: center;
+            HorizontalLayout {
+                spacing: Theme.spacing * 2;
+                IconBtn {
+                    width: Theme.icon-size * 1.33;
+                    icon: @image-url("../images/setting-fill.svg");
+                    tip-pos: "bottom";
+                    tip-text: Store.translator.tip-setting;
+                    clicked => {
+                        Store.setting-dialog-config.show = true;
                     }
                 }
-            }
 
-            VerticalLayout {
-                alignment: center;
-                padding-left: Theme.padding * 2;
-                padding-right: Theme.padding * 2;
-
-                Divider {
-                    width: 2px;
-                    height: root.height * 0.5;
-                    background: Theme.base-border-color;
+                IconBtn {
+                    width: Theme.icon-size * 1.33;
+                    icon: @image-url("../images/help.svg");
+                    tip-pos: "bottom";
+                    tip-text: Store.translator.tip-help;
+                    clicked => {
+                        Store.help-dialog.show = true;
+                    }
                 }
-            }
 
-            VerticalLayout {
-                alignment: center;
-                HorizontalLayout {
-                    spacing: Theme.spacing * 2;
-                    IconBtn {
-                        width: Theme.icon-size * 1.33;
-                        icon: @image-url("../images/setting-fill.svg");
-                        tip-pos: "left";
-                        tip-text: Store.translator.tip-setting;
-                        clicked => {
-                            Store.setting-dialog-config.show = true;
-                        }
-                    }
-
-                    IconBtn {
-                        width: Theme.icon-size * 1.33;
-                        icon: @image-url("../images/help.svg");
-                        tip-pos: "left";
-                        tip-text: Store.translator.tip-help;
-                        clicked => {
-                            Store.help-dialog.show = true;
-                        }
-                    }
-
-                    IconBtn {
-                        width: Theme.icon-size * 1.33;
-                        icon: @image-url("../images/info-dark.svg");
-                        tip-pos: "left";
-                        tip-text: Store.translator.tip-about;
-                        clicked => {
-                            Store.about-dialog.show = true;
-                        }
+                IconBtn {
+                    width: Theme.icon-size * 1.33;
+                    icon: @image-url("../images/info-dark.svg");
+                    tip-pos: "bottom";
+                    tip-text: Store.translator.tip-about;
+                    clicked => {
+                        Store.about-dialog.show = true;
                     }
                 }
             }
