@@ -139,11 +139,12 @@ pub fn init(ui: &AppWindow) {
 
     let ui_handle = ui.as_weak();
     ui.global::<Logic>()
-        .on_broadcast_tx(move |network, tx_hex, send_amount_btc| {
+        .on_broadcast_tx(move |network, tx_hex, send_amount_btc, fee| {
             let ui = ui_handle.clone();
             let network = network.to_string();
             let tx_hex = tx_hex.to_string();
             let amount = send_amount_btc.to_string();
+            let fee = fee.to_string();
 
             message_info!(ui.clone().unwrap(), tr("正在发送交易..."));
 
@@ -164,7 +165,15 @@ pub fn init(ui: &AppWindow) {
 
                         let _ = slint::invoke_from_event_loop(move || {
                             let ui = ui.clone().unwrap();
-                            activity_add_item(&ui, &network, &txid, "send", &amount, "unconfirmed");
+                            activity_add_item(
+                                &ui,
+                                &network,
+                                &txid,
+                                "send",
+                                &amount,
+                                &fee,
+                                "unconfirmed",
+                            );
                             message_success!(ui, tr("发送交易成功"));
                         });
                     }

@@ -134,6 +134,7 @@ pub fn load_items(ui: Weak<AppWindow>, network: String) {
                                 txid: value["txid"].as_str().unwrap().into(),
                                 operate: value["operate"].as_str().unwrap().into(),
                                 amount: value["amount"].as_str().unwrap().into(),
+                                fee: value["fee"].as_str().unwrap().into(),
                                 status: value["status"].as_str().unwrap().into(),
                             });
                         }
@@ -165,6 +166,7 @@ pub fn activity_add_item(
     txid: &str,
     operate: &str,
     amount: &str,
+    fee: &str,
     status: &str,
 ) {
     let uuid = Uuid::new_v4().to_string();
@@ -177,6 +179,7 @@ pub fn activity_add_item(
         txid: txid.into(),
         operate: operate.into(),
         amount: amount.into(),
+        fee: fee.into(),
         status: status.into(),
     };
 
@@ -186,6 +189,7 @@ pub fn activity_add_item(
         "txid": item.txid.to_string(),
         "operate": item.operate.to_string(),
         "amount": item.amount.to_string(),
+        "fee": item.fee.to_string(),
         "status": item.status.to_string()
     });
     let json = serde_json::to_string(&json_item).unwrap();
@@ -210,6 +214,6 @@ fn test_add(ui: &AppWindow) {
         let network = if i % 2 == 0 { "main" } else { "test" };
 
         let i = format!("{}", i);
-        activity_add_item(ui, network, &i, &i, &i, &i);
+        activity_add_item(ui, network, &i, &i, &i, &i, &i);
     }
 }

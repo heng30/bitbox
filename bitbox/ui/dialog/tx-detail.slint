@@ -121,7 +121,7 @@ export component TxDetailDialog inherits CDialog {
     }
 
     ok-clicked => {
-        Logic.broadcast-tx(Store.tx-detail-dialog.network, Store.tx-detail-dialog.detail_hex, Store.tx-detail-dialog.send-amount-btc);
+        Logic.broadcast-tx(Store.tx-detail-dialog.network, Store.tx-detail-dialog.detail_hex, Store.tx-detail-dialog.send-amount-btc, Store.tx-detail-dialog.fee-amount-btc);
         Store.tx-detail-dialog.show = false;
     }
 

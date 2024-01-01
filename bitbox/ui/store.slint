@@ -16,6 +16,7 @@ export struct ActivityItem {
     txid: string,
     operate: string,
     amount: string,
+    fee: string,
     status: string,
 }
 
@@ -143,6 +144,7 @@ export global Store  {
             txid: "31040072e777e124e120f6f157fdec1482062fb10055ba684e6dfc7b112f8241",
             operate: "send",
             amount: "0.12",
+            fee: "0.001",
             status: "unconfirm",
         },
         {
@@ -151,6 +153,7 @@ export global Store  {
             txid: "31040072e777e124e120f6f157fdec1482062fb10055ba684e6dfc7b112f8241",
             operate: "send",
             amount: "0.2",
+            fee: "0.001",
             status: "confirm",
         }
     ];

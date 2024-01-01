@@ -92,6 +92,7 @@ export struct Translation {
     activity-header-txid: string,
     activity-header-operate: string,
     activity-header-amount: string,
+    activity-header-fee: string,
     activity-header-status: string,
 
     password-dialog-title: string,
@@ -250,7 +251,8 @@ export global Translator {
             activity-header-time: is-cn ? "时间" : "Time",
             activity-header-txid: is-cn ? "交易ID" : "TxId",
             activity-header-operate: is-cn ? "操作" : "Operate",
-            activity-header-amount: is-cn ? "数量" : "Amount",
+            activity-header-amount: is-cn ? "数量(BTC)" : "Amount(BTC)",
+            activity-header-fee: is-cn ? "费用(BTC)" : "Fee(BTC)",
             activity-header-status: is-cn ? "状态" : "Status",
 
             password-dialog-title: is-cn ? "请输入密码" : "Please input password",

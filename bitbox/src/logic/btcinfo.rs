@@ -134,3 +134,29 @@ fn update_timer(ui: Weak<AppWindow>) {
         }
     });
 }
+
+#[allow(dead_code)]
+async fn unconfirmed_send_balance() -> u64 {
+    match db::activity::select_all().await {
+        Ok(items) => {
+            let mut balance = 0;
+            for item in items.iter() {
+                match serde_json::from_str::<Value>(&item.data) {
+                    Err(e) => log::warn!("{e:?}"),
+                    Ok(value) => {
+                        if value["status"].as_str().unwrap() == "unconfirmed" {
+                            let fee: f64 =
+                                value["fee"].as_str().unwrap().parse().unwrap_or(0_f64) * 1e8;
+                            let amount: f64 =
+                                value["amount"].as_str().unwrap().parse().unwrap_or(0_f64) * 1e8;
+                            balance += (fee + amount) as u64;
+                        }
+                    }
+                }
+            }
+
+            balance
+        }
+        _ => 0_u64,
+    }
+}

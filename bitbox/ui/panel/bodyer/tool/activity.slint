@@ -12,8 +12,9 @@ export component Activity inherits Rectangle {
     property<string> selected-uuid;
 
     property<[length]> header-items-length: [
-        root.width * 25%,
         root.width * 20%,
+        root.width * 20%,
+        root.width * 10%,
         root.width * 15%,
         root.width * 15%,
     ];
@@ -52,6 +53,11 @@ export component Activity inherits Rectangle {
                 Label {
                     width: header-items-length[3];
                     text: Store.translator.activity-header-amount;
+                }
+
+                Label {
+                    width: header-items-length[4];
+                    text: Store.translator.activity-header-fee;
                 }
 
 
@@ -125,6 +131,12 @@ export component Activity inherits Rectangle {
                     Label {
                         width: header-items-length[3];
                         text: data.amount;
+                        overflow: elide;
+                    }
+
+                    Label {
+                        width: header-items-length[4];
+                        text: data.fee;
                         overflow: elide;
                     }
 

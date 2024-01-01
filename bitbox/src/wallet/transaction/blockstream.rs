@@ -73,6 +73,17 @@ pub async fn fetch_confirmed_utxos(network: &str, address: &str) -> Result<Vec<U
         .collect())
 }
 
+#[allow(dead_code)]
+pub async fn fetch_unconfirmed_utxos(network: &str, address: &str) -> Result<Vec<Utxo>> {
+    let skip_utxo_amount = config::account().skip_utxo_amount as u64;
+
+    Ok(fetch_utxos(network, address)
+        .await?
+        .into_iter()
+        .filter(|item| !item.status.confirmed && item.value > skip_utxo_amount)
+        .collect())
+}
+
 pub async fn fetch_balance(network: &str, address: &str) -> Result<u64> {
     Ok(fetch_confirmed_utxos(network, address)
         .await?
