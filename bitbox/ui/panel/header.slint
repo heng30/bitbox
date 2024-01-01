@@ -55,6 +55,7 @@ export component Header inherits Rectangle {
                         tip-pos: "left";
                         tip-text: Store.translator.tip-flush;
                         clicked => {
+                            Logic.show-message(Store.translator.flushing, "info");
                             Logic.flush-account();
                             Logic.flush-activity();
                         }

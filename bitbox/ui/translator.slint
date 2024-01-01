@@ -20,6 +20,7 @@ export struct Translation {
     password-mismatch: string,
     input-password: string,
     please-login: string,
+    flushing: string,
 
     name-label: string,
     status-label: string,
@@ -178,6 +179,7 @@ export global Translator {
             password-mismatch: is-cn ? "密码错误" : "Old password and new password mismatch",
             input-password: is-cn ? "请输入密码" : "Please input password",
             please-login: is-cn ? "请登陆" : "Please login",
+            flushing: is-cn ? "正在刷新..." : "Flush...",
 
             name-label: is-cn ? "昵称:" : "Name:",
             status-label: is-cn ? "状态:" : "Status:",
