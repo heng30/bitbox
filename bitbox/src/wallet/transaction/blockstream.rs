@@ -74,12 +74,9 @@ pub async fn fetch_confirmed_utxos(network: &str, address: &str) -> Result<Vec<U
 }
 
 pub async fn fetch_balance(network: &str, address: &str) -> Result<u64> {
-    let skip_utxo_amount = config::account().skip_utxo_amount as u64;
-
-    Ok(fetch_utxos(network, address)
+    Ok(fetch_confirmed_utxos(network, address)
         .await?
         .into_iter()
-        .filter(|item| item.value > skip_utxo_amount)
         .map(|item| item.value)
         .sum())
 }

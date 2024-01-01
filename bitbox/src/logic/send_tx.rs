@@ -68,12 +68,20 @@ pub fn init(ui: &AppWindow) {
                                 max_fee_amount: account_conf.max_fee_amount as u64,
                                 ..Default::default()
                             };
-                            let send_info = send_info
-                                .amount_from_btc(
-                                    send_amount.as_str(),
-                                    &format!("{}", account_conf.max_send_amount),
-                                )
-                                .unwrap();
+
+                            let send_info = match send_info.amount_from_btc(
+                                send_amount.as_str(),
+                                &format!("{}", account_conf.max_send_amount),
+                            ) {
+                                Ok(v) => v,
+                                Err(e) => {
+                                    async_message_warn(
+                                        ui.clone(),
+                                        format!("{}. {e:?}", tr("出错")),
+                                    );
+                                    return;
+                                }
+                            };
 
                             let mut tx_detail = TxDetail {
                                 show: true,

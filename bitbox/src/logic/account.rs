@@ -1,12 +1,12 @@
 use crate::message::{async_message_success, async_message_warn};
 use crate::message_warn;
 use crate::password_dialog::is_password_verify;
-use crate::slint_generatedAppWindow::{Account as SAccount, AppWindow, Logic, Store};
+use crate::slint_generatedAppWindow::{Account as SAccount, ActivityItem, AppWindow, Logic, Store};
 use crate::util::translator::tr;
 use crate::wallet::account::address::Info as AddressInfo;
 use crate::{db, util};
 use serde_json::{json, Value};
-use slint::{ComponentHandle, Weak};
+use slint::{ComponentHandle, Model, VecModel, Weak};
 use tokio::task::spawn;
 
 const MNEMONIC_LEN: usize = 24;
@@ -169,6 +169,13 @@ pub fn init(ui: &AppWindow) {
                 let _ = slint::invoke_from_event_loop(move || {
                     let ui = ui.clone().unwrap();
 
+                    ui.global::<Store>()
+                        .get_activity_datas()
+                        .as_any()
+                        .downcast_ref::<VecModel<ActivityItem>>()
+                        .expect("We know we set a VecModel earlier")
+                        .set_vec(vec![]);
+
                     let account = SAccount {
                         balance_btc: "0".into(),
                         balance_usd: "0".into(),
@@ -243,6 +250,13 @@ pub fn init(ui: &AppWindow) {
 
                 let _ = slint::invoke_from_event_loop(move || {
                     let ui = ui.clone().unwrap();
+
+                    ui.global::<Store>()
+                        .get_activity_datas()
+                        .as_any()
+                        .downcast_ref::<VecModel<ActivityItem>>()
+                        .expect("We know we set a VecModel earlier")
+                        .set_vec(vec![]);
 
                     let account = SAccount {
                         balance_btc: "0".into(),

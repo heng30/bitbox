@@ -17,7 +17,7 @@ pub fn init(ui: &AppWindow) {
 
         if price >= 100_f64 {
             slint::format!("{:.2}", price)
-        } else if price >= 0_f64 {
+        } else if price >= 0.001_f64 {
             slint::format!("{:.3}", price)
         } else if price >= 0.000_01_f64 {
             slint::format!("{:.5}", price)
