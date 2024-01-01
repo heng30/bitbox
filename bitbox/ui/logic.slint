@@ -1,7 +1,16 @@
 import { SettingDialogConfig } from "./store.slint";
 
+export struct Position {
+    x: length,
+    y: length,
+}
+
 export global Logic {
     callback hide-window();
+    callback show-window();
+    callback window-position() -> Position;
+    callback update-position(int, int); // argument: position-x, position-y
+
     callback show-message(string, string);
     callback copy-to-clipboard(string);
     callback handle-ok-cancel-dialog(string, string);

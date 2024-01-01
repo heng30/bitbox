@@ -1,5 +1,6 @@
 import { Theme } from "./theme.slint";
 import { Logic } from "./logic.slint";
+import { Position } from "./logic.slint";
 import { BaseLogic } from "./base/logic.slint";
 import { Store } from "./store.slint";
 import { AddressBookItem } from "./store.slint";
@@ -35,7 +36,7 @@ export component AppWindow inherits Window {
     background: Theme.base-background;
     icon: @image-url("./images/icon.png");
     forward-focus: fscope;
-    title: "bitbox";
+    title: "Bitbox";
 
     property<length> dialog-max-width: Math.min(root.width * 0.95, Theme.dialog-max-width);
 
@@ -146,4 +147,4 @@ export component AppWindow inherits Window {
     }
 }
 
-export { Util, Logic, BaseLogic, Store, Account, ActivityItem, AddressBookItem, TxDetail }
+export { Util, Logic, BaseLogic, Store, Account, ActivityItem, AddressBookItem, TxDetail, Position }
