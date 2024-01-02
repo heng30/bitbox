@@ -4,6 +4,7 @@ import { Logic } from "../logic.slint";
 import { Util } from "../util.slint";
 import { Label } from "../base/label.slint";
 import { IconBtn } from "../base/icon-btn.slint";
+import { Position } from "../logic.slint";
 
 export component Header inherits Rectangle {
     height: Theme.header-height;
@@ -62,12 +63,37 @@ export component Header inherits Rectangle {
                     tip-pos: "bottom";
                     tip-text: Store.translator.tip-flush;
                     clicked => {
+                        Logic.show-message(Store.translator.flushing, "info");
                         Logic.flush-account();
                         Logic.flush-activity();
                     }
                 }
             }
         }
+
+        // Rectangle{
+        //     background: red;
+
+        //     TouchArea {
+        //         property<Position> cache-pos;
+        //         property<Position> window-pos;
+
+        //         moved => {
+        //             self.window-pos = Logic.window-position();
+        //             Logic.update-position((self.window-pos.x + self.mouse-x - self.cache-pos.x) / 1px,
+        //                                   (self.window-pos.y + self.mouse-y - self.cache-pos.y) / 1px);
+        //             self.cache-pos.x = self.mouse-x;
+        //             self.cache-pos.y = self.mouse-y;
+        //         }
+
+        //         pointer-event(event) => {
+        //             if (event.button == PointerEventButton.left && event.kind == PointerEventKind.down) {
+        //                 self.cache-pos.x = self.pressed-x;
+        //                 self.cache-pos.y = self.pressed-y;
+        //             }
+        //         }
+        //     }
+        // }
 
         VerticalLayout {
             alignment: center;
