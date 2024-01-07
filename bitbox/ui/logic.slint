@@ -1,4 +1,4 @@
-import { SettingDialogConfig } from "./store.slint";
+import { SettingDialogConfig, Store } from "./store.slint";
 
 export struct Position {
     x: length,
@@ -48,5 +48,12 @@ export global Logic {
 
     pure callback pretty-btc-price(string) -> string; // argument: price; return: format price
     pretty-btc-price(price) => { return price; }
+
+    callback logout();
+    logout => {
+        Store.password-dialog-config.handle-type = "logout";
+        Store.password-dialog-config.handle-uuid = Store.account.uuid;
+        Store.password-dialog-config.show = true;
+    }
 }
 

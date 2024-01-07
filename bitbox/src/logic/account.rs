@@ -364,6 +364,8 @@ fn load_items(ui: Weak<AppWindow>) {
                             account.network = network.into();
                             account.address = address.into();
                             ui.global::<Store>().set_account(account);
+
+                            ui.global::<Logic>().invoke_logout();
                         });
                     }
                 }

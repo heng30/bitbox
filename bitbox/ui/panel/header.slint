@@ -26,11 +26,7 @@ export component Header inherits Rectangle {
                     icon: @image-url("../images/logout.svg");
                     tip-pos: "bottom";
                     tip-text: Store.translator.tip-logout;
-                    clicked => {
-                        Store.password-dialog-config.handle-type = "logout";
-                        Store.password-dialog-config.handle-uuid = Store.account.uuid;
-                        Store.password-dialog-config.show = true;
-                    }
+                    clicked => { Logic.logout(); }
                 }
 
                 IconBtn {
