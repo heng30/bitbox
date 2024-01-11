@@ -1,6 +1,6 @@
 ![screenshot](./screenshot/bitbox-cn.png)
 
-[English Documentation](./README.zh-CN.md)
+[English Documentation](./README.md)
 
 #### 简介
 一个remote bitcoin 钱包。使用 blockstream API 进行广播交易和获取链上信息。目前只在**测试网**进行了发送和接收BTC测试。如果你在主网使用该钱包，后果自负。
