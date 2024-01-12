@@ -35,7 +35,7 @@ export component AppWindow inherits Window {
     height: Theme.default-height;
     background: Theme.base-background;
     icon: @image-url("./images/icon.png");
-    forward-focus: fscope;
+    forward-focus: password-dialog;
     title: "Bitbox";
 
     property<length> dialog-max-width: Math.min(root.width * 0.95, Theme.dialog-max-width);
